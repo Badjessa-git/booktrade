@@ -237,36 +237,21 @@ class _FinBookState extends State<FinBook>{
           _controller?.dispose();
           _controller = null;
         });
-        var alert = new Dialog(
-          child: new Container(
-            width: 300.0,
-            height: 240.0,
-            decoration: new BoxDecoration(
-              shape: BoxShape.rectangle,
-              borderRadius: new BorderRadius.all(new Radius.circular(32.0))
-            ),
-          child: new Column(
-            children: <Widget>[
-                new Expanded(
-                  child: new SizedBox(
-                    child: new Image.file(new File(_imagePath)),
-                  ),
+        var alert = new Dialog();
+        Navigator.push(context,
+              new HeroDialogRoute(
+                builder: (BuildContext context) {
+               return new Scaffold(
+                appBar: new AppBar(
+                  title: Text("Continue?"),
                 ),
-                new Row(
-                mainAxisAlignment: MainAxisAlignment.end,
-                children: <Widget>[
-                  new FlatButton(child: Text("Abort"), onPressed: null),
-                  new FlatButton(child: Text("Save"), onPressed: null),
-                ],
-              ),
-            ],
-          ),
-         ),
-        );
-        showDialog(context: context, builder: (_) => alert);
-        //Navigator.push(context,
-                   // new MaterialPageRoute(builder: (context) => new ImageDesign(_imagePath)));
-      }
+                body: new Hero(
+                  tag: "preview",
+                  child: new Image.file(new File(_imagePath)),
+                ),
+              );
+          }));
+        }
     });
   }
 
@@ -296,6 +281,49 @@ class _FinBookState extends State<FinBook>{
 
   String timestamp() => new DateTime.now().millisecondsSinceEpoch.toString();
   
+
+}
+
+class HeroDialogRoute<T> extends PageRoute<T> {
+  HeroDialogRoute({ this.builder }) : super();
+
+  final WidgetBuilder builder;
+
+  @override
+  bool get opaque => false;
+
+  @override
+  bool get barrierDismissible => true;
+
+  @override
+  Duration get transitionDuration => const Duration(milliseconds: 300);
+
+  @override
+  bool get maintainState => true;
+
+  @override
+  Color get barrierColor => Colors.black54;
+
+  @override
+  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
+    return new FadeTransition(
+      opacity: new CurvedAnimation(
+        parent: animation,
+        curve: Curves.easeOut
+      ),
+      child: child
+    );
+  }
+
+  @override
+  Widget buildPage(BuildContext context, Animation<double> animation,
+    Animation<double> secondaryAnimation) {
+    return builder(context);
+  }
+
+  // TODO: implement barrierLabel
+  @override
+  String get barrierLabel => null;
 
 }
 
