@@ -1,0 +1,62 @@
+{
+  "project_info": {
+    "project_number": "779063239103",
+    "firebase_url": "https://lutexttrade.firebaseio.com",
+    "project_id": "lutexttrade",
+    "storage_bucket": "lutexttrade.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:779063239103:android:c1aec0cfd4248e63",
+        "android_client_info": {
+          "package_name": "com.example.lutexttrade"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "779063239103-2qemqbjbir30mbcptgk8v54k3u9d1rfa.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.lutexttrade",
+            "certificate_hash": "dad50fbe98b861f0d4d20e986aa6613e453925bc"
+          }
+        },
+        {
+          "client_id": "779063239103-ejks3fcuugmur08f41kefu8dq2ed41o1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCAzOX0soGOABPe8l8xXJziljn6MdVCcPE"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 2,
+          "other_platform_oauth_client": [
+            {
+              "client_id": "779063239103-ejks3fcuugmur08f41kefu8dq2ed41o1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "779063239103-p7sedpreuv5rhoit822f5d0sj8cn8nvl.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.lutexttrade"
+              }
+            }
+          ]
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
