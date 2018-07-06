@@ -100,11 +100,10 @@ class _NavigationState extends State<Navigation> {
           ]
         ),
       ),
-      body: TabBarView(
-        new DefaultTabController(
+      body: TabBarView(controller: 
+          new TabController(
             length: 2, 
-            child:null,
-              ),
+         ),
         children: <Widget>[
           new BookList(widget._api),
           Icon(Icons.local_library),       
