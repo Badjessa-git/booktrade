@@ -237,13 +237,12 @@ class _FinBookState extends State<FinBook>{
           _controller?.dispose();
           _controller = null;
         });
-        var alert = new AlertDialog(
-          content: new Container(
+        var alert = new Dialog(
+          child: new Container(
             width: 300.0,
             height: 240.0,
             decoration: new BoxDecoration(
               shape: BoxShape.rectangle,
-              color : Colors.blue,
               borderRadius: new BorderRadius.all(new Radius.circular(32.0))
             ),
           child: new Column(
