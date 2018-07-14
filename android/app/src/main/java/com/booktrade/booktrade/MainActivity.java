@@ -1,4 +1,4 @@
-package com.example.lutexttrade;
+package com.booktrade.booktrade;
 
 import android.os.Bundle;
 import io.flutter.app.FlutterActivity;
