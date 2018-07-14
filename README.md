@@ -1,6 +1,6 @@
-# lutexttrade
+# booktrade
 
-A new Flutter project.
+Selling and Trading between students
 
 ## Getting Started
 

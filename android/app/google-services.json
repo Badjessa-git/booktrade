@@ -1,35 +1,35 @@
 {
   "project_info": {
-    "project_number": "779063239103",
-    "firebase_url": "https://lutexttrade.firebaseio.com",
-    "project_id": "lutexttrade",
-    "storage_bucket": "lutexttrade.appspot.com"
+    "project_number": "265394798599",
+    "firebase_url": "https://booktrade-be4ae.firebaseio.com",
+    "project_id": "booktrade-be4ae",
+    "storage_bucket": "booktrade-be4ae.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:779063239103:android:c1aec0cfd4248e63",
+        "mobilesdk_app_id": "1:265394798599:android:d76c9a936da9d61a",
         "android_client_info": {
-          "package_name": "com.example.lutexttrade"
+          "package_name": "com.booktrade.booktrade"
         }
       },
       "oauth_client": [
         {
-          "client_id": "779063239103-2qemqbjbir30mbcptgk8v54k3u9d1rfa.apps.googleusercontent.com",
+          "client_id": "265394798599-0ccsbsersei9v42no3dhpjlj7hhbolfc.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.example.lutexttrade",
-            "certificate_hash": "dad50fbe98b861f0d4d20e986aa6613e453925bc"
+            "package_name": "com.booktrade.booktrade",
+            "certificate_hash": "df3cf939e99082d67c4ccfcc69936df0937d4d31"
           }
         },
         {
-          "client_id": "779063239103-ejks3fcuugmur08f41kefu8dq2ed41o1.apps.googleusercontent.com",
+          "client_id": "265394798599-0r6tt48uhr1gec4tvv2g7nj38dggdo9e.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyCAzOX0soGOABPe8l8xXJziljn6MdVCcPE"
+          "current_key": "AIzaSyAdqYk2ARbv5leaxVVas50v7jeNVzaB4vc"
         }
       ],
       "services": {
@@ -40,15 +40,8 @@
           "status": 2,
           "other_platform_oauth_client": [
             {
-              "client_id": "779063239103-ejks3fcuugmur08f41kefu8dq2ed41o1.apps.googleusercontent.com",
+              "client_id": "265394798599-0r6tt48uhr1gec4tvv2g7nj38dggdo9e.apps.googleusercontent.com",
               "client_type": 3
-            },
-            {
-              "client_id": "779063239103-p7sedpreuv5rhoit822f5d0sj8cn8nvl.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.example.lutexttrade"
-              }
             }
           ]
         },
