@@ -23,6 +23,14 @@
           }
         },
         {
+          "client_id": "265394798599-gm33o3qrf06st9uhps5d2u8580jcqh7d.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.booktrade.booktrade",
+            "certificate_hash": "dad50fbe98b861f0d4d20e986aa6613e453925bc"
+          }
+        },
+        {
           "client_id": "265394798599-0r6tt48uhr1gec4tvv2g7nj38dggdo9e.apps.googleusercontent.com",
           "client_type": 3
         }
@@ -42,6 +50,13 @@
             {
               "client_id": "265394798599-0r6tt48uhr1gec4tvv2g7nj38dggdo9e.apps.googleusercontent.com",
               "client_type": 3
+            },
+            {
+              "client_id": "265394798599-eh24jalsncc8mbr2nsui27k3cv6i0mu1.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.booktrade.booktrade"
+              }
             }
           ]
         },

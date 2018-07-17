@@ -57,30 +57,16 @@ class _FinBookState extends State<FinBook>{
     return new Scaffold(
       appBar: new AppBar(
       ),
-      backgroundColor: Colors.blue,
+      backgroundColor: Colors.black,
        body:new Column(
          children: <Widget>[
-           new Divider(
-             height: 16.0,
-           ),
-           new Text(
-           "Cover Picture",
-           textAlign: TextAlign.start,
-              style: new TextStyle(
-                fontSize: 30.0,
-                color: Colors.white,
-              ),
-            ),
            new Expanded (
              child: new Container(
-               child: new Padding(
-                  padding: const EdgeInsets.all(1.0),
                   child: new Center(
                     child: _cameraPreviewWidget(),
                   ),
                 ),
               ),
-            ),
             _captureControlWidget(),
             new Padding(
               padding: const EdgeInsets.all(1.0),
