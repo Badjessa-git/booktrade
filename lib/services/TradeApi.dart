@@ -33,13 +33,14 @@ class TradeApi {
 
   static List<Book> booksFromFile(String file) {
     List<Book> books = [];
-    json.decode(file)['books'].forEach((book) => books.add(_fromMap(book)));
+    Book book;
+    json.decode(file)['books'].forEach((dynamic book) => books.add(_fromMap(book)));
     return books;
   }
     
   static Future<Book> lookup(String isbn, TradeApi _api) async {
       http.Response res = await http.get("https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn")
-                          .catchError((resp) {});
+                          .catchError((dynamic resp) {});
       if (res == null) {
         return null;
       }
@@ -47,9 +48,9 @@ class TradeApi {
         return null;
       }
 
-      var jsonbook = json.decode(res.body);
+      dynamic jsonbook = json.decode(res.body);
 
-      var book = jsonbook[0];
+      dynamic book = jsonbook[0];
 
       Book resBook = new Book(
                       title: book["volumeInfo"]["title"],

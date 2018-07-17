@@ -35,7 +35,7 @@ class _BookListState extends State<BookList> {
     );
   }
 
-  _loadBooks() async {
+  dynamic _loadBooks() async {
     String fileData = await DefaultAssetBundle.of(context).loadString("assets/books.json");
     setState(() {
           _books = TradeApi.booksFromFile(fileData);

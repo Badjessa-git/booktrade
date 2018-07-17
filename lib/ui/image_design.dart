@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 
 class ImageDesign extends StatefulWidget {
-  var _imagePath;
+  String _imagePath;
 
   ImageDesign(this._imagePath);
 

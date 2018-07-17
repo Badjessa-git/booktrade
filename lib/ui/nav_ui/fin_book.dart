@@ -6,7 +6,7 @@ import 'package:path_provider/path_provider.dart';
 import 'dart:async';
 
 class FinBook extends StatefulWidget {
-  var _cameras;
+  dynamic _cameras;
   FinBook(this._cameras);
 
   // String isbn, author, title, edition;
@@ -238,7 +238,7 @@ class _FinBookState extends State<FinBook>{
           _controller = null;
         });
         var alert = new Dialog();
-        Navigator.push(context,
+        Navigator.push<HeroDialogRoute>(context,
               new HeroDialogRoute(
                 builder: (BuildContext context) {
                return new Scaffold(

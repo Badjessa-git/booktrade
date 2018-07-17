@@ -3,7 +3,7 @@ import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/navigation.dart';
 
 class Home extends StatefulWidget {
-  var cameras;
+  dynamic cameras;
   Home(this.cameras);
 
   @override
@@ -53,11 +53,11 @@ class _HomeState extends State<Home> {
           new RaisedButton.icon(
             color: Colors.red,
             onPressed: () => TradeApi.signInWithGoogle()
-                            .then((TradeApi api) =>  Navigator.push(
+                            .then((TradeApi api) =>  Navigator.push<MaterialPageRoute>(
                                   context,
                                   MaterialPageRoute(builder: (context) => Navigation(api, widget.cameras)),
                                   ))
-                            .catchError((e) => showDialog(context: context, builder: (_) => alert)
+                            .catchError((dynamic e) => showDialog<AlertDialog>(context: context, builder: (_) => alert)
                             ),
             icon: new Icon(const IconData(0xe900, fontFamily: 'icomoon')), 
             label:   new Text("Google Sign In",

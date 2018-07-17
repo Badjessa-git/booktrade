@@ -24,7 +24,7 @@ dependencies:
   google_sign_in : "^3.0.4"
   flutter_search_bar: "^2.0.4"
   googleapis: "^0.51.0"
-  camera:
+  camera: "^0.2.1"
   path_provider: "0.4.1"
 
 dev_dependencies:

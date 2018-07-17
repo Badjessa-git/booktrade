@@ -12,8 +12,8 @@ class Navigation extends StatefulWidget {
   set api(TradeApi api) {
     _api = api;
   }
-  var cameras;
-  Navigation(TradeApi api, cameras) {
+  dynamic cameras;
+  Navigation(TradeApi api, dynamic cameras) {
     this._api = api;
     this.cameras = cameras;
   }
@@ -42,8 +42,8 @@ class _NavigationState extends State<Navigation> {
           new IconButton(
             icon: Icon(Icons.library_add),
             onPressed: () {
-              var isbn;
-              var alert = new SimpleDialog(
+              dynamic isbn;
+              SimpleDialog alert = new SimpleDialog(
                 contentPadding: EdgeInsets.all(20.0),
                 children: <Widget> [
                   new TextFormField(
@@ -63,7 +63,7 @@ class _NavigationState extends State<Navigation> {
                         child: Text("Look up"),
                         onPressed: () {
                           var book = lookup(isbn);
-                          Navigator.push(context,
+                          Navigator.push<MaterialPageRoute>(context,
                                     MaterialPageRoute(builder: (context) => new AddBook(book, widget.cameras)));
                         },
                       ),
@@ -73,7 +73,7 @@ class _NavigationState extends State<Navigation> {
                       new RaisedButton(
                         child: Text("Manual Entry"),
                         onPressed: () {
-                          Navigator.push(context, 
+                          Navigator.push<MaterialPageRoute>(context, 
                                     MaterialPageRoute(builder: (context) => new AddBook(null, widget.cameras)));
                         },
                       ),
@@ -81,7 +81,7 @@ class _NavigationState extends State<Navigation> {
                   ),
                 ],
               );
-              showDialog(context: context, builder: (_) => alert);
+              showDialog<SimpleDialog>(context: context, builder: (_) => alert);
             },
           ),
           
@@ -100,18 +100,14 @@ class _NavigationState extends State<Navigation> {
           ]
         ),
       ),
-      body: TabBarView(controller: 
-          new TabController(
-            length: 2,
-            vsync: AnimatedListState(),
-         ),
+      body: TabBarView(
         children: <Widget>[
           new BookList(widget._api),
           Icon(Icons.local_library),       
           ],
         ),
         floatingActionButton: new FloatingActionButton(
-          onPressed: () => {},
+          onPressed: null,
           child: new CircleAvatar(
             backgroundImage: new NetworkImage(widget._api.firebaseUser.photoUrl),
             radius: 50.0,
@@ -122,7 +118,7 @@ class _NavigationState extends State<Navigation> {
 }
 
 
-  Future<Book> lookup(isbn) async {
+  Future<Book> lookup(dynamic isbn) async {
     Book book = await TradeApi.lookup(isbn, widget._api);
     return book;
   }
