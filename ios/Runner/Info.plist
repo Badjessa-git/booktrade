@@ -53,5 +53,9 @@
 			</array>
 		</dict>
 	</array>
+	<key>NSCameraUsageDescription</key>
+	<string>Allow BookTrade to use the Camera?</string>	
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Allow BookTrade to use the mic?</string>
 </dict>
 </plist>

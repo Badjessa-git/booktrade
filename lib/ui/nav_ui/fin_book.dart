@@ -35,12 +35,13 @@ class _FinBookState extends State<FinBook>{
 
   @override
   void initState() {
-    setUpController();
     super.initState(); 
+    setUpController();
+
   }
 
   void setUpController() {
-    _controller = new CameraController(widget._cameras[0], ResolutionPreset.medium);
+    _controller = new CameraController(widget._cameras[0], ResolutionPreset.high);
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
