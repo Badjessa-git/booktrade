@@ -29,24 +29,35 @@ class _AddBook extends State<AddBook> {
   String _title;
   String _author;
   String _edition;
+  String _price;
 
   @override
   Widget build(BuildContext context){
     return new Scaffold(
-      appBar: new AppBar(
-        title: const Text("Sell a book"),
-      ),
+      appBar: new AppBar(),
       body: new Container(
-        color: Colors.blue,
+        color: const Color(0xFFE4DFDA),
          child: new Form(
            child: new ListView(
              children: <Widget>[
+               const SizedBox(
+                  width: 40.0,
+                  height: 60.0,
+                  child: const Text('Sell Book',
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      color: Colors.black87,
+                      fontSize: 50.0,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+               ),
                //isbn
                new Card(
                 margin: const EdgeInsets.all(10.0),
                 color: Colors.white,
                 child: new TextFormField(
-                  onSaved: (val) => _isbn = val,
+                  onSaved: (String val) => _isbn = val,
                   decoration: const InputDecoration(
                     labelText: 'ISBN',
                     hintText: 'input isbn'
@@ -58,22 +69,22 @@ class _AddBook extends State<AddBook> {
                 margin: const EdgeInsets.all(10.0),
                 color: Colors.white,
                 child: new TextFormField(
-                 onSaved: (val) => _title = val,
+                 onSaved: (String val) => _title = val,
                  decoration: const InputDecoration(
-                   labelText: "Title",
-                   hintText: "input title"
+                   labelText: 'Title',
+                   hintText: 'input title',
                  ),
                 ),
                ),
                //author
                new Card(
-                 margin: EdgeInsets.all(10.0),
+                 margin: const EdgeInsets.all(10.0),
                  color: Colors.white,
                  child: new TextFormField(
-                    onSaved: (val) => _author = val,
-                    decoration: new InputDecoration(
-                      labelText: "Author",
-                      hintText: "input book Author(s)"
+                    onSaved: (String val) => _author = val,
+                    decoration: const InputDecoration(
+                      labelText: 'Author',
+                      hintText: 'input book Author(s)'
                   ), 
                 ),
                ),
@@ -82,18 +93,32 @@ class _AddBook extends State<AddBook> {
                  margin: const EdgeInsets.all(10.0),
                  color: Colors.white,
                  child:  new TextFormField(
-                  onSaved: (val) => _edition = val,
+                  onSaved: (String val) => _edition = val,
                   decoration: const InputDecoration(
-                   labelText: "Edition",
-                   hintText: "input book edition"
+                   labelText: 'Edition',
+                   hintText: 'input book edition'
+                 ),
+                ),
+               ),
+               //price
+               new Card(
+                 margin: const EdgeInsets.all(10.0),
+                 color: Colors.white,
+                 child:  new TextFormField(
+                  onSaved: (String val) => _price = val,
+                  decoration: const InputDecoration(
+                   labelText: 'Price',
+                   hintText: 'input value of book'
                  ),
                 ),
                ),
                //save
                new Card(
                  margin: const EdgeInsets.all(10.0),
-                 child: new RaisedButton(
-                  child: new Text("Next",
+                 child: new MaterialButton(
+                  height: 50.0,
+                  color: const Color(0xFF48A9A6),
+                  child: const Text('Next',
                     style: const TextStyle(
                       fontSize: 20.0,
                     ),
@@ -101,7 +126,7 @@ class _AddBook extends State<AddBook> {
                   onPressed: () {
                     Navigator.push<MaterialPageRoute>(context, 
                    new MaterialPageRoute(
-                     builder: (context) => new FinBook(widget.cameras)
+                     builder: (BuildContext context) => new FinBook(widget.cameras)
                   ));
                   },
                 ),

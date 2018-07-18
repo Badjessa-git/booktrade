@@ -14,8 +14,8 @@ class Navigation extends StatefulWidget {
   }
   dynamic cameras;
   Navigation(TradeApi api, dynamic cameras) {
-    this._api = api;
-    this.cameras = cameras;
+    _api = api;
+    cameras = cameras;
   }
 
   @override
@@ -31,28 +31,29 @@ class _NavigationState extends State<Navigation> {
       length: 2,
       child: new Scaffold(
       appBar: AppBar(
-        leading: new Icon(Icons.menu),
-        title: new Text("BookTrade"),
+        
+        leading: const Icon(Icons.menu),
+        title: const Text('BookTrade'),
         actions: <Widget>[
           new IconButton(
-            icon: Icon(Icons.search), 
+            icon: const Icon(Icons.search), 
             onPressed: () {//TODO later
             },  
           ),
           new IconButton(
-            icon: Icon(Icons.library_add),
+            icon: const Icon(Icons.library_add),
             onPressed: () {
               dynamic isbn;
               SimpleDialog alert = new SimpleDialog(
-                contentPadding: EdgeInsets.all(20.0),
+                contentPadding: const EdgeInsets.all(20.0),
                 children: <Widget> [
                   new TextFormField(
                     key: isbn,
-                    decoration: new InputDecoration(
-                      hintText: "Look up book ISBN here", 
+                    decoration: const InputDecoration(
+                      hintText: 'Look up book ISBN here', 
                     ),
                   ),
-                  new Divider(
+                  const Divider(
                     height: 20.0
                   ),
                   new Row(
@@ -60,18 +61,18 @@ class _NavigationState extends State<Navigation> {
                     mainAxisSize: MainAxisSize.min,
                     children: <Widget>[
                       new RaisedButton(
-                        child: Text("Look up"),
+                        child: const Text('Look up'),
                         onPressed: () {
-                          var book = lookup(isbn);
+                          final dynamic book = lookup(isbn);
                           Navigator.push<MaterialPageRoute>(context,
                                     MaterialPageRoute(builder: (context) => new AddBook(book, widget.cameras)));
                         },
                       ),
-                      new Divider(
+                      const  Divider(
                         indent: 20.0,
                       ),
                       new RaisedButton(
-                        child: Text("Manual Entry"),
+                        child: const Text('Manual Entry'),
                         onPressed: () {
                           Navigator.push<MaterialPageRoute>(context, 
                                     MaterialPageRoute(builder: (context) => new AddBook(null, widget.cameras)));
@@ -86,14 +87,14 @@ class _NavigationState extends State<Navigation> {
           ),
           
         ],
-        bottom : TabBar(
+        bottom : const TabBar(
           indicatorColor : Colors.red,
-          tabs : [
-            Tab(
+          tabs : <Widget> [
+            const Tab(
               text: 'Buying',
               icon: Icon(Icons.library_books),
             ),
-            Tab(
+            const Tab(
               text: 'Selling',
               icon: Icon(Icons.local_library),
             )
@@ -103,15 +104,8 @@ class _NavigationState extends State<Navigation> {
       body: TabBarView(
         children: <Widget>[
           new BookList(widget._api),
-          Icon(Icons.local_library),       
+          const Icon(Icons.local_library),       
           ],
-        ),
-        floatingActionButton: new FloatingActionButton(
-          onPressed: null,
-          child: new CircleAvatar(
-            backgroundImage: new NetworkImage(widget._api.firebaseUser.photoUrl),
-            radius: 50.0,
-          )
         ),
       ),
   );
@@ -119,7 +113,7 @@ class _NavigationState extends State<Navigation> {
 
 
   Future<Book> lookup(dynamic isbn) async {
-    Book book = await TradeApi.lookup(isbn, widget._api);
+    final Book book = await TradeApi.lookup(isbn, widget._api);
     return book;
   }
 }

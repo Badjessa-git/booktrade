@@ -17,7 +17,7 @@ class BookTrade extends StatelessWidget {
   Widget build(BuildContext context) {
     return new MaterialApp(
       theme: new ThemeData(
-        primaryColor: Colors.lightGreen,
+        primaryColor: const Color(0xFF48A9A6),
         accentColor: Colors.redAccent,
       ),
       home: new Home(cameras),
