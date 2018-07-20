@@ -8,15 +8,10 @@ import 'package:booktrade/ui/nav_ui/book_list.dart';
 
 class Navigation extends StatefulWidget {
 
-  TradeApi _api;
-  set api(TradeApi api) {
-    _api = api;
-  }
-  dynamic cameras;
-  Navigation(TradeApi api, dynamic cameras) {
-    _api = api;
-    cameras = cameras;
-  }
+  final TradeApi _api;
+  final dynamic cameras;
+
+  const Navigation(this._api, this.cameras); 
 
   @override
   _NavigationState createState() => new _NavigationState();
@@ -65,7 +60,7 @@ class _NavigationState extends State<Navigation> {
                         onPressed: () {
                           final dynamic book = lookup(isbn);
                           Navigator.push<MaterialPageRoute>(context,
-                                    MaterialPageRoute(builder: (context) => new AddBook(book, widget.cameras)));
+                                    MaterialPageRoute(builder: (BuildContext context) => new AddBook(book, widget.cameras, widget._api)));
                         },
                       ),
                       const  Divider(
@@ -75,7 +70,7 @@ class _NavigationState extends State<Navigation> {
                         child: const Text('Manual Entry'),
                         onPressed: () {
                           Navigator.push<MaterialPageRoute>(context, 
-                                    MaterialPageRoute(builder: (context) => new AddBook(null, widget.cameras)));
+                                    MaterialPageRoute(builder: (context) => new AddBook(null, widget.cameras, widget._api)));
                         },
                       ),
                     ],

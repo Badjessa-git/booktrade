@@ -1,30 +1,20 @@
 import 'dart:io';
+import 'dart:async';
+import 'package:booktrade/models/book.dart';
+import 'package:booktrade/services/TradeApi.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:booktrade/ui/image_design.dart';
 import 'package:path_provider/path_provider.dart';
-import 'dart:async';
 
 class FinBook extends StatefulWidget {
   dynamic _cameras;
-  FinBook(this._cameras);
+  Book curBook;
 
-  // String isbn, author, title, edition;
-  // FinBook() 
-  // {
-  //   // this.isbn = isbn;
-  //   // this.author = author;
-  //   // this.title = title;
-  //   // this.edition = edition;
-  // }
-
-  // FinBook();
+  FinBook(this._cameras, this.curBook);
   
   @override
-  _FinBookState createState() => new _FinBookState();
-  
-    
-  }
+  _FinBookState createState() => new _FinBookState();   
+}
   
 class _FinBookState extends State<FinBook>{
 
@@ -41,7 +31,7 @@ class _FinBookState extends State<FinBook>{
   }
 
   void setUpController() {
-    _controller = new CameraController(widget._cameras[0], ResolutionPreset.high);
+    _controller = new CameraController(widget._cameras[0], ResolutionPreset.medium);
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -55,9 +45,7 @@ class _FinBookState extends State<FinBook>{
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      appBar: new AppBar(
-      ),
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.blueGrey,
        body:new Column(
          children: <Widget>[
            new Expanded (
@@ -67,13 +55,14 @@ class _FinBookState extends State<FinBook>{
                   ),
                 ),
               ),
-            _captureControlWidget(),
             new Padding(
               padding: const EdgeInsets.all(1.0),
               child: new Row(
                 mainAxisAlignment: MainAxisAlignment.start,
                 children: <Widget>[
                   _cameraTogglesRowWidget(),
+                  const Divider(indent: 60.0,),
+                  _captureControlWidget(),
                   _thumbnailWidget(),
                 ],
               ),
@@ -117,14 +106,12 @@ class _FinBookState extends State<FinBook>{
         toggles.add(
           new SizedBox(
             width: 90.0,
-            child: new RadioListTile<CameraDescription>(
-              title:
+            child: new IconButton(
+              icon:
                   new Icon(getCameraLensIcon(cameraDescription.lensDirection),
                     size: 30.0,
                   ),
-              groupValue: _controller?.description,
-              value: cameraDescription,
-              onChanged: _controller != null && _controller.value.isRecordingVideo
+              onPressed: () => _controller != null && _controller.value.isRecordingVideo
                   ? null
                   : onNewCameraSelected,
             ),
@@ -224,22 +211,115 @@ class _FinBookState extends State<FinBook>{
           _controller?.dispose();
           _controller = null;
         });
-        var alert = new Dialog();
-        Navigator.push<HeroDialogRoute>(context,
-              new HeroDialogRoute(
+        Navigator.push<HeroDialogRoute<PageRoute<dynamic>>>(context, 
+        new HeroDialogRoute<HeroDialogRoute<PageRoute<dynamic>>> (
                 builder: (BuildContext context) {
-               return new Scaffold(
-                appBar: new AppBar(
-                  title: Text("Continue?"),
-                ),
-                body: new Hero(
-                  tag: "preview",
-                  child: new Image.file(new File(_imagePath)),
-                ),
-              );
-          }));
+               return new Center (
+                 child: new AlertDialog(
+                   title: const Text('Save Picture',
+                   textAlign: TextAlign.center,
+                   ),
+                   content: new Container(
+                     child: new Hero (
+                       tag: 'Preview',
+                       child: new Container(
+                         height: 400.0,
+                         width: 400.0,
+                         child: new Image.file(new File(_imagePath),
+                          fit: BoxFit.fill,
+                         ),
+                       ),
+                     ),
+                   ),
+                   actions: <Widget>[
+                     new FlatButton(
+                       child: const Text('Cancel',
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),                       
+                       ),
+                       onPressed: () => Navigator.pop(context),
+                     ),
+                     new FlatButton(
+                       child: const Text('Save',
+                        style: const TextStyle(
+                          color: Colors.black,
+                        ),
+                       ),
+                       onPressed: () => Navigator.push<MaterialPageRoute<PageRoute<dynamic>>>(context, 
+                              new MaterialPageRoute<MaterialPageRoute<PageRoute<dynamic>>>(builder: (BuildContext context){    
+                                _showCompletePreview(_imagePath);
+                            }
+                          ),
+                       ),
+                     ),
+                   ],
+                 )
+               );
+            })
+          );
         }
     });
+  }
+
+  Widget _showCompletePreview(String _imagePath) {
+    widget.curBook.picUrl = _imagePath;
+    return new Column(
+      children: <Widget>[
+        new Container(
+          margin: const EdgeInsets.only(top: 5.0),
+          child: new Card(
+            color: const Color(0xFFE4DFDA),
+            child: new Column(
+            mainAxisSize: MainAxisSize.min,
+            children: <Widget>[
+              new ListTile(
+                leading: new Hero (
+                  tag: 'full preview',
+                  child: new Image.file(new File(
+                    _imagePath),
+                    fit: BoxFit.contain,
+                    height: 100.0,
+                    width: 60.0,
+                  ),
+                ),
+              title: new Text(
+                widget.curBook.title,
+                style: const TextStyle(fontWeight:  FontWeight.bold),
+              ),
+              subtitle: new Text(
+                widget.curBook.author + '\n' +
+                widget.curBook.edition + '\n' +
+                widget.curBook.sellerID,
+                maxLines: 10,
+                textAlign: TextAlign.left
+              ),
+              isThreeLine: true,
+              dense: false,
+              ),
+            ],
+          ),
+        ),
+      ),
+      new Row(
+        children: <Widget>[
+          new FlatButton(
+            child: const Text('Cancel'),
+            onPressed: () => Navigator.pop(context),
+          ),
+          new FlatButton(
+            child: const Text('Add'),
+            onPressed: () => _submitNewItem,
+          ),
+        ],
+      ),
+    ],
+
+    );
+  }
+
+  Future<bool> _submitNewItem() async {
+    return false;
   }
 
   Future<String> takePicture() async {

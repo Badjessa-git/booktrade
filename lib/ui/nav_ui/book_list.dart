@@ -14,8 +14,8 @@ class BookList extends StatefulWidget {
 }
   
 class _BookListState extends State<BookList> {
-  List<Book> _books = [];
-  var curUser = BookList._api.firebaseUser;
+  List<Book> _books = <Book>[];
+  dynamic curUser = BookList._api.firebaseUser;
   @override
   void initState() {
     super.initState();
@@ -36,7 +36,7 @@ class _BookListState extends State<BookList> {
   }
 
   dynamic _loadBooks() async {
-    String fileData = await DefaultAssetBundle.of(context).loadString("assets/books.json");
+    final String fileData = await DefaultAssetBundle.of(context).loadString('assets/books.json');
     setState(() {
           _books = TradeApi.booksFromFile(fileData);
      });
@@ -63,7 +63,7 @@ class _BookListState extends State<BookList> {
   }
 
   Widget _bookProto(BuildContext context, int index) {
-    Book curbook = _books[index];
+    final Book curbook = _books[index];
 
     return new Container(
       margin: const EdgeInsets.only(top: 5.0),
@@ -84,11 +84,11 @@ class _BookListState extends State<BookList> {
           ),
           title: new Text(
             curbook.title,
-            style: new TextStyle(fontWeight:  FontWeight.bold),
+            style: const TextStyle(fontWeight:  FontWeight.bold),
           ),
           subtitle: new Text(
-            curbook.author + "\n" +
-            curbook.edition + "\n" +
+            curbook.author + '\n' +
+            curbook.edition + '\n' +
             curbook.sellerID,
             maxLines: 10,
             textAlign: TextAlign.left

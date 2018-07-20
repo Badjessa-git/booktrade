@@ -6,14 +6,12 @@ import 'package:booktrade/models/book.dart';
 import 'package:http/http.dart' as http;
 
 class TradeApi {
-  static FirebaseAuth _auth = FirebaseAuth.instance;
-  static GoogleSignIn _googleSignin = new GoogleSignIn();
+  static final FirebaseAuth _auth = FirebaseAuth.instance;
+  static final GoogleSignIn _googleSignin = new GoogleSignIn();
   static int id = 0;
   FirebaseUser firebaseUser;
 
-  TradeApi(FirebaseUser user){
-    firebaseUser = user;
-  }
+  TradeApi(this.firebaseUser);
 
 
   static Future<TradeApi> signInWithGoogle() async {
@@ -32,14 +30,13 @@ class TradeApi {
   }
 
   static List<Book> booksFromFile(String file) {
-    List<Book> books = [];
-    Book book;
+    final List<Book> books = <Book>[];
     json.decode(file)['books'].forEach((dynamic book) => books.add(_fromMap(book)));
     return books;
   }
     
   static Future<Book> lookup(String isbn, TradeApi _api) async {
-      http.Response res = await http.get("https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn")
+      final http.Response res = await http.get('https://www.googleapis.com/books/v1/volumes?q=isbn:$isbn')
                           .catchError((dynamic resp) {});
       if (res == null) {
         return null;
@@ -48,17 +45,17 @@ class TradeApi {
         return null;
       }
 
-      dynamic jsonbook = json.decode(res.body);
+      final dynamic jsonbook = json.decode(res.body);
 
-      dynamic book = jsonbook[0];
+      final dynamic book = jsonbook[0];
 
-      Book resBook = new Book(
-                      title: book["volumeInfo"]["title"],
-                      author: book["volumeInfo"]["authors"], 
-                      edition: book["volumeInfo"]["edition"], 
-                      id: book["volumeInfo"]["id"], 
+      final Book resBook = new Book(
+                      title: book['volumeInfo']['title'],
+                      author: book['volumeInfo']['authors'], 
+                      edition: book['volumeInfo']['edition'], 
+                      id: book['volumeInfo']['id'], 
                       isbn: isbn, 
-                      picUrl: book["volumeInfo"]["thumbnail"], 
+                      picUrl: book['volumeInfo']['thumbnail'], 
                       sellerID: _api.firebaseUser.displayName,
                       );
 
@@ -74,7 +71,7 @@ class TradeApi {
       author: map['author'],
       edition: map['edition'],
       picUrl:  map['picUrl'],
-      sellerID: "Romeo Bahoumda",
+      sellerID: 'Romeo Bahoumda',
     );
   }
 }

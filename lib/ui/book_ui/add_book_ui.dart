@@ -1,17 +1,14 @@
-import 'dart:async';
-
+import 'dart:math';
+import 'package:booktrade/services/TradeApi.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/ui/nav_ui/fin_book.dart';
 
 class AddBook extends StatefulWidget {
-  static Book curbook;
-  dynamic cameras;
-  AddBook(Future<Book> book, dynamic cameras) {
-    if (book == null)
-      curbook = book as Book;
-    this.cameras = cameras;
-  }
+  Book curbook;
+  final dynamic cameras;
+  final TradeApi _api;
+  AddBook(this.curbook,  this.cameras, this._api);
 
   @override
   _AddBook createState() => new _AddBook();
@@ -31,6 +28,8 @@ class _AddBook extends State<AddBook> {
   String _edition;
   String _price;
 
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+
   @override
   Widget build(BuildContext context){
     return new Scaffold(
@@ -38,6 +37,7 @@ class _AddBook extends State<AddBook> {
       body: new Container(
         color: const Color(0xFFE4DFDA),
          child: new Form(
+           key: _formKey,
            child: new ListView(
              children: <Widget>[
                const SizedBox(
@@ -57,6 +57,13 @@ class _AddBook extends State<AddBook> {
                 margin: const EdgeInsets.all(10.0),
                 color: Colors.white,
                 child: new TextFormField(
+                  // validator: (String value) {
+                  //   if (value.isEmpty) {
+                  //     return 'Please Enter the ISBN number';
+                  //   } else if (num.parse(value) == null) {
+                  //     return 'Please only input numbers';
+                  //   }
+                  // },
                   onSaved: (String val) => _isbn = val,
                   decoration: const InputDecoration(
                     labelText: 'ISBN',
@@ -69,6 +76,11 @@ class _AddBook extends State<AddBook> {
                 margin: const EdgeInsets.all(10.0),
                 color: Colors.white,
                 child: new TextFormField(
+                  // validator: (String value) {
+                  //   if (value.isEmpty) {
+                  //     return 'Please enter the title of the TextBook';
+                  //   }
+                  // },
                  onSaved: (String val) => _title = val,
                  decoration: const InputDecoration(
                    labelText: 'Title',
@@ -81,6 +93,11 @@ class _AddBook extends State<AddBook> {
                  margin: const EdgeInsets.all(10.0),
                  color: Colors.white,
                  child: new TextFormField(
+                  //  validator: (String value) {
+                  //    if (value.isEmpty) {
+                  //      return 'Please Enter the author of the book';
+                  //    }
+                  //  },
                     onSaved: (String val) => _author = val,
                     decoration: const InputDecoration(
                       labelText: 'Author',
@@ -93,25 +110,41 @@ class _AddBook extends State<AddBook> {
                  margin: const EdgeInsets.all(10.0),
                  color: Colors.white,
                  child:  new TextFormField(
+                  // validator: (String value) {
+                  //   if (value.isEmpty) {
+                  //     return 'Please enter the book Edition';
+                  //   } else if (int.parse(value) == null) {
+                  //     return 'Enter a number for the edition';
+                  //   }
+                  // },
                   onSaved: (String val) => _edition = val,
                   decoration: const InputDecoration(
                    labelText: 'Edition',
-                   hintText: 'input book edition'
+                   hintText: 'Input book edition'
                  ),
                 ),
                ),
-               //price
-               new Card(
-                 margin: const EdgeInsets.all(10.0),
-                 color: Colors.white,
-                 child:  new TextFormField(
-                  onSaved: (String val) => _price = val,
-                  decoration: const InputDecoration(
-                   labelText: 'Price',
-                   hintText: 'input value of book'
-                 ),
-                ),
-               ),
+                  //price
+                  new Card(
+                    margin: const EdgeInsets.all(10.0),
+                    color: Colors.white,
+                    child:  new TextFormField(
+                      // validator: (String value) {
+                      //   if (value.isEmpty) {
+                      //     return 'Enter the amount offered for the book';
+                      //   } else if (double.parse(value) == null) {
+                      //     return 'The amount has to be a number';
+                      //   } else {
+                      //     _price = value;
+                      //   }
+                      // },
+                      onSaved: (String val) => _price = val,
+                      decoration: const InputDecoration(
+                      labelText: 'Price',
+                      hintText: 'input value of book'
+                      ),
+                    ),
+                  ),
                //save
                new Card(
                  margin: const EdgeInsets.all(10.0),
@@ -124,38 +157,35 @@ class _AddBook extends State<AddBook> {
                     ),
                   ),
                   onPressed: () {
-                    Navigator.push<MaterialPageRoute>(context, 
-                   new MaterialPageRoute(
-                     builder: (BuildContext context) => new FinBook(widget.cameras)
-                  ));
-                  },
+                      _formKey.currentState.validate()
+                        ? _submit()
+                        : null;
+                        }
+                      ),
+                    ),
+                  ],
                 ),
-               ),
-             ]
-           ),
-         ),
-      ),
+              ),
+            ),
     );
   }
 
   void _submit() {
-    Navigator.push<MaterialPageRoute>(context, 
-                   new MaterialPageRoute(
-                     builder: (context) => new FinBook(widget.cameras)
-                  ));
-    // final form = _formKey.currentState;
-
-    // if (form.validate()) {
-    //   form.save();
-    //   _submitAll();
-  
- }
-
-  void _submitAll() {
-    Navigator.push<MaterialPageRoute>(context, 
-                   new MaterialPageRoute(
-                     builder: (context) => new FinBook(widget.cameras)
-                  )
+    widget.curbook ??= new Book(
+        id: new Random().nextInt(10000001), 
+        title: _title, 
+        author: _author, 
+        edition: _edition, 
+        isbn: _isbn, 
+        picUrl: null, 
+        price: _price,
+        sellerID: widget._api.firebaseUser.displayName,
       );
+    Navigator.push<MaterialPageRoute<PageRoute<dynamic>>>(context, 
+                   new MaterialPageRoute<MaterialPageRoute<PageRoute<dynamic>>>(
+                     builder: (BuildContext context) => new FinBook(widget.cameras, widget.curbook)
+                  ),
+                );
   }
+
 }
