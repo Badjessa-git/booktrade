@@ -1,7 +1,6 @@
-import 'dart:io';
 import 'dart:async';
+import 'dart:io';
 import 'package:booktrade/models/book.dart';
-import 'package:booktrade/services/TradeApi.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';

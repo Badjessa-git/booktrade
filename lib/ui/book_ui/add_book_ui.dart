@@ -1,4 +1,3 @@
-import 'dart:math';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/book_ui/fin_book.dart';
 import 'package:flutter/material.dart';
@@ -172,7 +171,6 @@ class _AddBook extends State<AddBook> {
 
   void _submit() {
     widget.curbook ??= new Book(
-        id: new Random().nextInt(10000001), 
         title: _title, 
         author: _author, 
         edition: _edition, 

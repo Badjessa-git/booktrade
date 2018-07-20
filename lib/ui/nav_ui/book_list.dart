@@ -5,21 +5,20 @@ import 'package:booktrade/models/book.dart';
 import 'package:booktrade/services/TradeApi.dart';
 
 class BookList extends StatefulWidget {
-  static TradeApi _api;
-  BookList(TradeApi api) {
-    _api = api;
-  }  
+  final TradeApi _api;
+
+  const BookList(this._api);
   @override
   _BookListState createState() => new _BookListState();
 }
   
 class _BookListState extends State<BookList> {
   List<Book> _books = <Book>[];
-  dynamic curUser = BookList._api.firebaseUser;
   @override
   void initState() {
     super.initState();
-    _loadBooks();
+    _loadFromFirebase();
+    _reloadBook();
   }
 
 
@@ -35,11 +34,27 @@ class _BookListState extends State<BookList> {
     );
   }
 
-  dynamic _loadBooks() async {
-    final String fileData = await DefaultAssetBundle.of(context).loadString('assets/books.json');
+  dynamic _loadFromFirebase() async {
+    final List<Book> books = await widget._api.getAllBook();
     setState(() {
-          _books = TradeApi.booksFromFile(fileData);
-     });
+          _books = books;
+    });
+  }
+
+  // dynamic _loadBooks() async {
+  //   final String fileData = await DefaultAssetBundle.of(context).loadString('assets/books.json');
+  //   setState(() {
+  //         _books = TradeApi.booksFromFile(fileData);
+  //    });
+  // }
+
+  dynamic _reloadBook() async {
+    if (widget._api != null) {
+      final List<Book> books = await widget._api.getAllBook();
+      setState(() {
+              _books = books;
+      });
+    }
   }
 
   Widget _marketPage() {
@@ -58,7 +73,7 @@ class _BookListState extends State<BookList> {
 
 
   Future<Null> refresh() {
-    _loadBooks();
+    _reloadBook();
     return new Future<Null>.value();
   }
 

@@ -1,7 +1,6 @@
 import 'package:meta/meta.dart';
 
 class Book {
-  int id;
   final String price;
   final String isbn;
   final String title;
@@ -12,7 +11,6 @@ class Book {
   final String buyerID;
 
   Book ({
-    @required this.id,
     @required this.isbn,
     @required this.title,
     @required this.author,
@@ -20,6 +18,6 @@ class Book {
     @required this.picUrl,
     @required this.sellerID,
     this.buyerID,
-    this.price
+    this.price, 
   });
 }

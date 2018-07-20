@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:convert';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:booktrade/models/book.dart';
@@ -58,7 +59,6 @@ class TradeApi {
                       title: book['volumeInfo']['title'],
                       author: book['volumeInfo']['authors'], 
                       edition: book['volumeInfo']['edition'], 
-                      id: book['volumeInfo']['id'], 
                       isbn: isbn, 
                       picUrl: book['volumeInfo']['thumbnail'], 
                       sellerID: _api.firebaseUser.displayName,
@@ -67,10 +67,36 @@ class TradeApi {
       return resBook;
   }
 
+  Future<List<Book>> getAllBook() async {
+    return (await Firestore.instance.collection('book_lehigh').getDocuments())
+          .documents
+          .map((DocumentSnapshot doc) => _fromFireBaseSnapShot(doc))
+          .toList();
+  }
+
+  StreamSubscription<DocumentSnapshot> watch(Book book, void onChange(Book book)) {
+    return Firestore.instance.collection('book_lehigh')
+           .document(book.isbn)
+           .snapshots()
+           .listen((DocumentSnapshot doc) => onChange(_fromFireBaseSnapShot(doc)));
+  }
+
+  Book _fromFireBaseSnapShot(DocumentSnapshot doc) {
+    final dynamic data = doc.data;
+    return new Book (
+      isbn : data['isbn'],
+      title: data['title'],
+      author: data['author'],
+      edition: data['edition'],
+      picUrl:  data['picUrl'],
+      price: data['price'],
+      sellerID: data['seller'],
+    );
+  }
+
   static Book _fromMap(Map<String, dynamic> map) {
     
     return new Book (
-      id : id++,
       isbn : map['isbn'],
       title: map['title'],
       author: map['author'],
