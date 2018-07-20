@@ -1,8 +1,8 @@
 import 'dart:math';
 import 'package:booktrade/services/TradeApi.dart';
+import 'package:booktrade/ui/book_ui/fin_book.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
-import 'package:booktrade/ui/nav_ui/fin_book.dart';
 
 class AddBook extends StatefulWidget {
   Book curbook;

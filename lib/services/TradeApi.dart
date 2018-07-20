@@ -29,6 +29,11 @@ class TradeApi {
     return TradeApi(user);
   }
 
+  static Future<Null> siginOutWithGoogle() async {
+    await _auth.signOut();
+    await _googleSignin.signOut();
+  }
+
   static List<Book> booksFromFile(String file) {
     final List<Book> books = <Book>[];
     json.decode(file)['books'].forEach((dynamic book) => books.add(_fromMap(book)));
