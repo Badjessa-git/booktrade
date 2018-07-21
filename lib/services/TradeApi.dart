@@ -74,6 +74,15 @@ class TradeApi {
           .toList();
   }
 
+  Future<List<Book>> getUserBook() async{
+    return (await Firestore.instance.collection('book_lehigh')
+            .where('seller', isEqualTo: firebaseUser.displayName)
+            .getDocuments())
+            .documents
+            .map((DocumentSnapshot doc) => _fromFireBaseSnapShot(doc))
+            .toList();
+  }
+
   StreamSubscription<DocumentSnapshot> watch(Book book, void onChange(Book book)) {
     return Firestore.instance.collection('book_lehigh')
            .document(book.isbn)

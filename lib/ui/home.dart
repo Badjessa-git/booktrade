@@ -1,3 +1,5 @@
+import 'dart:async';
+import 'package:booktrade/models/book.dart';
 import 'package:booktrade/ui/nav_ui/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/services/TradeApi.dart';
@@ -54,10 +56,7 @@ class _HomeState extends State<Home> {
           new RaisedButton.icon(
             color: Colors.red,
             onPressed: () => TradeApi.signInWithGoogle()
-                            .then((TradeApi api) =>  Navigator.push<MaterialPageRoute<dynamic>>(
-                                  context,
-                                  MaterialPageRoute<MaterialPageRoute<dynamic>>(builder: (BuildContext context) => Navigation(api, widget.cameras)),
-                                  ))
+                            .then((TradeApi api) => _domainCheck(api))
                             .catchError((dynamic e) => showDialog<AlertDialog>(context: context, builder: (_) => alert)
                             ),
             icon: const Icon(const IconData(0xe900, fontFamily: 'icomoon')), 
@@ -70,5 +69,36 @@ class _HomeState extends State<Home> {
         ],
       ),
     );
+  }
+
+  void _domainCheck(TradeApi api) async {
+     dynamic alert = new AlertDialog(
+      title: const Text('Error'),
+      content: const Text('Your email is not registered with a school domain'),
+      actions: <Widget>[
+        new FlatButton(
+          child: const Text('OK'),
+          onPressed: () => Navigator.pop(context)
+        )
+      ],
+    );
+    final List<Book> books = await api.getAllBook()
+      .then((List<Book> onValue) {
+        onValue = null;
+        _nextNaviagtion(api);
+      })
+      .catchError((dynamic onError) async {
+        showDialog<AlertDialog>(context: context, builder: (_) => alert);
+        await TradeApi.siginOutWithGoogle();
+      }
+      );
+  
+  }
+
+  void _nextNaviagtion(TradeApi api) {
+      Navigator.push<MaterialPageRoute<dynamic>>(
+          context,
+            MaterialPageRoute<MaterialPageRoute<dynamic>>(builder: (BuildContext context) => Navigation(api, widget.cameras)),    
+      );
   }
 }

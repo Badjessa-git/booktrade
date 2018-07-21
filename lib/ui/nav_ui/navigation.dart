@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:booktrade/ui/nav_ui/book_sel_list.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:flutter/material.dart';
@@ -152,7 +153,7 @@ class _NavigationState extends State<Navigation> {
       body: TabBarView(
         children: <Widget>[
           new BookList(widget._api),
-          const Icon(Icons.local_library),       
+          new SellList(widget._api),       
           ],
         ),
       ),

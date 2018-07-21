@@ -58,7 +58,6 @@ class _BookListState extends State<BookList> {
   }
 
   Widget _marketPage() {
-    //TODO implement later
     return new Flexible(
       child: new RefreshIndicator(
         onRefresh: refresh,
@@ -90,12 +89,18 @@ class _BookListState extends State<BookList> {
           new ListTile(
             leading: new Hero (
               tag: index,
-              child: new Image.network(
-                curbook.picUrl,
-                fit: BoxFit.contain,
+              child: new SizedBox(
                 height: 100.0,
                 width: 60.0,
-              ),
+                child: new Container(
+                  decoration: new BoxDecoration(
+                    image: new DecorationImage( 
+                      image: new NetworkImage(curbook.picUrl),
+                      fit: BoxFit.contain,
+                  ),
+                ),
+              ),  
+            ),
           ),
           title: new Text(
             curbook.title,
