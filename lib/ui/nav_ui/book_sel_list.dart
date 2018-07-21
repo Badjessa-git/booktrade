@@ -61,7 +61,7 @@ class _SellListState extends State<SellList> {
         onRefresh: refresh,
         child: new GridView.builder(
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 3,
+            crossAxisCount: 2,
           ),
           physics: const AlwaysScrollableScrollPhysics(),
           itemCount: _books.length,
@@ -75,48 +75,44 @@ class _SellListState extends State<SellList> {
   Widget _bookProto(BuildContext context, int index) {
     final Book curbook = _books[index];
     return new GestureDetector(
-      child: new Card(
         child: new Container(
-          height: 300.0,
-          width: 200.0,
           child: new Column(
             children: <Widget>[
-              new SizedBox(
-              height: 280.0,
-              width: 200.0,
+              const Divider(height: 10.0,),
+              new Card(
+              elevation: 5.0,
+              child: new SizedBox(
+              height: 170.0,
+              width: 130.0,
               child: new Container(
                 decoration: new BoxDecoration(
                   image: new DecorationImage(
                     image: new NetworkImage(curbook.picUrl),
-                    fit: BoxFit.contain
+                    fit: BoxFit.fill
                   )
                 ),
+               ),
               ),
             ),
             _bookState(curbook),
             ],
           ),
         ),
-      ),
     );
   }
 
   Widget _bookState(Book curbook) {
-    if (curbook.buyerID == null || curbook.buyerID.isEmpty) {
-      return const Text('Selling',
-        style: const TextStyle(
-          fontSize: 20.0,
-          fontWeight: FontWeight.bold,
-        ),
-        textAlign: TextAlign.center, 
+    if (curbook.buyerID != null) {
+      return const Text('SOLD',
+      style: const TextStyle(
+        fontSize: 14.0,
+        color: Colors.red,
+        fontWeight: FontWeight.bold
+      ),
+        textAlign: TextAlign.center,
       );
     } else {
-      return const Text('Sold',
-        style: const TextStyle(
-          fontSize: 20.0,
-          fontWeight: FontWeight.bold,
-        ),
-      );
+      return const Text('');
     }
   }
 }

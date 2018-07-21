@@ -26,12 +26,16 @@ dependencies:
   googleapis: "^0.51.0"
   camera: "^0.2.1"
   path_provider: "0.4.1"
+  flutter_launcher_icons: ^0.5.2
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
 
-
+flutter_icons:
+  image_path: "assets/img/icon launcher.png"
+  android: true
+  ios: true
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 
@@ -49,6 +53,8 @@ flutter:
 
   assets:
     - assets/books.json
+    - assets/img/logo.png
+    - assets/img/icon launcher.png
 
   # To add assets to your application, add an assets section, like this:
   # assets:
