@@ -27,6 +27,8 @@ dependencies:
   camera: "^0.2.1"
   path_provider: "0.4.1"
   flutter_launcher_icons: ^0.5.2
+  modal_progress_hud: ^0.0.6
+
 
 dev_dependencies:
   flutter_test:

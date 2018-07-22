@@ -82,8 +82,8 @@ class _SellListState extends State<SellList> {
               new Card(
               elevation: 5.0,
               child: new SizedBox(
-              height: 170.0,
-              width: 130.0,
+              height: 150.0,
+              width: 120.0,
               child: new Container(
                 decoration: new BoxDecoration(
                   image: new DecorationImage(
