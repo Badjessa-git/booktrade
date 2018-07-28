@@ -4,6 +4,7 @@ import 'package:booktrade/ui/nav_ui/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:validator/validator.dart';
 
 class Home extends StatefulWidget {
   final dynamic cameras;
@@ -30,12 +31,11 @@ class _HomeState extends State<Home> {
     return new Scaffold (
       backgroundColor: const Color(0xFF48A9A6),
       body: new ModalProgressHUD(
-      inAsyncCall: _inAsyncCall,
-      progressIndicator: const CircularProgressIndicator(),
-      child: _siginInPage(context),
-    ),
-  );
-
+        inAsyncCall: _inAsyncCall,
+        progressIndicator: const CircularProgressIndicator(),
+        child: _siginInPage(context),
+      ),
+    );
   }
 
   Widget _siginInPage(BuildContext context) {
@@ -55,11 +55,20 @@ class _HomeState extends State<Home> {
             elevation: 5.0,
             color: Colors.red,
             onPressed: () {
-              _inAsyncCall = true;
-              TradeApi.signInWithGoogle()
+              setState(() {
+                _inAsyncCall = true;              
+              });
+              Future<dynamic>.delayed(const Duration(seconds: 2), () {
+                TradeApi.signInWithGoogle()
                       .then((TradeApi api) => _domainCheck(api))
-                      .catchError((dynamic e) => showDialog<AlertDialog>(context: context, builder: (_) => alert));
-
+                      .catchError((dynamic e) {
+                        setState(() {
+                          _inAsyncCall = false;                          
+                        });
+                        TradeApi.siginOutWithGoogle();
+                        showDialog<AlertDialog>(context: context, builder: (_) => alert);
+                });
+              });
             },
             icon: const Icon(const IconData(0xe900, fontFamily: 'icomoon')), 
             label:   const Text('Google Sign In',
@@ -85,12 +94,20 @@ class _HomeState extends State<Home> {
       ],
     );
     final List<Book> books = await api.getAllBook()
-      .then((List<Book> onValue) {
+      .then((List<Book> onValue) async {
         onValue = null;
+        final String schoolName = _findSchoolName(api);
+        await api.pushToUserCollection(schoolName);
+        setState(() {
+          _inAsyncCall = false;
+        });
         _nextNaviagtion(api);
       })
       .catchError((dynamic onError) async {
         showDialog<AlertDialog>(context: context, builder: (_) => alert);
+        setState(() {
+          _inAsyncCall = false;                          
+        });
         await TradeApi.siginOutWithGoogle();
       }
       );
@@ -102,5 +119,14 @@ class _HomeState extends State<Home> {
           context,
             MaterialPageRoute<MaterialPageRoute<dynamic>>(builder: (BuildContext context) => Navigation(api, widget.cameras)),    
       );
+  }
+
+  String _findSchoolName(TradeApi api) {
+    String email = api.firebaseUser.email;
+    String schoolName;
+    if (email.contains('@lehigh.edu')) {
+      schoolName = 'Lehigh University';
+    }
+    return schoolName;
   }
 }

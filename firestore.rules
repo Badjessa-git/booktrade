@@ -1,0 +1,10 @@
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /book_lehigh/{document=**} {
+      allow read, write:
+      if request.auth != null 
+      && request.auth.token.email_verified == true
+     //&& request.auth.token.email.matches('.*@lehigh\\.edu')
+    }
+  }
+}

@@ -1,5 +1,7 @@
 import 'dart:async';
 
+import 'package:booktrade/ui/book_ui/book_page.dart';
+import 'package:booktrade/utils/routes.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/services/TradeApi.dart';
@@ -115,9 +117,21 @@ class _BookListState extends State<BookList> {
           ),
           isThreeLine: true,
           dense: false,
+          onTap: () => _navigateToNextPage(curbook, index),
           ),
         ],
       ),
+      ),
+    );
+  }
+
+  void _navigateToNextPage(Book curbook, Object index) {
+    Navigator.of(context).push<FadePageRoute<dynamic>>(
+      new FadePageRoute(
+        builder: (c) {
+          return new BookDetails(curbook, index, widget._api);
+        },
+        settings: const RouteSettings(),
       ),
     );
   }

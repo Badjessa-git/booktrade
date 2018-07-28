@@ -16,18 +16,19 @@ dependencies:
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: "^0.1.2"
-  firebase_core: "^0.2.4"
-  firebase_auth: "^0.5.11"
-  firebase_messaging: "^1.0.3"
-  firebase_database: "^1.0.1"
+  firebase_core: "0.2.4"
+  firebase_auth: "0.5.15"
+  firebase_messaging: "1.0.3"
   cloud_firestore: "^0.7.3"
   google_sign_in : "^3.0.4"
   flutter_search_bar: "^2.0.4"
   googleapis: "^0.51.0"
   camera: "^0.2.1"
-  path_provider: "0.4.1"
-  flutter_launcher_icons: ^0.5.2
-  modal_progress_hud: ^0.0.6
+  path_provider: "^0.4.1"
+  flutter_launcher_icons: "^0.5.2"
+  modal_progress_hud: "^0.0.6"
+  image_picker: "^0.1.1"
+  validator: "^0.0.7"
 
 
 dev_dependencies:
@@ -35,9 +36,9 @@ dev_dependencies:
     sdk: flutter
 
 flutter_icons:
-  image_path: "assets/img/icon launcher.png"
-  android: true
-  ios: true
+  image_path: "assets/img/logo.png"
+  android: false
+  ios: false
 # For information on the generic Dart part of this file, see the
 # following page: https://www.dartlang.org/tools/pub/pubspec
 

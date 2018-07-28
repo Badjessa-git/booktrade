@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:booktrade/ui/chat_ui/chat_ui.dart';
 import 'package:booktrade/ui/nav_ui/book_sel_list.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
@@ -20,9 +21,10 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
+  String _isbn;
   SearchBar searchBar;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  
+  TextEditingController controller = new TextEditingController();
   _NavigationState() {
     searchBar = new SearchBar(
       inBar: false,
@@ -40,13 +42,14 @@ class _NavigationState extends State<Navigation> {
           new IconButton(
             icon: const Icon(Icons.library_add),
             onPressed: () {
-              dynamic isbn;
               final SimpleDialog alert = new SimpleDialog(
                 contentPadding: const EdgeInsets.all(20.0),
                 children: <Widget> [
-                  new TextFormField(
-                    key: isbn,
+                  new TextField(
+                    controller: controller,
+                    onChanged: (String val) => _isbn = val,
                     decoration: const InputDecoration(
+                      labelText: 'ISBN number',
                       hintText: 'Look up book ISBN here', 
                     ),
                   ),
@@ -60,10 +63,10 @@ class _NavigationState extends State<Navigation> {
                       new RaisedButton(
                         child: const Text('Look up'),
                         onPressed: () {
-                          final dynamic book = lookup(isbn);
-                          Navigator.push<MaterialPageRoute<dynamic>>(context,
-                                    MaterialPageRoute<MaterialPageRoute<dynamic>>(builder: (BuildContext context) => new AddBook(book, widget.cameras, widget._api)));
-                        },
+                          if (_isbn.isNotEmpty) {
+                            lookup();
+                          }
+                        }
                       ),
                       const  Divider(
                         indent: 20.0,
@@ -117,24 +120,28 @@ class _NavigationState extends State<Navigation> {
               ),
               accountName: new Text(widget._api.firebaseUser.displayName),
               accountEmail: new Text(widget._api.firebaseUser.email),
-               decoration: new BoxDecoration(
-                image: new DecorationImage(
-                  image: new NetworkImage("https://img00.deviantart.net/35f0/i/2015/018/2/6/low_poly_landscape__the_river_cut_by_bv_designs-d8eib00.jpg"),
-                  fit: BoxFit.fill
-                )
+              decoration: new BoxDecoration(
+                color: Theme.of(context).primaryColor,
               ),
             ),
-            const ListTile(
+            new ListTile(
               title: const Text('Chats'),
               leading: const Icon(Icons.chat),
+               onTap: () { 
+                 Navigator.push<MaterialPageRoute<dynamic>>(context, 
+                 MaterialPageRoute<MaterialPageRoute<dynamic>>(builder: 
+                 (BuildContext context) => new ChatScreen(widget._api)));
+               },
             ),
-            const ListTile(
+            new ListTile(
               title: const Text('Profile'),
               leading: const Icon(Icons.person),
+              onTap: () {},
             ),
-            const ListTile(
+            new ListTile(
               title: const Text('Settings'),
               leading: const Icon(Icons.settings),
+              onTap: () {},
             ),
             new Divider(
               height: MediaQuery.of(context).size.height - 480.0,
@@ -161,9 +168,11 @@ class _NavigationState extends State<Navigation> {
 }
 
 
-  Future<Book> lookup(dynamic isbn) async {
-    final Book book = await TradeApi.lookup(isbn, widget._api);
-    return book;
+  dynamic lookup() async {
+    final Book book = await TradeApi.lookup(_isbn, widget._api);
+    Navigator.push<MaterialPageRoute<dynamic>>(context,
+              MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                builder: (BuildContext context) => new AddBook(book, widget.cameras, widget._api)));
   }
 }
 

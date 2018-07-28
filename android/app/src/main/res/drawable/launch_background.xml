@@ -5,11 +5,13 @@
 
     <!-- You can insert your own image assets here -->
     <item>
-        <bitmap
-            android:gravity="center"
-            android:src="@mipmap/icon_launcher" />
+        <shape android:shape="rectangle">
+            <solid android:color="#48A9A6" />
+        </shape>
     </item>
     <item>
-        <color android:color="@android:color/Green" />
+        <bitmap
+            android:gravity="center"
+            android:src="@mipmap/logo" />
     </item>
 </layer-list>
