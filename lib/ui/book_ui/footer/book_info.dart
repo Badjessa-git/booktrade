@@ -1,4 +1,5 @@
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/utils/tools.dart';
 import 'package:flutter/material.dart';
 
 class BookInfo extends StatelessWidget{
@@ -15,11 +16,10 @@ class BookInfo extends StatelessWidget{
           crossAxisAlignment: CrossAxisAlignment.center,
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[
-            _buildCard(attribute: 'Author:', attributeValue: bookInfo.title),
-            _buildCard(attribute: 'ISBN', attributeValue: bookInfo.isbn),
+            _buildCard(attribute: 'Author', attributeValue: bookInfo.title),
+            _buildCard(attribute: 'ISBN', attributeValue: bookInfo.isbn.toString()),
             _buildCard(attribute: 'Author', attributeValue: bookInfo.author),
-            _buildCard(attribute: 'Edition', attributeValue: bookInfo.edition),
-          
+            _buildCard(attribute: 'Edition', attributeValue:Tools.convertToEdition(bookInfo.edition) + ' Edition'),
           ],
         ),
       ),

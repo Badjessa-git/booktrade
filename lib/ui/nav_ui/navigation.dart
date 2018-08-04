@@ -21,7 +21,7 @@ class Navigation extends StatefulWidget {
 }
 
 class _NavigationState extends State<Navigation> {
-  String _isbn;
+  int _isbn;
   SearchBar searchBar;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController controller = new TextEditingController();
@@ -47,7 +47,7 @@ class _NavigationState extends State<Navigation> {
                 children: <Widget> [
                   new TextField(
                     controller: controller,
-                    onChanged: (String val) => _isbn = val,
+                    onChanged: (String val) => _isbn = int.parse(val),
                     decoration: const InputDecoration(
                       labelText: 'ISBN number',
                       hintText: 'Look up book ISBN here', 
@@ -63,7 +63,7 @@ class _NavigationState extends State<Navigation> {
                       new RaisedButton(
                         child: const Text('Look up'),
                         onPressed: () {
-                          if (_isbn.isNotEmpty) {
+                          if (_isbn != null) {
                             lookup();
                           }
                         }
@@ -169,10 +169,27 @@ class _NavigationState extends State<Navigation> {
 
 
   dynamic lookup() async {
-    final Book book = await TradeApi.lookup(_isbn, widget._api);
-    Navigator.push<MaterialPageRoute<dynamic>>(context,
+    await TradeApi.lookup(_isbn, widget._api)
+    .then((Book book) {
+       Navigator.push<MaterialPageRoute<dynamic>>(context,
               MaterialPageRoute<MaterialPageRoute<dynamic>>(
                 builder: (BuildContext context) => new AddBook(book, widget.cameras, widget._api)));
+    })
+    .catchError((dynamic e) {
+        final dynamic alert = new AlertDialog(
+        title: const Text('Error'),
+        content: const Text('An error occured while searching for the book' +
+                            'Try again or Input values manually'),
+        actions: <Widget>[
+          new FlatButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          )
+        ],
+      );
+      showDialog<AlertDialog>(context: context, builder: (_) => alert);
+      return;
+    });
   }
 }
 

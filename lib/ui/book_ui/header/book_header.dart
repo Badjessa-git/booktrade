@@ -1,4 +1,9 @@
+import 'dart:async';
+
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/models/user.dart';
+import 'package:booktrade/services/TradeApi.dart';
+import 'package:booktrade/ui/chat_ui/message_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:meta/meta.dart';
 
@@ -6,14 +11,16 @@ class BookDetailHeader extends StatefulWidget {
 
   final Book book;
   final Object bookTag;
-
-  const BookDetailHeader(this.book, this.bookTag);
+  final TradeApi _api;
+  const BookDetailHeader(this.book, this.bookTag, this._api);
 
   @override
   _BookDetailHeaderScreen createState() => new _BookDetailHeaderScreen(); 
 }
 
 class _BookDetailHeaderScreen extends State<BookDetailHeader> {
+  String chatroomID;
+  User user;
 
   @override
   Widget build(BuildContext context) {
@@ -65,11 +72,33 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             borderRadius: new BorderRadius.circular(30.0),
             child: new MaterialButton(
               minWidth: 140.0,
-              color: theme.accentColor,
+              color: widget.book.sellerUID == widget._api.firebaseUser.uid
+                    ? Colors.grey
+                    : Theme.of(context).accentColor,
               textColor: Colors.white,
-              onPressed: () {
-
-              },
+              onPressed: () async {
+                  if (widget.book.sellerUID != widget._api.firebaseUser.uid) { 
+                    print('working');
+                    await _findReceiverAndChatroom();
+                    Navigator.push<MaterialPageRoute<dynamic>>(context, 
+                          new MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                            builder: (BuildContext context) => new MessageScreen(widget._api, user, chatroomID) 
+                          )
+                        );
+                    }
+                   else {
+                    print('Not working');
+                    final SnackBar errorMessage = new SnackBar(
+                      action: SnackBarAction(
+                        label: 'OK',
+                        onPressed: () {
+                        },
+                      ),
+                      content: const Text('Disabled Button')
+                    );
+                    Scaffold.of(context).showSnackBar(errorMessage);
+                  };
+                },
               child: const Text('Talk to Seller'),
             ),
           ),
@@ -99,4 +128,14 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
     );
 
   }
+
+
+    Future<Null> _findReceiverAndChatroom() async {
+      final User _user = await widget._api.getUser(widget.book.sellerUID);
+      final String _chatroomID = await widget._api.getorCreateChatRomms(widget.book.sellerUID);
+      setState(() {
+          chatroomID = _chatroomID;
+          user = _user;
+      });
+    }
 }

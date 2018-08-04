@@ -15,20 +15,37 @@ class AddBook extends StatefulWidget {
   }
   
 class _AddBook extends State<AddBook> {
+  List<String> conditions = <String>['Excellent', 'Very Good', 'Good', 'Poor'];
+
+  int _isbn;
+  String _title;
+  String _author;
+  int _edition;
+  double _price;
+  String _condition;
+
+  TextEditingController isbn = new TextEditingController();
+  TextEditingController title = new TextEditingController();
+  TextEditingController author = new TextEditingController();
+  TextEditingController edition = new TextEditingController();
+  TextEditingController price = new TextEditingController();
+
 
   @override
   void initState(){
     super.initState();
+    _condition = conditions.first;
+    if (widget.curbook != null) {
+      setState(() {
+        _isbn = widget.curbook.isbn;
+        _title = widget.curbook.title;
+        _author = widget.curbook.author;
+        _edition = widget.curbook.edition;        
+      });
+    }
   }
 
-  String _isbn;
-  String _title;
-  String _author;
-  String _edition;
-  String _price;
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
   @override
   Widget build(BuildContext context){
     return new Scaffold(
@@ -56,14 +73,19 @@ class _AddBook extends State<AddBook> {
                 margin: const EdgeInsets.all(10.0),
                 color: Colors.white,
                 child: new TextFormField(
-                  // validator: (String value) {
-                  //   if (value.isEmpty) {
-                  //     return 'Please Enter the ISBN number';
-                  //   } else if (num.parse(value) == null) {
-                  //     return 'Please only input numbers';
-                  //   }
-                  // },
-                  onSaved: (String val) => _isbn = val,
+                  initialValue: _isbn != null
+                              ? _isbn
+                              : '',
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'Please Enter the ISBN number';
+                    } else if (int.parse(value) == null) {
+                      return 'Please only input numbers';
+                    } else {
+                      _isbn = int.parse(value);
+                    }
+                  },
+                  onSaved: (String val) => _isbn = int.parse(val),
                   decoration: const InputDecoration(
                     labelText: 'ISBN',
                     hintText: 'input isbn'
@@ -75,11 +97,16 @@ class _AddBook extends State<AddBook> {
                 margin: const EdgeInsets.all(10.0),
                 color: Colors.white,
                 child: new TextFormField(
-                  // validator: (String value) {
-                  //   if (value.isEmpty) {
-                  //     return 'Please enter the title of the TextBook';
-                  //   }
-                  // },
+                  initialValue: _title != null && _title.isNotEmpty
+                              ? _title
+                              : '',
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'Please enter the title of the TextBook';
+                    } else {
+                      _title = value;
+                    }
+                  },
                  onSaved: (String val) => _title = val,
                  decoration: const InputDecoration(
                    labelText: 'Title',
@@ -92,11 +119,16 @@ class _AddBook extends State<AddBook> {
                  margin: const EdgeInsets.all(10.0),
                  color: Colors.white,
                  child: new TextFormField(
-                  //  validator: (String value) {
-                  //    if (value.isEmpty) {
-                  //      return 'Please Enter the author of the book';
-                  //    }
-                  //  },
+                   initialValue: _author != null && _author.isNotEmpty
+                               ? _author
+                               : '',    
+                   validator: (String value) {
+                     if (value.isEmpty) {
+                       return 'Please Enter the author of the book';
+                     } else {
+                       _author = value;
+                     }
+                   },
                     onSaved: (String val) => _author = val,
                     decoration: const InputDecoration(
                       labelText: 'Author',
@@ -109,41 +141,75 @@ class _AddBook extends State<AddBook> {
                  margin: const EdgeInsets.all(10.0),
                  color: Colors.white,
                  child:  new TextFormField(
-                  // validator: (String value) {
-                  //   if (value.isEmpty) {
-                  //     return 'Please enter the book Edition';
-                  //   } else if (int.parse(value) == null) {
-                  //     return 'Enter a number for the edition';
-                  //   }
-                  // },
-                  onSaved: (String val) => _edition = val,
+                  initialValue: _edition != null
+                              ? _edition
+                              : '', 
+                  validator: (String value) {
+                    if (value.isEmpty) {
+                      return 'Please enter the book Edition';
+                    } else if (int.parse(value) == null) {
+                      return 'Enter a number for the edition';
+                    } else {
+                      _edition = int.parse(value);
+                    }
+                  },
+                  onSaved: (String val) => _edition = int.parse(val),
                   decoration: const InputDecoration(
                    labelText: 'Edition',
                    hintText: 'Input book edition'
                  ),
                 ),
                ),
-                  //price
-                  new Card(
-                    margin: const EdgeInsets.all(10.0),
-                    color: Colors.white,
-                    child:  new TextFormField(
-                      // validator: (String value) {
-                      //   if (value.isEmpty) {
-                      //     return 'Enter the amount offered for the book';
-                      //   } else if (double.parse(value) == null) {
-                      //     return 'The amount has to be a number';
-                      //   } else {
-                      //     _price = value;
-                      //   }
-                      // },
-                      onSaved: (String val) => _price = val,
-                      decoration: const InputDecoration(
-                      labelText: 'Price',
-                      hintText: 'input value of book'
-                      ),
+               new Card(
+                 margin: const EdgeInsets.all(10.0),
+                 child: new ListTile(
+                   contentPadding: const EdgeInsets.all(0.0),
+                 leading: new Text('Condition',
+                    style: new TextStyle(
+                      fontSize: 16.0,
+                      color: Colors.grey[700]),
                     ),
-                  ),
+                trailing: new Card(
+                color: Colors.white,
+                child: new DropdownButton<String>(
+                  onChanged: (String value) {
+                    setState(() {
+                       _condition = value;                        
+                    });
+                  }, 
+                  value: _condition,
+                  items: conditions.map((String value) {
+                      return new DropdownMenuItem<String>(
+                          value: value,
+                          child: new Text(value),
+                      );
+                  }).toList(),
+                ),
+              ),
+             ),
+            ),
+
+              //price
+              new Card(
+                margin: const EdgeInsets.all(10.0),
+                  color: Colors.white,
+                  child:  new TextFormField(
+                    validator: (String value) {
+                      if (value.isEmpty) {
+                        return 'Enter the amount offered for the book';
+                      } else if (double.parse(value) == null) {
+                        return 'The amount has to be a number';
+                      } else {
+                        _price = double.parse(value);
+                      }
+                    },
+                    onSaved: (String val) => _price = double.parse(val),
+                    decoration: const InputDecoration(
+                    labelText: 'Price',
+                    hintText: 'input value of book'
+                    ),
+                 ),
+               ),
                //save
                new Card(
                  margin: const EdgeInsets.all(10.0),
@@ -170,18 +236,21 @@ class _AddBook extends State<AddBook> {
   }
 
   void _submit() {
-    widget.curbook ??= new Book(
+        widget.curbook = new Book(
         title: _title, 
         author: _author, 
         edition: _edition, 
         isbn: _isbn, 
-        picUrl: null, 
+        picUrl: null,
+        condition: _condition, 
         price: _price,
         sellerID: widget._api.firebaseUser.displayName,
-      );
+        sellerUID: widget._api.firebaseUser.uid,
+        );
+  
     Navigator.push<MaterialPageRoute<PageRoute<dynamic>>>(context, 
                    new MaterialPageRoute<MaterialPageRoute<PageRoute<dynamic>>>(
-                     builder: (BuildContext context) => new FinBook(widget.cameras, widget.curbook)
+                     builder: (BuildContext context) => new FinBook(widget.cameras, widget.curbook, widget._api)
                   ),
                 );
   }

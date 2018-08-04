@@ -41,6 +41,7 @@ class _BookDetailsState extends State<BookDetails> {
               new BookDetailHeader(
                   widget.book,
                   widget.bookTag,
+                  widget._api
               ),
               new Padding(
                 padding: const EdgeInsets.only(top: 1.0),

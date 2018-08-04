@@ -20,6 +20,7 @@ class _SellerInfoState extends State<SellerInfo> {
     email: 'loading...',
     displayName: 'loading...',
     school: 'loading...',
+    photoUrl: null,
   );
   @override
   void initState() {

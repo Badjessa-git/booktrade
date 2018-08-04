@@ -1,16 +1,16 @@
 import 'package:meta/meta.dart';
 
 class Book {
-  final String price;
-  final String isbn;
+  double price;
+  final int isbn;
   final String title;
   final String author;
-  final String edition;
-  final String condition;
+  final int edition;
+  String condition;
   final String sellerUID;
   String picUrl;
-  final String sellerID;
-  final String buyerID;
+  String sellerID;
+  String buyerID;
 
   Book ({
     @required this.isbn,

@@ -18,6 +18,7 @@ dependencies:
   cupertino_icons: "^0.1.2"
   firebase_core: "0.2.4"
   firebase_auth: "0.5.15"
+  firebase_storage: "^1.0.1"
   firebase_messaging: "1.0.3"
   cloud_firestore: "^0.7.3"
   google_sign_in : "^3.0.4"

@@ -44,7 +44,7 @@ with TickerProviderStateMixin {
   @override
   Widget build(BuildContext context) {
       return new Padding(
-        padding: const EdgeInsets.all(16.0),
+        padding: const EdgeInsets.all(24.0),
         child: new Column(
           children: <Widget>[
             new TabBar(

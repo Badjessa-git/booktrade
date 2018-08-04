@@ -1,6 +1,9 @@
 import 'dart:async';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/services/TradeApi.dart';
+import 'package:booktrade/ui/book_ui/book_page.dart';
+import 'package:booktrade/utils/routes.dart';
+import 'package:booktrade/utils/tools.dart';
 import 'package:flutter/material.dart';
 
 class SellList extends StatefulWidget {
@@ -59,10 +62,7 @@ class _SellListState extends State<SellList> {
     return new Flexible(
       child:  new RefreshIndicator(
         onRefresh: refresh,
-        child: new GridView.builder(
-          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-            crossAxisCount: 2,
-          ),
+        child: new ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
           itemCount: _books.length,
           itemBuilder: _bookProto,
@@ -74,26 +74,44 @@ class _SellListState extends State<SellList> {
 
   Widget _bookProto(BuildContext context, int index) {
     final Book curbook = _books[index];
-    return new GestureDetector(
-        child: new Container(
-          child: new Column(
-            children: <Widget>[
-              const Divider(height: 10.0,),
-              new Card(
-              elevation: 5.0,
+    return new Container(
+      margin: const EdgeInsets.only(top: 5.0),
+      child: new Card(
+        color: const Color(0xFFE4DFDA),
+        child: new Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          new ListTile(
+            leading: new Hero (
+              tag: index,
               child: new SizedBox(
-              height: 150.0,
-              width: 120.0,
-              child: new Container(
-                decoration: new BoxDecoration(
-                  image: new DecorationImage(
-                    image: new NetworkImage(curbook.picUrl),
-                    fit: BoxFit.fill
-                  )
+                height: 100.0,
+                width: 60.0,
+                child: new Container(
+                  decoration: new BoxDecoration(
+                    image: new DecorationImage( 
+                      image: new NetworkImage(curbook.picUrl),
+                      fit: BoxFit.contain,
+                  ),
                 ),
-               ),
-              ),
+              ),  
             ),
+          ),
+          title: new Text(
+            curbook.title,
+            style: const TextStyle(fontWeight:  FontWeight.bold),
+          ),
+          subtitle: new Text(
+            curbook.author + '\n' +
+            Tools.convertToEdition(curbook.edition) + ' Edition\n' +
+            curbook.sellerID,
+            maxLines: 10,
+            textAlign: TextAlign.left
+          ),
+          isThreeLine: true,
+          dense: false,
+          onTap: () => _navigateToNextPage(curbook, index),
+          ),
             _bookState(curbook),
             ],
           ),
@@ -114,5 +132,15 @@ class _SellListState extends State<SellList> {
     } else {
       return const Text('');
     }
+  }
+    void _navigateToNextPage(Book curbook, Object index) {
+    Navigator.of(context).push<FadePageRoute<dynamic>>(
+      new FadePageRoute(
+        builder: (c) {
+          return new BookDetails(curbook, index, widget._api);
+        },
+        settings: const RouteSettings(),
+      ),
+    );
   }
 }

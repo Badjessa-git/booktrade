@@ -1,15 +1,19 @@
 import 'dart:async';
 import 'dart:io';
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/services/TradeApi.dart';
+import 'package:booktrade/ui/nav_ui/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
+import 'package:validator/validator.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FinBook extends StatefulWidget {
-  dynamic _cameras;
+  List<CameraDescription> _cameras;
   Book curBook;
+  TradeApi _api;
 
-  FinBook(this._cameras, this.curBook);
+  FinBook(this._cameras, this.curBook, this._api);
   
   @override
   _FinBookState createState() => new _FinBookState();   
@@ -21,10 +25,18 @@ class _FinBookState extends State<FinBook>{
   
   String _imagePath;
   CameraController _controller;
-
+  Book book;
   @override
   void initState() {
-    super.initState(); 
+    super.initState();
+    if (widget.curBook != null && widget.curBook.picUrl!=null && widget.curBook.picUrl.isNotEmpty && isURL(widget.curBook.picUrl)) {
+      setState(() {
+        _imagePath = widget.curBook.picUrl; 
+      });
+      WidgetsBinding.instance.addPostFrameCallback((_) async{
+        await showPreview(_imagePath);
+      });
+    } 
     setUpController();
 
   }
@@ -44,8 +56,9 @@ class _FinBookState extends State<FinBook>{
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      backgroundColor: Colors.blueGrey,
+      backgroundColor: Colors.black,
        body:new Column(
+         crossAxisAlignment: CrossAxisAlignment.start,
          children: <Widget>[
            new Expanded (
              child: new Container(
@@ -55,17 +68,23 @@ class _FinBookState extends State<FinBook>{
                 ),
               ),
             new Padding(
-              padding: const EdgeInsets.all(1.0),
-              child: new Row(
-                mainAxisAlignment: MainAxisAlignment.start,
-                children: <Widget>[
-                  _cameraTogglesRowWidget(),
-                  const Divider(indent: 60.0,),
-                  _captureControlWidget(),
-                  _thumbnailWidget(),
-                ],
+              padding: const EdgeInsets.all(0.0),
+              child: new Container(
+                child: new Center(
+                  child: new Row(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      new Divider(
+                        indent: MediaQuery.of(context).size.width/2 - 50.0,
+                      ),
+                      _captureControlWidget(),
+                      _thumbnailWidget(),
+                    ],
+                  ),
+                ),
               ),
-            )
+            ),
           ],
         )
       );
@@ -93,33 +112,6 @@ class _FinBookState extends State<FinBook>{
         child: new CameraPreview(_controller),
       );
     }
-  }
-
-  Widget _cameraTogglesRowWidget() {
-    final List<Widget> toggles = <Widget>[];
-
-    if (widget._cameras.isEmpty) {
-      return const Text('No camera found');
-    } else {
-      for (CameraDescription cameraDescription in widget._cameras) {
-        toggles.add(
-          new SizedBox(
-            width: 90.0,
-            child: new IconButton(
-              icon:
-                  new Icon(getCameraLensIcon(cameraDescription.lensDirection),
-                    size: 30.0,
-                  ),
-              onPressed: () => _controller != null && _controller.value.isRecordingVideo
-                  ? null
-                  : onNewCameraSelected,
-            ),
-          ),
-        );
-      }
-    }
-
-    return new Row(children: toggles);
   }
 
   Widget _thumbnailWidget() {
@@ -190,7 +182,9 @@ class _FinBookState extends State<FinBook>{
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
         new IconButton(
-          iconSize: 40.0,
+          highlightColor: Colors.redAccent,
+          color: Colors.white,
+          iconSize: 70.0,
           icon: const Icon(Icons.camera_alt),
           onPressed: _controller != null &&
                   _controller.value.isInitialized &&
@@ -207,10 +201,13 @@ class _FinBookState extends State<FinBook>{
       if (mounted) {
         setState(() {
           _imagePath = filePath;
-          _controller?.dispose();
-          _controller = null;
         });
-        Navigator.push<HeroDialogRoute<PageRoute<dynamic>>>(context, 
+      }
+      showPreview(_imagePath);
+    });
+  }
+  dynamic showPreview(String _imagePath){
+      return Navigator.push<HeroDialogRoute<PageRoute<dynamic>>>(context, 
         new HeroDialogRoute<HeroDialogRoute<PageRoute<dynamic>>> (
                 builder: (BuildContext context) {
                return new Center (
@@ -224,8 +221,10 @@ class _FinBookState extends State<FinBook>{
                        child: new Container(
                          height: 400.0,
                          width: 400.0,
-                         child: new Image.file(new File(_imagePath),
-                          fit: BoxFit.fill,
+                         child: isURL(_imagePath) 
+                              ? new Image.network(_imagePath)
+                              :new Image.file(new File(_imagePath),
+                          fit: BoxFit.contain,
                          ),
                        ),
                      ),
@@ -237,7 +236,12 @@ class _FinBookState extends State<FinBook>{
                           color: Colors.black,
                         ),                       
                        ),
-                       onPressed: () => Navigator.pop(context),
+                       onPressed: () {
+                        setState(() {
+                          _imagePath = null;                          
+                        });
+                        Navigator.pop(context);
+                       },
                      ),
                      new FlatButton(
                        child: const Text('Save',
@@ -245,81 +249,94 @@ class _FinBookState extends State<FinBook>{
                           color: Colors.black,
                         ),
                        ),
-                       onPressed: () => Navigator.push<MaterialPageRoute<PageRoute<dynamic>>>(context, 
-                              new MaterialPageRoute<MaterialPageRoute<PageRoute<dynamic>>>(builder: (BuildContext context){    
-                                _showCompletePreview(_imagePath);
-                            }
-                          ),
-                       ),
+                       onPressed: ()  {
+                          _submit();
+                       } 
                      ),
                    ],
                  )
                );
             })
           );
-        }
-    });
   }
-
-  Widget _showCompletePreview(String _imagePath) {
-    widget.curBook.picUrl = _imagePath;
-    return new Column(
-      children: <Widget>[
-        new Container(
-          margin: const EdgeInsets.only(top: 5.0),
-          child: new Card(
-            color: const Color(0xFFE4DFDA),
-            child: new Column(
-            mainAxisSize: MainAxisSize.min,
-            children: <Widget>[
-              new ListTile(
-                leading: new Hero (
-                  tag: 'full preview',
-                  child: new Image.file(new File(
-                    _imagePath),
-                    fit: BoxFit.contain,
-                    height: 100.0,
-                    width: 60.0,
-                  ),
-                ),
-              title: new Text(
-                widget.curBook.title,
-                style: const TextStyle(fontWeight:  FontWeight.bold),
-              ),
-              subtitle: new Text(
-                widget.curBook.author + '\n' +
-                widget.curBook.edition + '\n' +
-                widget.curBook.sellerID,
-                maxLines: 10,
-                textAlign: TextAlign.left
-              ),
-              isThreeLine: true,
-              dense: false,
-              ),
-            ],
-          ),
-        ),
-      ),
-      new Row(
-        children: <Widget>[
-          new FlatButton(
-            child: const Text('Cancel'),
-            onPressed: () => Navigator.pop(context),
-          ),
-          new FlatButton(
-            child: const Text('Add'),
-            onPressed: () => _submitNewItem,
-          ),
-        ],
-      ),
-    ],
-
-    );
+  
+  dynamic _submit() async {
+    widget.curBook.picUrl = await widget._api.uploadFile(filePath: _imagePath, isbn: widget.curBook.isbn);
+    await widget._api.uploadBook(book)
+                     .then((dynamic onValue) {
+                        Navigator.popUntil(context, ModalRoute.withName('/Navigation'));
+                      }
+                     )
+                     .catchError((dynamic error) {
+                        final dynamic alert = new AlertDialog(
+                            title: const Text('Error'),
+                            content: const Text('An error occured while searching for the book\n' +
+                                          'Try again or Input values manually'),
+                                actions: <Widget>[
+                            new FlatButton(
+                            child: const Text('OK'),
+                            onPressed: () => Navigator.of(context).pop(),
+                            )
+                          ],
+                    );
+                    showDialog<AlertDialog>(context: context, builder: (_) => alert);
+                      return;
+                    });
   }
+  
+  // }Widget _showCompletePreview(String _imagePath) {
+  //   widget.curBook.picUrl = _imagePath;
+  //   return new Column(
+  //     children: <Widget>[
+  //       new Container(
+  //         margin: const EdgeInsets.only(top: 5.0),
+  //         child: new Card(
+  //           color: const Color(0xFFE4DFDA),
+  //           child: new Column(
+  //           mainAxisSize: MainAxisSize.min,
+  //           children: <Widget>[
+  //             new ListTile(
+  //               leading: new Hero (
+  //                 tag: 'Full Preview',
+  //                 child: new Image.file(new File(_imagePath),
+  //                   fit: BoxFit.contain,
+  //                   height: 100.0,
+  //                   width: 60.0,
+  //                 ),
+  //               ),
+  //             title: new Text(
+  //               widget.curBook.title,
+  //               style: const TextStyle(fontWeight:  FontWeight.bold),
+  //             ),
+  //             subtitle: new Text(
+  //               widget.curBook.author + '\n' +
+  //               widget.curBook.edition + '\n' +
+  //               widget.curBook.sellerID,
+  //               maxLines: 10,
+  //               textAlign: TextAlign.left
+  //             ),
+  //             isThreeLine: true,
+  //             dense: false,
+  //             ),
+  //           ],
+  //         ),
+  //       ),
+  //     ),
+  //     new Row(
+  //       children: <Widget>[
+  //         new FlatButton(
+  //           child: const Text('Cancel'),
+  //           onPressed: () => Navigator.pop(context),
+  //         ),
+  //         new FlatButton(
+  //           child: const Text('Add'),
+  //           onPressed: () => _submitNewItem,
+  //         ),
+  //       ],
+  //     ),
+  //   ],
 
-  Future<bool> _submitNewItem() async {
-    return false;
-  }
+  //   );
 
   Future<String> takePicture() async {
     if (!_controller.value.isInitialized) {

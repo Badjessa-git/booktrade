@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:booktrade/ui/book_ui/book_page.dart';
 import 'package:booktrade/utils/routes.dart';
+import 'package:booktrade/utils/tools.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/services/TradeApi.dart';
@@ -54,14 +55,16 @@ class _BookListState extends State<BookList> {
     if (widget._api != null) {
       final List<Book> books = await widget._api.getAllBook();
       setState(() {
-              _books = books;
+          _books = books;
       });
     }
   }
 
   Widget _marketPage() {
     return new Flexible(
-      child: new RefreshIndicator(
+      child: _books == null 
+      ? const Center(child: const CircularProgressIndicator())
+      : new RefreshIndicator(
         onRefresh: refresh,
         child: new ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -110,7 +113,7 @@ class _BookListState extends State<BookList> {
           ),
           subtitle: new Text(
             curbook.author + '\n' +
-            curbook.edition + '\n' +
+            Tools.convertToEdition(curbook.edition) + ' Edition\n' +
             curbook.sellerID,
             maxLines: 10,
             textAlign: TextAlign.left
@@ -118,6 +121,18 @@ class _BookListState extends State<BookList> {
           isThreeLine: true,
           dense: false,
           onTap: () => _navigateToNextPage(curbook, index),
+          trailing: curbook.buyerID == null
+                  ? new Text('\$${curbook.price}',
+                    style: const TextStyle(
+                      fontSize: 20.0
+                    ),
+                  )
+                  : const Text(
+                    'Sold',
+                    style: const TextStyle(
+                      fontSize: 20.0
+                    ),
+                  ),
           ),
         ],
       ),

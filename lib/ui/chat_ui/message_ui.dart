@@ -1,5 +1,7 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:booktrade/models/book.dart';
+import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/chat_ui/chatmessage_ui.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -8,27 +10,53 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
-dynamic _scaffoldContext;
-
 class MessageScreen extends StatefulWidget {
-
   final TradeApi _api;
-  const MessageScreen(this._api);
+  final String chatRoomID;
+  final User receiver;
+
+  const MessageScreen(this._api, this.receiver, this.chatRoomID);
   @override
   _MessageScreenState createState() => _MessageScreenState();
 
 }
 
-class _MessageScreenState extends State<MessageScreen> {
+class _MessageScreenState extends State<MessageScreen> with TickerProviderStateMixin {
+  final CollectionReference chatRoomRef = Firestore.instance.collection('chatrooms');
   final TextEditingController _textEditingController = new TextEditingController();
   bool _isComposingMessage = false;
+  User receiver;
+  AnimationController _controller;
+  Animation<double> _animation;
 
   @override
-  Widget build(BuildContext context){
+  void initState() { 
+    super.initState();
+    receiver = widget.receiver;
+    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _animation = Tween<double>(begin: -1.0, end: 0.0).animate(CurvedAnimation(
+      parent: _controller,
+      curve: Curves.ease
+    ));
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
-        title: new Text('user'),
-
+        title: new Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          children: <Widget>[
+          _userImage(),
+          const Divider(indent: 10.0,),
+          new Text(widget.receiver.displayName,
+          style: const TextStyle(
+            color: Colors.white,
+            fontSize: 20.0
+          ),
+        ),
+          ],
+        ),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
         leading: new IconButton(
           icon: const Icon(Icons.arrow_back),
@@ -39,10 +67,24 @@ class _MessageScreenState extends State<MessageScreen> {
         child: new Column(
           children: <Widget>[
             new Flexible(
-              child: new AnimatedList(
-                padding: const EdgeInsets.all(8.0),
-                reverse: true,
-                itemBuilder: _messageBuilder,
+              child: new StreamBuilder<QuerySnapshot> (
+                stream: chatRoomRef.document(widget.chatRoomID).collection('messages')
+                                   .snapshots(),
+                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
+                  return snapshot.hasData ? ListView.builder(
+                    reverse: true,
+                    padding: const EdgeInsets.all(8.0),
+                    itemCount: snapshot.data.documents.length,
+                    itemBuilder: (BuildContext context, int index) {
+                      return new ChatMessageListItem(
+                        context: context,
+                        index: index,
+                        animation: _animation,
+                        reference: snapshot,
+                      );
+                    }
+                  ): const CircularProgressIndicator();
+                }, 
               ),
             ),
             const Divider(height: 1.0),
@@ -50,10 +92,6 @@ class _MessageScreenState extends State<MessageScreen> {
               decoration: new BoxDecoration(color: Theme.of(context).canvasColor),
               child: _buildTextComposer()
             ),
-            new Builder(builder: (BuildContext context) {
-              _scaffoldContext = context;
-              return new Container(width: 0.0, height: 0.0);
-            }),
           ],
         ),
         decoration: Theme.of(context).platform == TargetPlatform.iOS ?
@@ -86,12 +124,6 @@ class _MessageScreenState extends State<MessageScreen> {
     );
   }
 
-  Widget _messageBuilder(BuildContext context, int index, Animation<double> animation){
-    return new ChatMessageListItem(
-
-    );
-  }
-
   Widget _buildTextComposer() {
     return new IconTheme(
       data: new IconThemeData(
@@ -111,11 +143,11 @@ class _MessageScreenState extends State<MessageScreen> {
                   color: Theme.of(context).accentColor,
                 ),
                 onPressed: () async {
-                File imageFile = await ImagePicker.pickImage();
-                int timestamp = new DateTime.now().millisecondsSinceEpoch;
-                //TODO
+                final File imageFile = await ImagePicker.pickImage();
+                final int timestamp = new DateTime.now().millisecondsSinceEpoch;
+                final String imgUrl = await widget._api.uploadFile(filePath: imageFile.path , isbn: null);
                 await widget._api.sendMessage(
-                  messageText: null, imageUrl: null,
+                  messageText: null, imageUrl: imgUrl, chatroomID: widget.chatRoomID, time: timestamp
                 );
               },
             ),            
@@ -146,9 +178,21 @@ class _MessageScreenState extends State<MessageScreen> {
 
   Future<Null> _textMessageSubmitted(String text) async {
     _textEditingController.clear();
+    final int timestamp = new DateTime.now().millisecondsSinceEpoch;
     setState(() {
       _isComposingMessage = false;      
     });
-    await widget._api.sendMessage(messageText: text, imageUrl: null);
+    await widget._api.sendMessage(messageText: text, imageUrl: null, chatroomID: widget.chatRoomID, time: timestamp);
   }
+  
+  Widget _userImage() {
+  return new Hero(
+      tag: 'user avatar',
+      child: CircleAvatar(
+        backgroundImage: new NetworkImage(receiver.photoUrl),
+      )
+    ); 
+  }
+  
 }
+

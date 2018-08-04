@@ -9,13 +9,21 @@ dynamic currentChatPartner;
 dynamic currentUserID;
 
 class ChatMessageListItem extends StatelessWidget {
-  dynamic messageSnapshot;
-
   
+  final BuildContext context;
+  final int index;
+  final Animation<double> animation;
+  final AsyncSnapshot<QuerySnapshot> reference;
+  dynamic messageSnapshot;
+  
+  ChatMessageListItem({this.context, this.index, this.animation, this.reference}){
+    messageSnapshot = reference.data;
+  }
+ 
   @override
   Widget build(BuildContext context){
     return new SizeTransition(
-      sizeFactor: new CurvedAnimation(curve: Curves.decelerate),
+      sizeFactor: new CurvedAnimation(parent: animation,curve: Curves.decelerate),
       child: new Container(
         margin: const EdgeInsets.symmetric(vertical: 10.0),
         child: new Row(
@@ -33,7 +41,7 @@ class ChatMessageListItem extends StatelessWidget {
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            new Text(messageSnapshot.value['senderName'],
+            new Text(messageSnapshot.value['name'],
               style: const TextStyle(
                 fontSize: 14.0,
                 color: Colors.black,
@@ -47,7 +55,7 @@ class ChatMessageListItem extends StatelessWidget {
                     messageSnapshot.value['imageUrl'],
                     width: 250.0,
               )
-              : new Text(messageSnapshot.value['text']),
+              : new Text(messageSnapshot.value['message']),
             ),
           ],
         ),
@@ -58,7 +66,7 @@ class ChatMessageListItem extends StatelessWidget {
           new Container(
             margin: const EdgeInsets.only(left: 8.0),
             child: new CircleAvatar(
-              backgroundImage: new NetworkImage(messageSnapshot.value['senderPhotoUrl']),
+              backgroundImage: new NetworkImage(messageSnapshot.value['userPic']),
             ),
           )
         ],
@@ -74,7 +82,7 @@ class ChatMessageListItem extends StatelessWidget {
           new Container(
             margin: const EdgeInsets.only(right: 8.0),
             child: new CircleAvatar(
-              backgroundImage: new NetworkImage(messageSnapshot.value['senderPhotoUrl']),
+              backgroundImage: new NetworkImage(messageSnapshot.value['userPic']),
             ),
           )
         ],
@@ -83,7 +91,7 @@ class ChatMessageListItem extends StatelessWidget {
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
-            new Text(messageSnapshot.value['senderName'],
+            new Text(messageSnapshot.value['name'],
               style: const TextStyle(
                 fontSize: 14.0,
                 color: Colors.black,
@@ -97,7 +105,7 @@ class ChatMessageListItem extends StatelessWidget {
                     messageSnapshot.value['imageUrl'],
                     width: 250.0,
                   )
-                  : new Text(messageSnapshot.value['text']),
+                  : new Text(messageSnapshot.value['message']),
             )
           ],
         ),

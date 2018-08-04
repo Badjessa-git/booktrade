@@ -2,12 +2,16 @@ import 'dart:async';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/ui/home.dart';
+import 'package:flutter/services.dart';
 
 List<CameraDescription> cameras;
 
-Future<Null> main() async {
+Future<dynamic> main() async {
   cameras = await availableCameras();
-  runApp(new BookTrade());
+  SystemChrome.setPreferredOrientations(<DeviceOrientation>[DeviceOrientation.portraitUp])
+  .then<dynamic>((_){
+    runApp(new BookTrade());
+  });
 }
 
 
