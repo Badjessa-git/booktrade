@@ -75,11 +75,13 @@ class TradeApi {
 
 
   Future<User> fromChatRoomFirebase(String chatroomId) async{
-    final String otherUserUID = (await Firestore.instance.collection('chatrooms')
+    final FirebaseUser curUser = await _auth.currentUser();
+    final DocumentSnapshot otherUserUID = await Firestore.instance.collection('chatrooms')
                                                         .document(chatroomId)
-                                                        .get())
-                                                        .data['otherUserID'];
-    final User otherUser = await getUser(otherUserUID);
+                                                        .get();
+    final User otherUser = curUser.uid == otherUserUID.data['otherUserID']
+                          ? await getUser(otherUserUID.data['currentUserID'])
+                          : await getUser(otherUserUID.data['otherUserID']);
     return otherUser;
   } 
 

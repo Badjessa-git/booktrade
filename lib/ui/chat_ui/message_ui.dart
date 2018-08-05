@@ -73,7 +73,6 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
                   return snapshot.hasData ? new ListView.builder(
                     physics: const AlwaysScrollableScrollPhysics(),
-                    reverse: true,
                     padding: const EdgeInsets.all(8.0),
                     itemCount: snapshot.data.documents.length,
                     itemBuilder: (BuildContext context, int index) => _messageProto(context, snapshot.data.documents[index])
