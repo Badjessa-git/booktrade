@@ -8,6 +8,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
 
 dynamic _scaffoldContext;
@@ -26,9 +27,11 @@ class MessageScreen extends StatefulWidget {
 class _MessageScreenState extends State<MessageScreen> with TickerProviderStateMixin {
   final CollectionReference chatRoomRef = Firestore.instance.collection('chatrooms');
   final TextEditingController _textEditingController = new TextEditingController();
+  final ScrollController _scrollController = new ScrollController();
   bool _isComposingMessage = false;
   User receiver;
   AnimationController _controller;
+  Animation<double> _animation;
   String curUserEmail;
 
   @override
@@ -36,9 +39,16 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
     super.initState();
     receiver = widget.receiver;
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
     curUserEmail = widget._api.firebaseUser.email;
     setState(() {});
   }
+  
+  @override
+    void dispose() {
+      _controller.dispose();
+      super.dispose();
+    }
 
   @override
   Widget build(BuildContext context) {
@@ -72,8 +82,10 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
                                    .orderBy('time').snapshots(),
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
                   return snapshot.hasData ? new ListView.builder(
+                    controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(8.0),
+                    shrinkWrap: true,
                     itemCount: snapshot.data.documents.length,
                     itemBuilder: (BuildContext context, int index) => _messageProto(context, snapshot.data.documents[index])
                     //   return new ChatMessageListItem(
@@ -106,14 +118,22 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
   }
 
   Widget _messageProto(BuildContext context, DocumentSnapshot messageSnapshot) {
-    return new Container(
+    final dynamic object = new Container(
         margin: const EdgeInsets.symmetric(vertical: 10.0),
-        child: new Row(
+          child: Row(
           children: curUserEmail == messageSnapshot.data['email']
                 ? getSentMessageLayout(messageSnapshot)
                 : getReceivedMessageLayout(messageSnapshot),
           ),
     );
+    SchedulerBinding.instance.addPostFrameCallback((_) {
+            _scrollController.animateTo(
+              _scrollController.position.maxScrollExtent,
+              duration: const Duration(milliseconds: 300),
+              curve: Curves.easeOut,
+            );
+    });
+    return object;
   }
 
   List<Widget> getSentMessageLayout(DocumentSnapshot messageSnapshot) {

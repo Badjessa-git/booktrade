@@ -31,11 +31,10 @@ class _ChatScreenState extends State<ChatScreen> {
         otheusers.add(tempUser);
         mapOfUsers.putIfAbsent(tempUser, () => val);
       }
-    } 
+    }
     setState(() {
       _allUsers = otheusers;
     });
-
   }
 
   @override
@@ -86,9 +85,12 @@ class _ChatScreenState extends State<ChatScreen> {
           ),
           enabled: true,
           onTap: () {
-             final String chatroom = mapOfUsers[_allUsers[index]];
-             Navigator.push<MaterialPageRoute<dynamic>>(context, 
-                                    MaterialPageRoute<MaterialPageRoute<dynamic>>(builder: (BuildContext context) => new MessageScreen(widget._api, _allUsers[index], chatroom)));
+            final String chatroom = mapOfUsers[_allUsers[index]];
+            Navigator.push<MaterialPageRoute<dynamic>>(
+                context,
+                MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                    builder: (BuildContext context) => new MessageScreen(
+                        widget._api, _allUsers[index], chatroom)));
           },
         ),
       ],
@@ -103,9 +105,13 @@ class _ChatScreenState extends State<ChatScreen> {
   dynamic _reloadChats() async {
     if (widget._api != null) {
       final List<String> allChatRoomsID = await widget._api.getAllChatrooms();
-      List<User> otheusers = <User>[];
+      final List<User> otheusers = <User>[];
       for (final String val in allChatRoomsID) {
-        otheusers.add(await widget._api.fromChatRoomFirebase(val));
+        final User tempUser = await widget._api.fromChatRoomFirebase(val);
+        if (tempUser != null) {
+          otheusers.add(tempUser);
+          mapOfUsers.putIfAbsent(tempUser, () => val);
+        }
       }
       setState(() {
         _allUsers = otheusers;
