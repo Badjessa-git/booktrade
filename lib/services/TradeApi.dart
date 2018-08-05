@@ -3,7 +3,6 @@ import 'dart:convert' show json;
 import 'dart:io';
 import 'dart:math' show Random;
 import 'dart:typed_data' show ByteData;
-import 'package:booktrade/models/chatroom.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -194,6 +193,7 @@ class TradeApi {
                               'imageUrl': imageUrl,
                               'name': firebaseUser.displayName,
                               'userPic': firebaseUser.photoUrl,
+                              'email': firebaseUser.email,
                               'time': time
                             });
                                                    

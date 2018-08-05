@@ -2,18 +2,17 @@ import 'dart:async';
 import 'dart:io';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/services/TradeApi.dart';
-import 'package:booktrade/ui/nav_ui/navigation.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:validator/validator.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FinBook extends StatefulWidget {
-  List<CameraDescription> _cameras;
-  Book curBook;
-  TradeApi _api;
+  final List<CameraDescription> _cameras;
+  final Book curBook;
+  final TradeApi _api;
 
-  FinBook(this._cameras, this.curBook, this._api);
+  const FinBook(this._cameras, this.curBook, this._api);
   
   @override
   _FinBookState createState() => new _FinBookState();   
@@ -270,7 +269,7 @@ class _FinBookState extends State<FinBook>{
                      .catchError((dynamic error) {
                         final dynamic alert = new AlertDialog(
                             title: const Text('Error'),
-                            content: const Text('An error occured while searching for the book\n' +
+                            content: const Text('An error occured while searching for the book\n' 
                                           'Try again or Input values manually'),
                                 actions: <Widget>[
                             new FlatButton(

@@ -10,6 +10,8 @@ import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
+dynamic _scaffoldContext;
+
 class MessageScreen extends StatefulWidget {
   final TradeApi _api;
   final String chatRoomID;
@@ -27,17 +29,15 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
   bool _isComposingMessage = false;
   User receiver;
   AnimationController _controller;
-  Animation<double> _animation;
+  String curUserEmail;
 
   @override
   void initState() { 
     super.initState();
     receiver = widget.receiver;
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
-    _animation = Tween<double>(begin: -1.0, end: 0.0).animate(CurvedAnimation(
-      parent: _controller,
-      curve: Curves.ease
-    ));
+    curUserEmail = widget._api.firebaseUser.email;
+    setState(() {});
   }
 
   @override
@@ -69,29 +69,29 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
             new Flexible(
               child: new StreamBuilder<QuerySnapshot> (
                 stream: chatRoomRef.document(widget.chatRoomID).collection('messages')
-                                   .snapshots(),
+                                   .orderBy('time').snapshots(),
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
-                  return snapshot.hasData ? ListView.builder(
+                  return snapshot.hasData ? new ListView.builder(
+                    physics: const AlwaysScrollableScrollPhysics(),
                     reverse: true,
                     padding: const EdgeInsets.all(8.0),
                     itemCount: snapshot.data.documents.length,
-                    itemBuilder: (BuildContext context, int index) {
-                      return new ChatMessageListItem(
-                        context: context,
-                        index: index,
-                        animation: _animation,
-                        reference: snapshot,
-                      );
-                    }
+                    itemBuilder: (BuildContext context, int index) => _messageProto(context, snapshot.data.documents[index])
+                    //   return new ChatMessageListItem(
+                    //     animation: _controller,
+                    //     messageSnapshot: snapshot.data.documents[index],
+                    //     currentUserEmail: curUserEmail,
+                    //   );
+                    // }
                   ): const CircularProgressIndicator();
-                }, 
+                },
               ),
             ),
             const Divider(height: 1.0),
             new Container(
               decoration: new BoxDecoration(color: Theme.of(context).canvasColor),
               child: _buildTextComposer()
-            ),
+            ),   
           ],
         ),
         decoration: Theme.of(context).platform == TargetPlatform.iOS ?
@@ -104,6 +104,95 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
           ): null,
         ),
     );
+  }
+
+  Widget _messageProto(BuildContext context, DocumentSnapshot messageSnapshot) {
+    return new Container(
+        margin: const EdgeInsets.symmetric(vertical: 10.0),
+        child: new Row(
+          children: curUserEmail == messageSnapshot.data['email']
+                ? getSentMessageLayout(messageSnapshot)
+                : getReceivedMessageLayout(messageSnapshot),
+          ),
+    );
+  }
+
+  List<Widget> getSentMessageLayout(DocumentSnapshot messageSnapshot) {
+    return <Widget> [
+      new Expanded(
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            new Text(messageSnapshot.data['name'],
+              style: const TextStyle(
+                fontSize: 14.0,
+                color: Colors.black,
+                fontWeight: FontWeight.bold
+              ),   
+            ),
+            new Container(
+              margin: const EdgeInsets.only(top: 5.0),
+              child: messageSnapshot.data['imageUrl'] != null
+                  ? new Image.network(
+                    messageSnapshot.data['imageUrl'],
+                    width: 250.0,
+              )
+              : new Text(messageSnapshot.data['message']),
+            ),
+          ],
+        ),
+      ),
+      new Column(
+        crossAxisAlignment: CrossAxisAlignment.end,
+        children: <Widget>[
+          new Container(
+            margin: const EdgeInsets.only(left: 8.0),
+            child: new CircleAvatar(
+              backgroundImage: new NetworkImage(messageSnapshot.data['userPic']),
+            ),
+          )
+        ],
+      ),
+    ];
+  }
+
+  List<Widget> getReceivedMessageLayout(DocumentSnapshot messageSnapshot) {
+    return <Widget> [
+      new Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: <Widget>[
+          new Container(
+            margin: const EdgeInsets.only(right: 8.0),
+            child: new CircleAvatar(
+              backgroundImage: new NetworkImage(messageSnapshot.data['userPic']),
+            ),
+          )
+        ],
+      ),
+      new Expanded(
+        child: new Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            new Text(messageSnapshot.data['name'],
+              style: const TextStyle(
+                fontSize: 14.0,
+                color: Colors.black,
+                fontWeight: FontWeight.bold
+              )
+            ),
+            new Container(
+              margin: const EdgeInsets.only(top: 5.0),
+              child: messageSnapshot.data['imageUrl'] != null
+                  ? new Image.network(
+                    messageSnapshot.data['imageUrl'],
+                    width: 250.0,
+                  )
+                  : new Text(messageSnapshot.data['message']),
+            )
+          ],
+        ),
+      )
+    ];
   }
 
   CupertinoButton getIOSSendButton() {

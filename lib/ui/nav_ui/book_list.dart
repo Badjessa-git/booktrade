@@ -142,8 +142,8 @@ class _BookListState extends State<BookList> {
 
   void _navigateToNextPage(Book curbook, Object index) {
     Navigator.of(context).push<FadePageRoute<dynamic>>(
-      new FadePageRoute(
-        builder: (c) {
+      new FadePageRoute<FadePageRoute<dynamic>>(
+        builder: (BuildContext c) {
           return new BookDetails(curbook, index, widget._api);
         },
         settings: const RouteSettings(),

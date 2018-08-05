@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'package:booktrade/models/message.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
@@ -43,16 +42,16 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
-          title: const Text('Chats'),
+          title: const Text('Messages'),
         ),
         backgroundColor: Colors.white,
         body: new Flex(
           direction: Axis.vertical,
           children: <Widget>[
             new Flexible(
-                child: _allUsers == null
+                child: _allUsers.isEmpty
                     ? const Center(
-                        child: const Text('No Chats Available'),
+                        child: const Text('No Messages Available'),
                       )
                     : new RefreshIndicator(
                         onRefresh: refresh,
