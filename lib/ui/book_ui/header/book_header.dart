@@ -1,18 +1,18 @@
 import 'dart:async';
-
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
+import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
 import 'package:flutter/material.dart';
-import 'package:meta/meta.dart';
 
 class BookDetailHeader extends StatefulWidget {
 
   final Book book;
   final Object bookTag;
   final TradeApi _api;
-  const BookDetailHeader(this.book, this.bookTag, this._api);
+  final dynamic cameras;
+  const BookDetailHeader(this.book, this.bookTag, this._api, {this.cameras});
 
   @override
   _BookDetailHeaderScreen createState() => new _BookDetailHeaderScreen(); 
@@ -63,7 +63,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
         ),
     );
 
-    final dynamic actionsButtons = new Padding(
+    final dynamic actionsButtons2 = new Padding(
       padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
       child: new Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -72,9 +72,68 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             borderRadius: new BorderRadius.circular(30.0),
             child: new MaterialButton(
               minWidth: 140.0,
-              color: widget.book.sellerUID == widget._api.firebaseUser.uid
-                    ? Colors.grey
-                    : Theme.of(context).accentColor,
+              color: widget.book.sold
+                   ? Colors.grey
+                   : Theme.of(context).accentColor,
+              textColor: Colors.white,
+              onPressed: () async {
+                if (widget.book.sold) {
+                  final SnackBar warning = new SnackBar(
+                    action: SnackBarAction(
+                      label: 'OK',
+                      onPressed: () {},
+                    ),
+                    content: const Text('Book already marked'),
+                  );
+                  Scaffold.of(context).showSnackBar(warning);
+                }
+              else {
+                final bool success = await widget._api.soldBook(widget.book);
+                if (!success) {
+                    final SnackBar errorMessage = new SnackBar(
+                      action: SnackBarAction(
+                        label: 'OK',
+                        onPressed: () {
+                        },
+                      ),
+                      content: const Text('Error Communicating with the Server')
+                    );
+                    Scaffold.of(context).showSnackBar(errorMessage);
+                  }
+              }
+                },
+              child: const Text('Mark it Sold'),
+            ),
+          ),
+          new ClipRRect(
+            borderRadius: new BorderRadius.circular(30.0),
+            child: new MaterialButton(
+              minWidth: 140.0,
+              color: Theme.of(context).accentColor,
+              textColor: Colors.white,
+              onPressed: () {
+                Navigator.push<dynamic>(context, 
+                    new MaterialPageRoute<dynamic>(
+                      builder: (BuildContext context) => AddBook(widget.book, widget.cameras, widget._api)
+                      )
+                    );
+              },
+              child: const Text('Edit'),
+            ),
+          ),
+        ],
+      ),
+    );
+    final dynamic actionsButtons1 = new Padding(
+      padding: const EdgeInsets.only(top: 16.0, left: 16.0, right: 16.0),
+      child: new Row(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          new ClipRRect(
+            borderRadius: new BorderRadius.circular(30.0),
+            child: new MaterialButton(
+              minWidth: 140.0,
+              color: Theme.of(context).accentColor,
               textColor: Colors.white,
               onPressed: () async {
                   if (widget.book.sellerUID != widget._api.firebaseUser.uid) { 
@@ -97,7 +156,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                       content: const Text('Disabled Button')
                     );
                     Scaffold.of(context).showSnackBar(errorMessage);
-                  };
+                  }
                 },
               child: const Text('Talk to Seller'),
             ),
@@ -115,7 +174,9 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             children: <Widget>[
               avatar,
               price,
-              actionsButtons,
+              widget.book.sellerUID == widget._api.firebaseUser.uid
+              ? actionsButtons2
+              : actionsButtons1
             ],
           ),
         ),

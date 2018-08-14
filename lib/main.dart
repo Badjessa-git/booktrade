@@ -23,7 +23,7 @@ class BookTrade extends StatelessWidget {
         primaryColor: const Color(0xFF48A9A6),
         accentColor: Colors.redAccent,
       ),
-      home: new Home(cameras)
+      home: new Home(cameras),
     );
   }
 }

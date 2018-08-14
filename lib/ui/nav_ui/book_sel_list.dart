@@ -9,8 +9,8 @@ import 'package:flutter/material.dart';
 class SellList extends StatefulWidget {
 
   final TradeApi _api;
-
-  const SellList(this._api);
+  final dynamic cameras;
+  const SellList(this._api, this.cameras);
 
   @override
   _SellListState createState() => new _SellListState();
@@ -62,10 +62,16 @@ class _SellListState extends State<SellList> {
     return new Flexible(
       child:  new RefreshIndicator(
         onRefresh: refresh,
-        child: new ListView.builder(
+        child: _books.isNotEmpty
+        ? new ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
           itemCount: _books.length,
           itemBuilder: _bookProto,
+        )
+        : const Center(child: const Text('No Books Available',
+                       style: const TextStyle(
+                         fontSize: 24.0
+                       ),),
         ),
       ),
     );
@@ -120,7 +126,7 @@ class _SellListState extends State<SellList> {
   }
 
   Widget _bookState(Book curbook) {
-    if (curbook.buyerID != null) {
+    if (curbook.sold == true) {
       return const Text('SOLD',
       style: const TextStyle(
         fontSize: 14.0,
@@ -135,9 +141,9 @@ class _SellListState extends State<SellList> {
   }
     void _navigateToNextPage(Book curbook, Object index) {
     Navigator.of(context).push<FadePageRoute<dynamic>>(
-      new FadePageRoute(
-        builder: (c) {
-          return new BookDetails(curbook, index, widget._api);
+      new FadePageRoute<FadePageRoute<dynamic>>(
+        builder: (BuildContext c) {
+          return new BookDetails(curbook, index, widget._api, cameras: widget.cameras);
         },
         settings: const RouteSettings(),
       ),

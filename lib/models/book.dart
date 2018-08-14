@@ -10,7 +10,7 @@ class Book {
   final String sellerUID;
   String picUrl;
   String sellerID;
-  String buyerID;
+  bool sold;
 
   Book ({
     @required this.isbn,
@@ -21,7 +21,7 @@ class Book {
     @required this.sellerID,
     @required this.condition,
     @required this.sellerUID,
-    this.buyerID,
+    this.sold = false,
     this.price, 
   });
 }

@@ -13,35 +13,37 @@ class FinBook extends StatefulWidget {
   final TradeApi _api;
 
   const FinBook(this._cameras, this.curBook, this._api);
-  
-  @override
-  _FinBookState createState() => new _FinBookState();   
-}
-  
-class _FinBookState extends State<FinBook>{
 
+  @override
+  _FinBookState createState() => new _FinBookState();
+}
+
+class _FinBookState extends State<FinBook> {
   // _FinBookState(String isbn, String author, String title, String edition);
-  
+
   String _imagePath;
   CameraController _controller;
   Book book;
   @override
   void initState() {
     super.initState();
-    if (widget.curBook != null && widget.curBook.picUrl!=null && widget.curBook.picUrl.isNotEmpty && isURL(widget.curBook.picUrl)) {
+    if (widget.curBook != null &&
+        widget.curBook.picUrl != null &&
+        widget.curBook.picUrl.isNotEmpty &&
+        isURL(widget.curBook.picUrl)) {
       setState(() {
-        _imagePath = widget.curBook.picUrl; 
+        _imagePath = widget.curBook.picUrl;
       });
-      WidgetsBinding.instance.addPostFrameCallback((_) async{
-        await showPreview(_imagePath);
+      WidgetsBinding.instance.addPostFrameCallback((_) async {
+        _openDialog(context);
       });
-    } 
+    }
     setUpController();
-
   }
 
   void setUpController() {
-    _controller = new CameraController(widget._cameras[0], ResolutionPreset.medium);
+    _controller =
+        new CameraController(widget._cameras[0], ResolutionPreset.medium);
     _controller.initialize().then((_) {
       if (!mounted) {
         return;
@@ -51,21 +53,21 @@ class _FinBookState extends State<FinBook>{
   }
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-    
+
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      backgroundColor: Colors.black,
-       body:new Column(
-         crossAxisAlignment: CrossAxisAlignment.start,
-         children: <Widget>[
-           new Expanded (
-             child: new Container(
-                  child: new Center(
-                    child: _cameraPreviewWidget(),
-                  ),
+        backgroundColor: Colors.black,
+        body: new Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: <Widget>[
+            new Expanded(
+              child: new Container(
+                child: new Center(
+                  child: _cameraPreviewWidget(),
                 ),
               ),
+            ),
             new Padding(
               padding: const EdgeInsets.all(0.0),
               child: new Container(
@@ -75,7 +77,7 @@ class _FinBookState extends State<FinBook>{
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       new Divider(
-                        indent: MediaQuery.of(context).size.width/2 - 50.0,
+                        indent: MediaQuery.of(context).size.width / 2 - 50.0,
                       ),
                       _captureControlWidget(),
                       _thumbnailWidget(),
@@ -85,8 +87,7 @@ class _FinBookState extends State<FinBook>{
               ),
             ),
           ],
-        )
-      );
+        ));
   }
 
   @override
@@ -122,9 +123,8 @@ class _FinBookState extends State<FinBook>{
             : new SizedBox(
                 width: 64.0,
                 height: 64.0,
-                child: new Image.file(new File(_imagePath)
+                child: new Image.file(new File(_imagePath)),
               ),
-        ),
       ),
     );
   }
@@ -145,7 +145,8 @@ class _FinBookState extends State<FinBook>{
     if (_controller != null) {
       await _controller.dispose();
     }
-    _controller = new CameraController(cameraDescription, ResolutionPreset.high);
+    _controller =
+        new CameraController(cameraDescription, ResolutionPreset.high);
 
     // If the controller is updated then update the UI.
     _controller.addListener(() {
@@ -174,9 +175,10 @@ class _FinBookState extends State<FinBook>{
   void _showCameraException(CameraException e) {
     showInSnackBar('Error: ${e.code}\n${e.description}');
   }
+
   //Display the control bar with buttons to take pictures
   Widget _captureControlWidget() {
-      return new Row(
+    return new Row(
       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
       mainAxisSize: MainAxisSize.max,
       children: <Widget>[
@@ -202,140 +204,9 @@ class _FinBookState extends State<FinBook>{
           _imagePath = filePath;
         });
       }
-      showPreview(_imagePath);
+      _openDialog(context);
     });
   }
-  dynamic showPreview(String _imagePath){
-      return Navigator.push<HeroDialogRoute<PageRoute<dynamic>>>(context, 
-        new HeroDialogRoute<HeroDialogRoute<PageRoute<dynamic>>> (
-                builder: (BuildContext context) {
-               return new Center (
-                 child: new AlertDialog(
-                   title: const Text('Save Picture',
-                   textAlign: TextAlign.center,
-                   ),
-                   content: new Container(
-                     child: new Hero (
-                       tag: 'Preview',
-                       child: new Container(
-                         height: 400.0,
-                         width: 400.0,
-                         child: isURL(_imagePath) 
-                              ? new Image.network(_imagePath)
-                              :new Image.file(new File(_imagePath),
-                          fit: BoxFit.contain,
-                         ),
-                       ),
-                     ),
-                   ),
-                   actions: <Widget>[
-                     new FlatButton(
-                       child: const Text('Cancel',
-                        style: const TextStyle(
-                          color: Colors.black,
-                        ),                       
-                       ),
-                       onPressed: () {
-                        setState(() {
-                          _imagePath = null;                          
-                        });
-                        Navigator.pop(context);
-                       },
-                     ),
-                     new FlatButton(
-                       child: const Text('Save',
-                        style: const TextStyle(
-                          color: Colors.black,
-                        ),
-                       ),
-                       onPressed: ()  {
-                          _submit();
-                       } 
-                     ),
-                   ],
-                 )
-               );
-            })
-          );
-  }
-  
-  dynamic _submit() async {
-    widget.curBook.picUrl = await widget._api.uploadFile(filePath: _imagePath, isbn: widget.curBook.isbn);
-    await widget._api.uploadBook(book)
-                     .then((dynamic onValue) {
-                        Navigator.popUntil(context, ModalRoute.withName('/Navigation'));
-                      }
-                     )
-                     .catchError((dynamic error) {
-                        final dynamic alert = new AlertDialog(
-                            title: const Text('Error'),
-                            content: const Text('An error occured while searching for the book\n' 
-                                          'Try again or Input values manually'),
-                                actions: <Widget>[
-                            new FlatButton(
-                            child: const Text('OK'),
-                            onPressed: () => Navigator.of(context).pop(),
-                            )
-                          ],
-                    );
-                    showDialog<AlertDialog>(context: context, builder: (_) => alert);
-                      return;
-                    });
-  }
-  
-  // }Widget _showCompletePreview(String _imagePath) {
-  //   widget.curBook.picUrl = _imagePath;
-  //   return new Column(
-  //     children: <Widget>[
-  //       new Container(
-  //         margin: const EdgeInsets.only(top: 5.0),
-  //         child: new Card(
-  //           color: const Color(0xFFE4DFDA),
-  //           child: new Column(
-  //           mainAxisSize: MainAxisSize.min,
-  //           children: <Widget>[
-  //             new ListTile(
-  //               leading: new Hero (
-  //                 tag: 'Full Preview',
-  //                 child: new Image.file(new File(_imagePath),
-  //                   fit: BoxFit.contain,
-  //                   height: 100.0,
-  //                   width: 60.0,
-  //                 ),
-  //               ),
-  //             title: new Text(
-  //               widget.curBook.title,
-  //               style: const TextStyle(fontWeight:  FontWeight.bold),
-  //             ),
-  //             subtitle: new Text(
-  //               widget.curBook.author + '\n' +
-  //               widget.curBook.edition + '\n' +
-  //               widget.curBook.sellerID,
-  //               maxLines: 10,
-  //               textAlign: TextAlign.left
-  //             ),
-  //             isThreeLine: true,
-  //             dense: false,
-  //             ),
-  //           ],
-  //         ),
-  //       ),
-  //     ),
-  //     new Row(
-  //       children: <Widget>[
-  //         new FlatButton(
-  //           child: const Text('Cancel'),
-  //           onPressed: () => Navigator.pop(context),
-  //         ),
-  //         new FlatButton(
-  //           child: const Text('Add'),
-  //           onPressed: () => _submitNewItem,
-  //         ),
-  //       ],
-  //     ),
-  //   ],
-
-  //   );
 
   Future<String> takePicture() async {
     if (!_controller.value.isInitialized) {
@@ -361,51 +232,97 @@ class _FinBookState extends State<FinBook>{
     return filePath;
   }
 
-  String timestamp() => new DateTime.now().millisecondsSinceEpoch.toString();
-  
+  void _openDialog(BuildContext context) {
+     Navigator.of(context).push<MaterialPageRoute<dynamic>>(new MaterialPageRoute<MaterialPageRoute<dynamic>>(
+        builder: (BuildContext context) {
+            return new SavePictureDialog(
+                _imagePath, widget.curBook, widget._api);
+          },
+          fullscreenDialog: true,
+        ));
+  }
 
+  String timestamp() => new DateTime.now().millisecondsSinceEpoch.toString();
 }
 
-class HeroDialogRoute<T> extends PageRoute<T> {
-  HeroDialogRoute({ this.builder }) : super();
+class SavePictureDialog extends StatelessWidget {
+  final String _imagePath;
+  final Book curBook;
+  final TradeApi _api;
 
-  final WidgetBuilder builder;
+  SavePictureDialog(this._imagePath, this.curBook, this._api);
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
-  bool get opaque => false;
-
-  @override
-  bool get barrierDismissible => true;
-
-  @override
-  Duration get transitionDuration => const Duration(milliseconds: 300);
-
-  @override
-  bool get maintainState => true;
-
-  @override
-  Color get barrierColor => Colors.black54;
-
-  @override
-  Widget buildTransitions(BuildContext context, Animation<double> animation, Animation<double> secondaryAnimation, Widget child) {
-    return new FadeTransition(
-      opacity: new CurvedAnimation(
-        parent: animation,
-        curve: Curves.easeOut
+  Widget build(BuildContext context) {
+    return new Scaffold(
+      backgroundColor: Colors.black,
+      key: _scaffoldKey,
+      appBar: new AppBar(
+        title: const Text('Save Image'),
+        actions: <Widget>[
+          new FlatButton(
+            onPressed: () async {
+              _scaffoldKey.currentState.showSnackBar(new SnackBar(
+                duration: const Duration(seconds: 4),
+                content: new Row(
+                  children: const <Widget>[
+                    const CircularProgressIndicator(),
+                    const Text('  Submitting Book...')
+                  ],
+                ),
+              ));
+              await _submit(context);
+            },
+            child: new Text('SAVE',
+                style: Theme
+                    .of(context)
+                    .textTheme
+                    .subhead
+                    .copyWith(color: Colors.white)),
+          )
+        ],
       ),
-      child: child
+      body: new Center(
+        child: new Container(
+          child: new Hero(
+            tag: 'Preview',
+            child: new Container(
+              height: 400.0,
+              width: 400.0,
+              child: isURL(_imagePath)
+                  ? new Image.network(_imagePath)
+                  : new Image.file(
+                      new File(_imagePath),
+                      fit: BoxFit.fill,
+                    ),
+            ),
+          ),
+        ),
+      ),
     );
   }
 
-  @override
-  Widget buildPage(BuildContext context, Animation<double> animation,
-    Animation<double> secondaryAnimation) {
-    return builder(context);
+  dynamic _submit(BuildContext context) async {
+    curBook.picUrl = await _api.uploadFile(filePath: _imagePath, isbn: curBook.isbn);
+    await _api.uploadBook(curBook).then((dynamic onValue) {
+     for(int i = 0; i < 2; i++) {
+       Navigator.pop(context);
+     }
+    }).catchError((dynamic error) {
+      final dynamic alert = new AlertDialog(
+        title: const Text('Error'),
+        content: const Text('An error occured while searching for the book\n'
+            'Try again or Input values manually'),
+        actions: <Widget>[
+          new FlatButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.of(context).pop(),
+          )
+        ],
+      );
+      showDialog<AlertDialog>(context: context, builder: (_) => alert);
+      return;
+    });
   }
-
-  // TODO: implement barrierLabel
-  @override
-  String get barrierLabel => null;
-
 }
-

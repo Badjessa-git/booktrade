@@ -1,17 +1,15 @@
 import 'dart:async';
 import 'package:booktrade/models/book.dart';
-import 'package:booktrade/models/message.dart';
+import 'package:booktrade/models/user.dart';
+import 'package:booktrade/ui/chat_ui/message_ui.dart';
 import 'package:booktrade/ui/nav_ui/navigation.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
+import 'package:booktrade/models/message.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:validator/validator.dart';
-
-final Map<String, Message> _Messages = <String, Message>{};
-
-
 
 class Home extends StatefulWidget {
   final dynamic cameras;
@@ -22,14 +20,21 @@ class Home extends StatefulWidget {
   _HomeState createState() => new _HomeState();
 }
 
-class _HomeState extends State<Home> {
+class _HomeState extends State<Home> with WidgetsBindingObserver {
   final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
-
+  String token;
   bool _inAsyncCall = false;
-
+  TradeApi _api;
   @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    firebaseMessaging.requestNotificationPermissions(
+      const IosNotificationSettings(sound: true, badge: true, alert: true)
+    );
+    firebaseMessaging.onIosSettingsRegistered.listen((IosNotificationSettings data){
+      print('Notifications: $data');
+    });
     firebaseMessaging.configure(
       onLaunch: (Map<String, dynamic> message) {
         print('onLaunch: $message');
@@ -43,16 +48,50 @@ class _HomeState extends State<Home> {
         print('onMessage: $message');
         _showMessageDialog(message);
       },
-    );
+    );   
+    firebaseMessaging.getToken().then((String onValue) {
+      token = onValue;
+      deviceToken = token;
+      print('deviceTokeon = $deviceToken');
+    });
   }
 
-  void _navigateToMessage(Map<String, dynamic> message) {
-
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) async {
+    print('**state ${state.toString()}');
+    switch(state) {
+      case AppLifecycleState.inactive:
+      break;
+      case AppLifecycleState.paused:
+      break;
+      case AppLifecycleState.resumed:
+      break;
+      break;
+      case AppLifecycleState.suspending:
+      break; 
+    }
   }
 
-  void _showMessageDialog(Map<String, dynamic> message) {
-
+  void _navigateToMessage(Map<String, dynamic> message) async {
+    final TradeApi api = _api == null ? await TradeApi.signOutWithGoogle() : _api;
+    final User user = await api.getUser(message['UID']);
+    _nextNaviagtion(api);
+    Navigator.push<dynamic>(context, 
+              new MaterialPageRoute<dynamic>(
+                builder: (BuildContext context) => new MessageScreen(api, user, message['chatroomID'])
+              ));
   }
+
+  void _showMessageDialog(Map<String, dynamic> message) async {
+    final TradeApi api = _api == null ? await TradeApi.ensureSignIn() : _api;
+    final User user = await api.getUser(message['UID']);
+    Navigator.push<dynamic>(context, 
+              new MaterialPageRoute<dynamic>(
+                builder: (BuildContext context) => new MessageScreen(api, user, message['chatroomID'])
+              ));
+  }
+
+  
 
   @override
   Widget build(BuildContext context) {
@@ -88,13 +127,18 @@ class _HomeState extends State<Home> {
               });
               Future<dynamic>.delayed(const Duration(seconds: 2), () {
                 TradeApi
-                    .signInWithGoogle()
-                    .then((TradeApi api) => _domainCheck(api))
+                    .ensureSignIn()
+                    .then((TradeApi api) {
+                      setState(() {
+                        _api = api;                        
+                      }); 
+                      _domainCheck(api);
+                    })
                     .catchError((dynamic e) {
                   setState(() {
                     _inAsyncCall = false;
                   });
-                  TradeApi.siginOutWithGoogle();
+                  TradeApi.signOutWithGoogle();
                   showDialog<AlertDialog>(
                       context: context, builder: (_) => alert);
                 });
@@ -126,7 +170,7 @@ class _HomeState extends State<Home> {
         await api.getAllBook().then((List<Book> onValue) async {
       onValue = null;
       final String schoolName = _findSchoolName(api);
-      await api.pushToUserCollection(schoolName);
+      await api.addorUpdateUser(schoolName).catchError((dynamic onError) => print(onError));
       setState(() {
         _inAsyncCall = false;
       });
@@ -136,7 +180,7 @@ class _HomeState extends State<Home> {
       setState(() {
         _inAsyncCall = false;
       });
-      await TradeApi.siginOutWithGoogle();
+      await TradeApi.signOutWithGoogle();
     });
   }
 
@@ -149,7 +193,7 @@ class _HomeState extends State<Home> {
   }
 
   String _findSchoolName(TradeApi api) {
-    String email = api.firebaseUser.email;
+    final String email = api.firebaseUser.email;
     String schoolName;
     if (email.contains('@lehigh.edu')) {
       schoolName = 'Lehigh University';

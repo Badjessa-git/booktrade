@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'package:booktrade/ui/chat_ui/chat_ui.dart';
 import 'package:booktrade/ui/nav_ui/book_sel_list.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
@@ -150,7 +149,7 @@ class _NavigationState extends State<Navigation> {
               color: Colors.red,
               child: const Text('Log out'),
               onPressed:  () async {
-                await TradeApi.siginOutWithGoogle();
+                await TradeApi.signOutWithGoogle();
                 Navigator.of(context).pushReplacementNamed('/');
               },
             )
@@ -160,7 +159,7 @@ class _NavigationState extends State<Navigation> {
       body: TabBarView(
         children: <Widget>[
           new BookList(widget._api),
-          new SellList(widget._api),       
+          new SellList(widget._api, widget.cameras),       
           ],
         ),
       ),
@@ -178,7 +177,7 @@ class _NavigationState extends State<Navigation> {
     .catchError((dynamic e) {
         final dynamic alert = new AlertDialog(
         title: const Text('Error'),
-        content: const Text('An error occured while searching for the book' +
+        content: const Text('An error occured while searching for the book\n' 
                             'Try again or Input values manually'),
         actions: <Widget>[
           new FlatButton(

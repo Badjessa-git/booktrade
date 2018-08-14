@@ -20,6 +20,7 @@ class BookInfo extends StatelessWidget{
             _buildCard(attribute: 'ISBN', attributeValue: bookInfo.isbn.toString()),
             _buildCard(attribute: 'Author', attributeValue: bookInfo.author),
             _buildCard(attribute: 'Edition', attributeValue:Tools.convertToEdition(bookInfo.edition) + ' Edition'),
+            _buildCard(attribute: 'Condition', attributeValue: bookInfo.condition),
           ],
         ),
       ),
