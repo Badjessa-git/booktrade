@@ -206,7 +206,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
           top: 26.0,
           right: 4.0,
             child: new IconButton(
-              icon: const Icon(Icons.delete),
+              icon: const Icon(Icons.delete, color: Colors.white,),
               onPressed: () async {
                 _showSnackbar(10, 'Removing book...', true);
                 await widget._api.deleteBook(widget.book)
@@ -219,14 +219,30 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
               },
             ),
           )
-        : null,
+          : new Positioned(
+          top: 26.0,
+          right: 4.0,
+            child: new IconButton(
+              icon: const Icon(Icons.delete, color: Colors.white,),
+              onPressed: () async {
+                _showSnackbar(10, 'Removing book...', true);
+                await widget._api.removeFromWishList(widget.book)
+                            .then((_) {
+                              _scaffoldKey.currentState.hideCurrentSnackBar();
+                              _showSnackbar(2, '!Scuccess', false);
+                              Navigator.popAndPushNamed(context, 'Navigtion');
+                            })
+                            .catchError(() => _showSnackbar(4, 'Server Error, Try again Later', false));
+              },
+            ),
+          ),
       ],
     );
 
   }
 
     dynamic _showSnackbar(int length, String message, bool isloading) {
-     return _scaffoldKey.currentState.showSnackBar(
+     return Scaffold.of(context).showSnackBar(
                 new SnackBar(
                   duration: new Duration(seconds: length),
                   content: new Row(

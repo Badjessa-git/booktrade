@@ -14,12 +14,22 @@ class ProfileDetails extends StatefulWidget {
 }
 
 class _ProfileDetailsState extends State<ProfileDetails> {
-
+    final dynamic linearGradient = const BoxDecoration(
+    gradient: const LinearGradient(
+      begin: FractionalOffset.centerRight,
+      end: FractionalOffset.bottomLeft,
+      colors:  const <Color> [
+        const Color(0xFF48A9A6),
+        Colors.white,
+      ]
+    ),
+  );
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       body: new SingleChildScrollView(
         child: new Container(
+          decoration: linearGradient,
           child: new Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[

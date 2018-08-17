@@ -426,7 +426,7 @@ class TradeApi {
       email: data['email'],
       school: data['school'],
       photoUrl: data['userImg'],
-      deviceToken: data['deviceToken'] is List<String> ? data['deviceToken'] : null,
+      deviceToken: List<String>.from(data['deviceToken']), 
       uid: data['userUID']
     );  
   }
