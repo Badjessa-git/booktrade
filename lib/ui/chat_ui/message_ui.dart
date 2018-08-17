@@ -5,7 +5,6 @@ import 'package:booktrade/services/TradeApi.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
 
 class MessageScreen extends StatefulWidget {

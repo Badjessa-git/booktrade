@@ -39,7 +39,7 @@ exports.sendPushMessage = functions.firestore
                                     || error.code === 'messaging/registration-token-not-registered') {
                                           const failedIndex = stillResterederedTokens.indexOf(failedRegistrationToken)
                                           if (failedIndex > -1) {
-                                                stillResterederedTokens.splice(failedIndex, 1)
+                                                stillResterederedTokens.splice(failedIndex, index)
                                           }
                                     }
                               }
@@ -52,3 +52,18 @@ exports.sendPushMessage = functions.firestore
             })
 
       });
+
+exports.updateDatabse = functions.firestore
+      .document('book_lehigh/{bookId}')
+      .onDelete(context => {
+            //for each adding to wishlist, add the user id to the bookid in the wishlist creation
+            const bookId = context.params.bookId;
+            //Retrieve the list of users who had the book in the wishlist
+            return admin.firestore().doc('wishlist/'+ bookId).get().then(list => {
+                  const userList = list['users'];
+                  userList.forEach(((userId, index) => {
+                        return admin.firestore().doc('users/'+userId+'/wishlist/'+bookId).delete();
+                  }));
+            })
+      });
+

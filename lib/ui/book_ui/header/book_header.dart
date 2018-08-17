@@ -21,7 +21,17 @@ class BookDetailHeader extends StatefulWidget {
 class _BookDetailHeaderScreen extends State<BookDetailHeader> {
   String chatroomID;
   User user;
+  bool state;
+  
+  @override
+  void initState() { 
+    setState(() {
+      state = widget.book.sold;      
+    });
+    super.initState();
+  }
 
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     final dynamic theme = Theme.of(context);
@@ -72,12 +82,12 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             borderRadius: new BorderRadius.circular(30.0),
             child: new MaterialButton(
               minWidth: 140.0,
-              color: widget.book.sold
+              color: state
                    ? Colors.grey
                    : Theme.of(context).accentColor,
               textColor: Colors.white,
               onPressed: () async {
-                if (widget.book.sold) {
+                if (state) {
                   final SnackBar warning = new SnackBar(
                     action: SnackBarAction(
                       label: 'OK',
@@ -88,7 +98,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                   Scaffold.of(context).showSnackBar(warning);
                 }
               else {
-                final bool success = await widget._api.soldBook(widget.book);
+                final bool success = await widget._api.updateBook(widget.book);
                 if (!success) {
                     final SnackBar errorMessage = new SnackBar(
                       action: SnackBarAction(
@@ -99,7 +109,11 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                       content: const Text('Error Communicating with the Server')
                     );
                     Scaffold.of(context).showSnackBar(errorMessage);
-                  }
+                } else {
+                  setState(() {
+                    state = success;                    
+                  });
+                }
               }
                 },
               child: const Text('Mark it Sold'),
@@ -136,29 +150,31 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
               color: Theme.of(context).accentColor,
               textColor: Colors.white,
               onPressed: () async {
-                  if (widget.book.sellerUID != widget._api.firebaseUser.uid) { 
                     print('working');
                     await _findReceiverAndChatroom();
                     Navigator.push<MaterialPageRoute<dynamic>>(context, 
                           new MaterialPageRoute<MaterialPageRoute<dynamic>>(
                             builder: (BuildContext context) => new MessageScreen(widget._api, user, chatroomID) 
                           )
-                        );
-                    }
-                   else {
-                    print('Not working');
-                    final SnackBar errorMessage = new SnackBar(
-                      action: SnackBarAction(
-                        label: 'OK',
-                        onPressed: () {
-                        },
-                      ),
-                      content: const Text('Disabled Button')
                     );
-                    Scaffold.of(context).showSnackBar(errorMessage);
-                  }
                 },
               child: const Text('Talk to Seller'),
+            ),
+          ),
+          new ClipRRect(
+            borderRadius: new BorderRadius.circular(30.0),
+            child: new MaterialButton(
+              minWidth: 140.0,
+              color: Theme.of(context).accentColor,
+              textColor: Colors.white,
+              onPressed: () async {
+                _showSnackbar(10, 'Adding Book to Wishlist', true);
+                await widget._api.addToWishList(widget.book)
+                      .then<dynamic>((_) => _showSnackbar(4, 'Success', false))
+                      .catchError((dynamic _) => _showSnackbar(4, 'Error Communicating with Server', false));
+                _scaffoldKey.currentState.hideCurrentSnackBar();
+              },
+              child: const Text('Add to WishList'),
             ),
           ),
         ],
@@ -184,12 +200,48 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
           top: 26.0,
           left: 4.0,
           child: const BackButton(color: Colors.white,),
-        )
+        ),
+        widget.book.sellerUID == widget._api.firebaseUser.uid
+        ? new Positioned(
+          top: 26.0,
+          right: 4.0,
+            child: new IconButton(
+              icon: const Icon(Icons.delete),
+              onPressed: () async {
+                _showSnackbar(10, 'Removing book...', true);
+                await widget._api.deleteBook(widget.book)
+                            .then((_) {
+                              _scaffoldKey.currentState.hideCurrentSnackBar();
+                              _showSnackbar(2, '!Scuccess', false);
+                              Navigator.popAndPushNamed(context, 'Navigtion');
+                            })
+                            .catchError(() => _showSnackbar(4, 'Server Error, Try again Later', false));
+              },
+            ),
+          )
+        : null,
       ],
     );
 
   }
 
+    dynamic _showSnackbar(int length, String message, bool isloading) {
+     return _scaffoldKey.currentState.showSnackBar(
+                new SnackBar(
+                  duration: new Duration(seconds: length),
+                  content: new Row(
+                      children: isloading
+                      ? <Widget> [
+                        const CircularProgressIndicator(),
+                        new Text('  $message')
+                      ]
+                      : <Widget> [
+                        new Text('$message'),
+                      ]
+            ),
+         )
+      ); 
+    }
 
     Future<Null> _findReceiverAndChatroom() async {
       final User _user = await widget._api.getUser(widget.book.sellerUID);

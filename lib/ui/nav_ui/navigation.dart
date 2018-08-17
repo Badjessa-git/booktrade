@@ -1,5 +1,7 @@
+import 'package:booktrade/models/user.dart';
 import 'package:booktrade/ui/chat_ui/chat_ui.dart';
 import 'package:booktrade/ui/nav_ui/book_sel_list.dart';
+import 'package:booktrade/ui/profile_ui/profile_page.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:flutter/material.dart';
@@ -21,6 +23,7 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
   int _isbn;
+  User _user;
   SearchBar searchBar;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController controller = new TextEditingController();
@@ -31,6 +34,19 @@ class _NavigationState extends State<Navigation> {
       onSubmitted: null,
       buildDefaultAppBar: buildAppBar
     );    
+  }
+
+  @override
+  void initState() { 
+    super.initState();
+    getUser();
+  }
+
+  dynamic getUser() async {
+    final User user = await widget._api.getUser(widget._api.firebaseUser.uid);  
+    setState(() {
+      _user = user;      
+    });
   }
 
   AppBar buildAppBar(BuildContext context) {
@@ -135,7 +151,11 @@ class _NavigationState extends State<Navigation> {
             new ListTile(
               title: const Text('Profile'),
               leading: const Icon(Icons.person),
-              onTap: () {},
+              onTap: () {
+                Navigator.of(context).push<MaterialPageRoute<dynamic>>(
+                  new MaterialPageRoute<MaterialPageRoute<dynamic>>(builder:
+                   (BuildContext context) => new ProfileDetails(_user, widget._api)));
+              }
             ),
             new ListTile(
               title: const Text('Settings'),

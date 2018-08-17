@@ -214,7 +214,7 @@ class _FinBookState extends State<FinBook> {
       return null;
     }
     final Directory extDir = await getApplicationDocumentsDirectory();
-    final String dirPath = '${extDir.path}/Pictures/flutter_test';
+    final String dirPath = '${extDir.path}/Pictures/BookTrade';
     await new Directory(dirPath).create(recursive: true);
     final String filePath = '$dirPath/${timestamp()}.jpg';
 
@@ -264,7 +264,7 @@ class SavePictureDialog extends StatelessWidget {
           new FlatButton(
             onPressed: () async {
               _scaffoldKey.currentState.showSnackBar(new SnackBar(
-                duration: const Duration(seconds: 4),
+                duration: const Duration(seconds: 10),
                 content: new Row(
                   children: const <Widget>[
                     const CircularProgressIndicator(),
@@ -294,7 +294,7 @@ class SavePictureDialog extends StatelessWidget {
                   ? new Image.network(_imagePath)
                   : new Image.file(
                       new File(_imagePath),
-                      fit: BoxFit.fill,
+                      fit: BoxFit.contain,
                     ),
             ),
           ),
@@ -306,9 +306,7 @@ class SavePictureDialog extends StatelessWidget {
   dynamic _submit(BuildContext context) async {
     curBook.picUrl = await _api.uploadFile(filePath: _imagePath, isbn: curBook.isbn);
     await _api.uploadBook(curBook).then((dynamic onValue) {
-     for(int i = 0; i < 2; i++) {
-       Navigator.pop(context);
-     }
+      Navigator.popUntil(context, ModalRoute.withName('Navigation'));
     }).catchError((dynamic error) {
       final dynamic alert = new AlertDialog(
         title: const Text('Error'),

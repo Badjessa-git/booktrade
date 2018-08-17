@@ -7,9 +7,7 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
-import 'package:booktrade/models/message.dart';
 import 'package:booktrade/models/constants.dart';
-import 'package:validator/validator.dart';
 
 class Home extends StatefulWidget {
   final dynamic cameras;
@@ -73,22 +71,32 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   }
 
   void _navigateToMessage(Map<String, dynamic> message) async {
-    final TradeApi api = _api == null ? await TradeApi.signOutWithGoogle() : _api;
+    final TradeApi api = _api == null ? await TradeApi.ensureSignIn() : _api;
     final User user = await api.getUser(message['UID']);
-    _nextNaviagtion(api);
     Navigator.push<dynamic>(context, 
               new MaterialPageRoute<dynamic>(
+                settings: const RouteSettings(name: 'Message'),
                 builder: (BuildContext context) => new MessageScreen(api, user, message['chatroomID'])
               ));
   }
 
   void _showMessageDialog(Map<String, dynamic> message) async {
-    final TradeApi api = _api == null ? await TradeApi.ensureSignIn() : _api;
-    final User user = await api.getUser(message['UID']);
-    Navigator.push<dynamic>(context, 
-              new MaterialPageRoute<dynamic>(
-                builder: (BuildContext context) => new MessageScreen(api, user, message['chatroomID'])
-              ));
+    final dynamic messageDialog = new AlertDialog(
+      title: message['title'],
+      content: message['body'],
+      actions: <Widget>[
+        new FlatButton(
+          child: const Text('Cancel'),
+          onPressed: () => Navigator.pop(context),
+        ),
+        new FlatButton(
+          child: const Text('Open'),
+          onPressed: () => _navigateToMessage(message),
+        )
+      ],
+    );
+
+    showDialog<AlertDialog>(context: context, builder: (BuildContext context) => messageDialog);
   }
 
   
@@ -188,6 +196,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     Navigator.push<MaterialPageRoute<dynamic>>(
       context,
       MaterialPageRoute<MaterialPageRoute<dynamic>>(
+          settings: const RouteSettings(name: 'Navigation'),
           builder: (BuildContext context) => Navigation(api, widget.cameras)),
     );
   }

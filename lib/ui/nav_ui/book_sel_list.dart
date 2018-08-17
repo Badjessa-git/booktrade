@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/book_ui/book_page.dart';
 import 'package:booktrade/utils/routes.dart';
@@ -59,6 +60,7 @@ class _SellListState extends State<SellList> {
   }
 
   Widget _marketPage() {
+    bookLength = _books.length;
     return new Flexible(
       child:  new RefreshIndicator(
         onRefresh: refresh,
