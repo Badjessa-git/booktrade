@@ -1,7 +1,8 @@
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/ui/chat_ui/chat_ui.dart';
 import 'package:booktrade/ui/nav_ui/book_sel_list.dart';
-import 'package:booktrade/ui/profile_ui/profile_page.dart';
+import 'package:booktrade/ui/settings_ui/settings_app.dart';
+import 'package:booktrade/ui/wishlist_ui/wishlist_page.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:flutter/material.dart';
@@ -149,30 +150,25 @@ class _NavigationState extends State<Navigation> {
                },
             ),
             new ListTile(
-              title: const Text('Profile'),
-              leading: const Icon(Icons.person),
+              title: const Text('Wishlist'),
+              leading: const Icon(Icons.book),
               onTap: () {
                 Navigator.of(context).push<MaterialPageRoute<dynamic>>(
                   new MaterialPageRoute<MaterialPageRoute<dynamic>>(builder:
-                   (BuildContext context) => new ProfileDetails(_user, widget._api)));
+                   (BuildContext context) => new WishList(_user, widget._api)));
               }
             ),
             new ListTile(
               title: const Text('Settings'),
               leading: const Icon(Icons.settings),
-              onTap: () {},
-            ),
-            new Divider(
-              height: MediaQuery.of(context).size.height - 480.0,
-            ),
-            new RaisedButton(
-              color: Colors.red,
-              child: const Text('Log out'),
-              onPressed:  () async {
-                await TradeApi.signOutWithGoogle();
-                Navigator.of(context).pushReplacementNamed('/');
+              onTap: () {
+                Navigator.of(context).push<MaterialPageRoute<dynamic>>(
+                  new MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                    builder: (BuildContext context) => new Settings(_user, widget._api)
+                  )
+                );
               },
-            )
+            ),
           ],
         )
       ),

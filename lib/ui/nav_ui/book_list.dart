@@ -74,7 +74,7 @@ class _BookListState extends State<BookList> {
         )
         : const Center(child: const Text('No Books Available',
                     style: const TextStyle(
-                      fontSize: 24.0,
+                      fontSize: 20.0,
                     ),)),
       ),
     );

@@ -7,7 +7,8 @@ class User implements Comparable<User>{
     final String photoUrl;
     final String uid;
     final List<String> deviceToken;
-    
+    bool notify;
+
     User({
       @required this.displayName,
       @required this.email,
@@ -15,6 +16,7 @@ class User implements Comparable<User>{
       @required this.photoUrl,
       @required this.uid, 
       @required this.deviceToken,
+      @required this.notify,
     });
 
   void addToken(String token) {

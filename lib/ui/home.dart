@@ -178,7 +178,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
         await api.getAllBook().then((List<Book> onValue) async {
       onValue = null;
       final String schoolName = _findSchoolName(api);
-      await api.addorUpdateUser(schoolName).catchError((dynamic onError) => print(onError));
+      await api.addorUpdateUser(schoolName: schoolName).catchError((dynamic onError) => print(onError));
       setState(() {
         _inAsyncCall = false;
       });

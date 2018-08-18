@@ -1,3 +1,3 @@
 String deviceToken;
-int bookLength;
-int chatLength;
+int bookLength = 0;
+int chatLength = 0;

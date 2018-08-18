@@ -295,7 +295,7 @@ class SavePictureDialog extends StatelessWidget {
                   : new Image.file(
                       new File(_imagePath),
                       fit: BoxFit.contain,
-                    ),
+                    )
             ),
           ),
         ),

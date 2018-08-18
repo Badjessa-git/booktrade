@@ -63,11 +63,11 @@ class TradeApi {
     return check.exists ? _fromUserSnapShot(check) : null;
   }
 
-  Future<Null> addorUpdateUser(String schoolName) async {
+  Future<Null> addorUpdateUser({String schoolName, User otherUser}) async {
     final FirebaseUser currentUser = await _auth.currentUser();
     final User user = await _checkDatabase();
     if (user == null) {
-      List<String> deviceTokens;
+      final List<String> deviceTokens = <String> [];
       deviceTokens.add(deviceToken);
       await Firestore.instance
           .collection('users')
@@ -78,13 +78,13 @@ class TradeApi {
         'school': schoolName,
         'userImg': currentUser.photoUrl,
         'deviceToken' : deviceTokens,
-        'userUID': currentUser.uid
+        'userUID': currentUser.uid,
+        'notify' : true,
       });
     } else {
       if (user.displayName != currentUser.displayName ||
           user.email != currentUser.email ||
           user.photoUrl != currentUser.photoUrl ||
-          user.school != schoolName ||
           !(user.deviceToken is List<String>) ||
           user.deviceToken.isEmpty ||
           !user.deviceToken.contains(deviceToken) ) {
@@ -93,15 +93,18 @@ class TradeApi {
         Firestore.instance.runTransaction((Transaction tx) async {
           final DocumentSnapshot userSnapsot = await tx.get(userRef);
           if (userSnapsot.exists) {
-            List<String> deviceTokens = userSnapsot.data['deviceToken'];
-            deviceTokens == null ? deviceTokens = <String> [deviceToken] : deviceTokens.add(deviceToken);
+            List<String> deviceTokens = List<String>.from(userSnapsot.data['deviceToken']);
+            deviceTokens == null ? 
+            deviceTokens = <String> [deviceToken] 
+            : !user.deviceToken.contains(deviceToken) ? deviceTokens.add(deviceToken) : null;
             await tx.update(userRef, <String, dynamic>{
               'displayName': currentUser.displayName,
               'email': currentUser.email,
-              'school': schoolName,
+              'school': user.school,
               'userImg': currentUser.photoUrl,
               'deviceToken' : deviceTokens,
-              'userUID': currentUser.uid
+              'userUID': currentUser.uid,
+              'notify' : otherUser == null ? user.notify : otherUser.notify,
             });
           }
         });
@@ -427,7 +430,9 @@ class TradeApi {
       school: data['school'],
       photoUrl: data['userImg'],
       deviceToken: List<String>.from(data['deviceToken']), 
-      uid: data['userUID']
+      uid: data['userUID'],
+      notify: data['notify'] == null ? true : data['notify'],
+      
     );  
   }
 }

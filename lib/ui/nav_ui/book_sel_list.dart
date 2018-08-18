@@ -32,7 +32,13 @@ class _SellListState extends State<SellList> {
        _books = books;
     });
   }
-
+  
+  @override
+  @override
+  void dispose() {
+    _books.clear(); 
+    super.dispose();
+  }
   dynamic _reloadBook() async {
     if (widget._api != null) {
       final List<Book> books = await widget._api.getUserBook();
@@ -72,7 +78,7 @@ class _SellListState extends State<SellList> {
         )
         : const Center(child: const Text('No Books Available',
                        style: const TextStyle(
-                         fontSize: 24.0
+                         fontSize: 20.0
                        ),),
         ),
       ),
