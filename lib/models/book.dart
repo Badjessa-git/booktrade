@@ -1,6 +1,6 @@
 import 'package:meta/meta.dart';
 
-class Book {
+class Book implements Comparable<Book> {
   double price;
   final int isbn;
   final String title;
@@ -10,7 +10,7 @@ class Book {
   final String sellerUID;
   String picUrl;
   String sellerID;
-  String buyerID;
+  bool sold;
 
   Book ({
     @required this.isbn,
@@ -21,7 +21,19 @@ class Book {
     @required this.sellerID,
     @required this.condition,
     @required this.sellerUID,
-    this.buyerID,
+    this.sold = false,
     this.price, 
   });
+
+  @override
+  int compareTo(dynamic other) {
+    if (other is Book) {
+      if (other.isbn == isbn) {
+        if (other.sellerUID == sellerUID) {
+          return 0;
+        }
+      }
+    }
+    return -1;
+  }
 }

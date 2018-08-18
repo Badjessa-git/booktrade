@@ -66,11 +66,16 @@ class _BookListState extends State<BookList> {
       ? const Center(child: const CircularProgressIndicator())
       : new RefreshIndicator(
         onRefresh: refresh,
-        child: new ListView.builder(
+        child: _books.isNotEmpty
+        ? new ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
           itemCount: _books.length,
           itemBuilder: _bookProto,
-        ),
+        )
+        : const Center(child: const Text('No Books Available',
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                    ),)),
       ),
     );
   }
@@ -121,7 +126,7 @@ class _BookListState extends State<BookList> {
           isThreeLine: true,
           dense: false,
           onTap: () => _navigateToNextPage(curbook, index),
-          trailing: curbook.buyerID == null
+          trailing: curbook.sold == false
                   ? new Text('\$${curbook.price}',
                     style: const TextStyle(
                       fontSize: 20.0

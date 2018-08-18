@@ -4,10 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
 
 class AddBook extends StatefulWidget {
-  Book curbook;
+  final Book curbook;
   final dynamic cameras;
   final TradeApi _api;
-  AddBook(this.curbook,  this.cameras, this._api);
+  const AddBook(this.curbook,  this.cameras, this._api);
 
   @override
   _AddBook createState() => new _AddBook();
@@ -16,7 +16,7 @@ class AddBook extends StatefulWidget {
   
 class _AddBook extends State<AddBook> {
   List<String> conditions = <String>['Excellent', 'Very Good', 'Good', 'Poor'];
-
+  Book curbook;
   int _isbn;
   String _title;
   String _author;
@@ -40,7 +40,10 @@ class _AddBook extends State<AddBook> {
         _isbn = widget.curbook.isbn;
         _title = widget.curbook.title;
         _author = widget.curbook.author;
-        _edition = widget.curbook.edition;        
+        _edition = widget.curbook.edition;
+        widget.curbook.condition != null ? _condition = widget.curbook.condition : () {};
+        widget.curbook.price != null ? _price = widget.curbook.price : () {};     
+        curbook = widget.curbook;   
       });
     }
   }
@@ -74,7 +77,7 @@ class _AddBook extends State<AddBook> {
                 color: Colors.white,
                 child: new TextFormField(
                   initialValue: _isbn != null
-                              ? _isbn
+                              ? '$_isbn'
                               : '',
                   validator: (String value) {
                     if (value.isEmpty) {
@@ -85,7 +88,6 @@ class _AddBook extends State<AddBook> {
                       _isbn = int.parse(value);
                     }
                   },
-                  onSaved: (String val) => _isbn = int.parse(val),
                   decoration: const InputDecoration(
                     labelText: 'ISBN',
                     hintText: 'input isbn'
@@ -107,7 +109,6 @@ class _AddBook extends State<AddBook> {
                       _title = value;
                     }
                   },
-                 onSaved: (String val) => _title = val,
                  decoration: const InputDecoration(
                    labelText: 'Title',
                    hintText: 'input title',
@@ -129,7 +130,6 @@ class _AddBook extends State<AddBook> {
                        _author = value;
                      }
                    },
-                    onSaved: (String val) => _author = val,
                     decoration: const InputDecoration(
                       labelText: 'Author',
                       hintText: 'input book Author(s)'
@@ -142,7 +142,7 @@ class _AddBook extends State<AddBook> {
                  color: Colors.white,
                  child:  new TextFormField(
                   initialValue: _edition != null
-                              ? _edition
+                              ? '$_edition'
                               : '', 
                   validator: (String value) {
                     if (value.isEmpty) {
@@ -153,7 +153,6 @@ class _AddBook extends State<AddBook> {
                       _edition = int.parse(value);
                     }
                   },
-                  onSaved: (String val) => _edition = int.parse(val),
                   decoration: const InputDecoration(
                    labelText: 'Edition',
                    hintText: 'Input book edition'
@@ -194,6 +193,9 @@ class _AddBook extends State<AddBook> {
                 margin: const EdgeInsets.all(10.0),
                   color: Colors.white,
                   child:  new TextFormField(
+                    initialValue: _price != null
+                                  ? '$_price'
+                                  : '', 
                     validator: (String value) {
                       if (value.isEmpty) {
                         return 'Enter the amount offered for the book';
@@ -203,10 +205,9 @@ class _AddBook extends State<AddBook> {
                         _price = double.parse(value);
                       }
                     },
-                    onSaved: (String val) => _price = double.parse(val),
                     decoration: const InputDecoration(
                     labelText: 'Price',
-                    hintText: 'input value of book'
+                    hintText: 'input value of book',
                     ),
                  ),
                ),
@@ -236,7 +237,7 @@ class _AddBook extends State<AddBook> {
   }
 
   void _submit() {
-        widget.curbook = new Book(
+        curbook = new Book(
         title: _title, 
         author: _author, 
         edition: _edition, 
@@ -250,7 +251,7 @@ class _AddBook extends State<AddBook> {
   
     Navigator.push<MaterialPageRoute<PageRoute<dynamic>>>(context, 
                    new MaterialPageRoute<MaterialPageRoute<PageRoute<dynamic>>>(
-                     builder: (BuildContext context) => new FinBook(widget.cameras, widget.curbook, widget._api)
+                     builder: (BuildContext context) => new FinBook(widget.cameras, curbook, widget._api)
                   ),
                 );
   }

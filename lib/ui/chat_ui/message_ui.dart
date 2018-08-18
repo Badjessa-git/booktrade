@@ -1,17 +1,11 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
-import 'package:booktrade/ui/chat_ui/chatmessage_ui.dart';
-import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/scheduler.dart';
 import 'package:image_picker/image_picker.dart';
-
-dynamic _scaffoldContext;
 
 class MessageScreen extends StatefulWidget {
   final TradeApi _api;
@@ -31,7 +25,6 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
   bool _isComposingMessage = false;
   User receiver;
   AnimationController _controller;
-  Animation<double> _animation;
   String curUserEmail;
 
   @override
@@ -39,7 +32,6 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
     super.initState();
     receiver = widget.receiver;
     _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
-    _animation = Tween<double>(begin: 0.0, end: 1.0).animate(_controller);
     curUserEmail = widget._api.firebaseUser.email;
     setState(() {});
   }
@@ -68,32 +60,22 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
           ],
         ),
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
-        leading: new IconButton(
-          icon: const Icon(Icons.arrow_back),
-          onPressed: () => Navigator.pop(context),
-        ),
       ),
       body: new Container(
         child: new Column(
           children: <Widget>[
             new Flexible(
               child: new StreamBuilder<QuerySnapshot> (
-                stream: chatRoomRef.document(widget.chatRoomID).collection('messages')
-                                   .orderBy('time').snapshots(),
+                stream: chatRoomRef.document(widget.chatRoomID).collection('messages').orderBy('time', descending: true)
+                                   .snapshots(),
                 builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
                   return snapshot.hasData ? new ListView.builder(
                     controller: _scrollController,
                     physics: const AlwaysScrollableScrollPhysics(),
                     padding: const EdgeInsets.all(8.0),
-                    shrinkWrap: true,
+                    reverse: true,
                     itemCount: snapshot.data.documents.length,
                     itemBuilder: (BuildContext context, int index) => _messageProto(context, snapshot.data.documents[index])
-                    //   return new ChatMessageListItem(
-                    //     animation: _controller,
-                    //     messageSnapshot: snapshot.data.documents[index],
-                    //     currentUserEmail: curUserEmail,
-                    //   );
-                    // }
                   ): const CircularProgressIndicator();
                 },
               ),
@@ -126,13 +108,13 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
                 : getReceivedMessageLayout(messageSnapshot),
           ),
     );
-    SchedulerBinding.instance.addPostFrameCallback((_) {
-            _scrollController.animateTo(
-              _scrollController.position.maxScrollExtent,
-              duration: const Duration(milliseconds: 300),
-              curve: Curves.easeOut,
-            );
-    });
+    // SchedulerBinding.instance.addPostFrameCallback((_) {
+    //         _scrollController.animateTo(
+    //           _scrollController.position.maxScrollExtent,
+    //           duration: const Duration(milliseconds: 300),
+    //           curve: Curves.easeOut,
+    //         );
+    // });
     return object;
   }
 
@@ -255,7 +237,7 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
                 final int timestamp = new DateTime.now().millisecondsSinceEpoch;
                 final String imgUrl = await widget._api.uploadFile(filePath: imageFile.path , isbn: null);
                 await widget._api.sendMessage(
-                  messageText: null, imageUrl: imgUrl, chatroomID: widget.chatRoomID, time: timestamp
+                  messageText: null, imageUrl: imgUrl, chatroomID: widget.chatRoomID, time: timestamp, receiverUID: receiver.uid
                 );
               },
             ),            
@@ -290,7 +272,7 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
     setState(() {
       _isComposingMessage = false;      
     });
-    await widget._api.sendMessage(messageText: text, imageUrl: null, chatroomID: widget.chatRoomID, time: timestamp);
+    await widget._api.sendMessage(messageText: text, imageUrl: null, chatroomID: widget.chatRoomID, time: timestamp, receiverUID: receiver.uid);
   }
   
   Widget _userImage() {

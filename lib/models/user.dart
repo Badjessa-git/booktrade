@@ -5,19 +5,35 @@ class User implements Comparable<User>{
     final String email;
     final String school;
     final String photoUrl;
+    final String uid;
+    final List<String> deviceToken;
+    bool notify;
 
     User({
       @required this.displayName,
       @required this.email,
       @required this.school,
       @required this.photoUrl,
+      @required this.uid, 
+      @required this.deviceToken,
+      @required this.notify,
     });
+
+  void addToken(String token) {
+    deviceToken.add(token);
+  }  
 
   @override
   int compareTo(dynamic other) {
     if (other is User) {
       if (email == other.email) {
-        return 0;
+         if (school == other.school) {
+           if (photoUrl == other.photoUrl) {
+             if (uid == other.uid) {
+               return 0;
+             }
+           }
+         }
       }
     }
     return -1;

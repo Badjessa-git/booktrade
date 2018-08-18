@@ -4,6 +4,7 @@ class Message {
   final String time;
   final String userPic;
   final String imageUrl;
+  final String receiverUID;
 
-  Message({this.imageUrl, this.name, this.message, this.time, this.userPic});
+  Message(this.receiverUID, {this.imageUrl, this.name, this.message, this.time, this.userPic});
 }

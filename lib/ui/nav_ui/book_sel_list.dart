@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/book_ui/book_page.dart';
 import 'package:booktrade/utils/routes.dart';
@@ -9,8 +10,8 @@ import 'package:flutter/material.dart';
 class SellList extends StatefulWidget {
 
   final TradeApi _api;
-
-  const SellList(this._api);
+  final dynamic cameras;
+  const SellList(this._api, this.cameras);
 
   @override
   _SellListState createState() => new _SellListState();
@@ -31,7 +32,13 @@ class _SellListState extends State<SellList> {
        _books = books;
     });
   }
-
+  
+  @override
+  @override
+  void dispose() {
+    _books.clear(); 
+    super.dispose();
+  }
   dynamic _reloadBook() async {
     if (widget._api != null) {
       final List<Book> books = await widget._api.getUserBook();
@@ -59,13 +66,20 @@ class _SellListState extends State<SellList> {
   }
 
   Widget _marketPage() {
+    bookLength = _books.length;
     return new Flexible(
       child:  new RefreshIndicator(
         onRefresh: refresh,
-        child: new ListView.builder(
+        child: _books.isNotEmpty
+        ? new ListView.builder(
           physics: const AlwaysScrollableScrollPhysics(),
           itemCount: _books.length,
           itemBuilder: _bookProto,
+        )
+        : const Center(child: const Text('No Books Available',
+                       style: const TextStyle(
+                         fontSize: 20.0
+                       ),),
         ),
       ),
     );
@@ -120,7 +134,7 @@ class _SellListState extends State<SellList> {
   }
 
   Widget _bookState(Book curbook) {
-    if (curbook.buyerID != null) {
+    if (curbook.sold == true) {
       return const Text('SOLD',
       style: const TextStyle(
         fontSize: 14.0,
@@ -135,9 +149,9 @@ class _SellListState extends State<SellList> {
   }
     void _navigateToNextPage(Book curbook, Object index) {
     Navigator.of(context).push<FadePageRoute<dynamic>>(
-      new FadePageRoute(
-        builder: (c) {
-          return new BookDetails(curbook, index, widget._api);
+      new FadePageRoute<FadePageRoute<dynamic>>(
+        builder: (BuildContext c) {
+          return new BookDetails(curbook, index, widget._api, cameras: widget.cameras);
         },
         settings: const RouteSettings(),
       ),

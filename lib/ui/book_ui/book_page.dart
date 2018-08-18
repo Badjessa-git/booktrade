@@ -9,7 +9,8 @@ class BookDetails extends StatefulWidget {
   final Book book;
   final Object bookTag;
   final TradeApi _api;
-  const BookDetails(this.book, this.bookTag, this._api);
+  final dynamic cameras;
+  const BookDetails(this.book, this.bookTag, this._api, {this.cameras});
 
   @override
   _BookDetailsState createState() => _BookDetailsState();
@@ -41,7 +42,8 @@ class _BookDetailsState extends State<BookDetails> {
               new BookDetailHeader(
                   widget.book,
                   widget.bookTag,
-                  widget._api
+                  widget._api,
+                  cameras: widget.cameras,
               ),
               new Padding(
                 padding: const EdgeInsets.only(top: 1.0),

@@ -19,6 +19,8 @@ class _SellerInfoState extends State<SellerInfo> {
     displayName: 'loading...',
     school: 'loading...',
     photoUrl: null,
+    uid: null,
+    deviceToken: null,
   );
   @override
   void initState() {
