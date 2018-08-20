@@ -4,30 +4,28 @@ import 'package:booktrade/ui/book_ui/footer/book_footer.dart';
 import 'package:booktrade/ui/book_ui/header/book_header.dart';
 import 'package:flutter/material.dart';
 
-
 class BookDetails extends StatefulWidget {
   final Book book;
   final Object bookTag;
   final TradeApi _api;
   final dynamic cameras;
-  const BookDetails(this.book, this.bookTag, this._api, {this.cameras});
+  final bool wishlist;
+  const BookDetails(this.book, this.bookTag, this._api, this.wishlist,
+      {this.cameras});
 
   @override
   _BookDetailsState createState() => _BookDetailsState();
-  
 }
-  
-class _BookDetailsState extends State<BookDetails> {
 
+class _BookDetailsState extends State<BookDetails> {
   final dynamic linearGradient = const BoxDecoration(
     gradient: const LinearGradient(
-      begin: FractionalOffset.centerRight,
-      end: FractionalOffset.bottomLeft,
-      colors:  const <Color> [
-        const Color(0xFF48A9A6),
-        Colors.white,
-      ]
-    ),
+        begin: FractionalOffset.centerRight,
+        end: FractionalOffset.bottomLeft,
+        colors: const <Color>[
+          const Color(0xFF48A9A6),
+          Colors.white,
+        ]),
   );
 
   @override
@@ -40,10 +38,11 @@ class _BookDetailsState extends State<BookDetails> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: <Widget>[
               new BookDetailHeader(
-                  widget.book,
-                  widget.bookTag,
-                  widget._api,
-                  cameras: widget.cameras,
+                widget.book,
+                widget.bookTag,
+                widget._api,
+                widget.wishlist,
+                cameras: widget.cameras,
               ),
               new Padding(
                 padding: const EdgeInsets.only(top: 1.0),
@@ -55,5 +54,4 @@ class _BookDetailsState extends State<BookDetails> {
       ),
     );
   }
-
 }

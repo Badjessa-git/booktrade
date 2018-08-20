@@ -11,6 +11,7 @@ exports.sendPushMessage = functions.firestore
             const senderName = message['name'];
             //Retrieve FCM token to send the message
             return admin.firestore().doc('users/' + userUID).get().then(userDoc => {
+                  const notify = userDoc.get('notify');
                   const FCMtoken = userDoc.get('deviceToken');
                   const NotificationBody = (message['imageUrl']) ?
                         "You have received a new Image message"
@@ -26,29 +27,31 @@ exports.sendPushMessage = functions.firestore
                               UID: userUID,
                         }
                   }
-
-                  return admin.messaging().sendToDevice(FCMtoken, payload).then(response =>{
-                        const stillResterederedTokens = FCMtoken
-
-                        response.results.forEach((result, index) => {
-                              const error = result.error
-                              if (error) {
-                                    const failedRegistrationToken = FCMtoken;
-                                    console.error("Error sending Message to decice", failedRegistrationToken, error)
-                                    if (error.code === 'messaging/invalid-registration-token' 
-                                    || error.code === 'messaging/registration-token-not-registered') {
-                                          const failedIndex = stillResterederedTokens.indexOf(failedRegistrationToken)
-                                          if (failedIndex > -1) {
-                                                stillResterederedTokens.splice(failedIndex, index)
+                  
+                  if (notify == true) {
+                        return admin.messaging().sendToDevice(FCMtoken, payload).then(response =>{
+                              const stillResterederedTokens = FCMtoken
+      
+                              response.results.forEach((result, index) => {
+                                    const error = result.error
+                                    if (error) {
+                                          const failedRegistrationToken = FCMtoken;
+                                          console.error("Error sending Message to decice", failedRegistrationToken, error)
+                                          if (error.code === 'messaging/invalid-registration-token' 
+                                          || error.code === 'messaging/registration-token-not-registered') {
+                                                const failedIndex = stillResterederedTokens.indexOf(failedRegistrationToken)
+                                                if (failedIndex > -1) {
+                                                      stillResterederedTokens.splice(failedIndex, index)
+                                                }
                                           }
                                     }
-                              }
+                              })
+      
+                              return admin.firestore().doc("users/"+userUID).update({
+                                    deviceToken : stillResterederedTokens
+                              });
                         })
-
-                        return admin.firestore().doc("users/"+userUID).update({
-                              deviceToken : stillResterederedTokens
-                        });
-                  })
+                  }
             })
 
       });

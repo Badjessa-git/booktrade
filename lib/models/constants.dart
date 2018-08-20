@@ -1,3 +1,16 @@
+import 'package:booktrade/models/book.dart';
+
+//
+//  The device token value of the mobile phone
+//
 String deviceToken;
-int bookLength = 0;
-int chatLength = 0;
+
+//
+// Books being sold
+//
+List<Book> sellBooks = <Book>[];
+
+//
+// Books being sold by the user
+//
+List<Book> userSellBooks = <Book>[];

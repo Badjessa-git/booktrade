@@ -4,29 +4,32 @@ import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BookDetailHeader extends StatefulWidget {
-
   final Book book;
   final Object bookTag;
   final TradeApi _api;
   final dynamic cameras;
-  const BookDetailHeader(this.book, this.bookTag, this._api, {this.cameras});
+  final bool wishlist;
+  const BookDetailHeader(this.book, this.bookTag, this._api, this.wishlist,
+      {this.cameras});
 
   @override
-  _BookDetailHeaderScreen createState() => new _BookDetailHeaderScreen(); 
+  _BookDetailHeaderScreen createState() => new _BookDetailHeaderScreen();
 }
 
 class _BookDetailHeaderScreen extends State<BookDetailHeader> {
   String chatroomID;
   User user;
   bool state;
-  
+  bool wishlist;
   @override
-  void initState() { 
+  void initState() {
     setState(() {
-      state = widget.book.sold;      
+      state = widget.book.sold;
+      wishlist = widget.wishlist;
     });
     super.initState();
   }
@@ -36,6 +39,34 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
   Widget build(BuildContext context) {
     final dynamic theme = Theme.of(context);
     final dynamic textTheme = theme.textTheme;
+    final dynamic deleteBook = Theme.of(context).platform ==
+            TargetPlatform.android
+        ? new AlertDialog(
+            title: const Text('Delete book'),
+            content: const Text(
+                'Are you sure you want to delete this book'),
+            actions: <Widget>[
+              new RaisedButton(
+                  child: const Text('OK'),
+                  onPressed: () => Navigator.pop(context, true)),
+              new RaisedButton(
+                child: const Text('Cancel'),
+                onPressed: () => Navigator.pop(context, false),
+              )
+            ],
+          )
+        : new CupertinoAlertDialog(
+            title: const Text('Delete book'),
+            content: const Text(
+                'Are you sure you want to delete this book'),
+            actions: <Widget>[
+                new RaisedButton(
+                    child: const Text('OK'),
+                    onPressed: () => Navigator.pop(context, true)),
+                new RaisedButton(
+                    child: const Text('Cancel'),
+                    onPressed: () => Navigator.pop(context, false))
+              ]);
 
     final dynamic avatar = new Hero(
       tag: widget.bookTag,
@@ -43,11 +74,11 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
         width: 200.0,
         height: 200.0,
         child: new Container(
-        decoration: new BoxDecoration(
-          image: new DecorationImage(
-            image: new NetworkImage(widget.book.picUrl),
+          decoration: new BoxDecoration(
+            image: new DecorationImage(
+              image: new NetworkImage(widget.book.picUrl),
+            ),
           ),
-        ),
         ),
       ),
     );
@@ -55,22 +86,21 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
     final dynamic price = new Padding(
       padding: const EdgeInsets.only(top: 16.0),
       child: new Row(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Icon(
-            Icons.attach_money,
-            color: Colors.white,
-            size: 16.0,
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            const Icon(
+              Icons.attach_money,
+              color: Colors.white,
+              size: 16.0,
             ),
-          new Padding(
-            padding: const EdgeInsets.only(left: 8.0),
-            child: new Text(
-              widget.book.price.toString(),
-              style: textTheme.subhead.copyWith(color: Colors.white),
+            new Padding(
+              padding: const EdgeInsets.only(left: 8.0),
+              child: new Text(
+                widget.book.price.toString(),
+                style: textTheme.subhead.copyWith(color: Colors.white),
               ),
-            ), 
-          ]
-        ),
+            ),
+          ]),
     );
 
     final dynamic actionsButtons2 = new Padding(
@@ -82,9 +112,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             borderRadius: new BorderRadius.circular(30.0),
             child: new MaterialButton(
               minWidth: 140.0,
-              color: state
-                   ? Colors.grey
-                   : Theme.of(context).accentColor,
+              color: state ? Colors.grey : Theme.of(context).accentColor,
               textColor: Colors.white,
               onPressed: () async {
                 if (state) {
@@ -96,26 +124,25 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                     content: const Text('Book already marked'),
                   );
                   Scaffold.of(context).showSnackBar(warning);
-                }
-              else {
-                final bool success = await widget._api.updateBook(widget.book);
-                if (!success) {
-                    final SnackBar errorMessage = new SnackBar(
-                      action: SnackBarAction(
-                        label: 'OK',
-                        onPressed: () {
-                        },
-                      ),
-                      content: const Text('Error Communicating with the Server')
-                    );
-                    Scaffold.of(context).showSnackBar(errorMessage);
                 } else {
-                  setState(() {
-                    state = success;                    
+                  await widget._api
+                      .updateBook(widget.book, sold: true)
+                      .then((_) {
+                    setState(() {
+                      state = true;
+                    });
+                  }).catchError((dynamic _) {
+                    final SnackBar errorMessage = new SnackBar(
+                        action: SnackBarAction(
+                          label: 'OK',
+                          onPressed: () {},
+                        ),
+                        content:
+                            const Text('Error Communicating with the Server'));
+                    Scaffold.of(context).showSnackBar(errorMessage);
                   });
                 }
-              }
-                },
+              },
               child: const Text('Mark it Sold'),
             ),
           ),
@@ -126,11 +153,11 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
               color: Theme.of(context).accentColor,
               textColor: Colors.white,
               onPressed: () {
-                Navigator.push<dynamic>(context, 
+                Navigator.push<dynamic>(
+                    context,
                     new MaterialPageRoute<dynamic>(
-                      builder: (BuildContext context) => AddBook(widget.book, widget.cameras, widget._api)
-                      )
-                    );
+                        builder: (BuildContext context) =>
+                            AddBook(widget.book, widget.cameras, widget._api)));
               },
               child: const Text('Edit'),
             ),
@@ -150,14 +177,14 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
               color: Theme.of(context).accentColor,
               textColor: Colors.white,
               onPressed: () async {
-                    print('working');
-                    await _findReceiverAndChatroom();
-                    Navigator.push<MaterialPageRoute<dynamic>>(context, 
-                          new MaterialPageRoute<MaterialPageRoute<dynamic>>(
-                            builder: (BuildContext context) => new MessageScreen(widget._api, user, chatroomID) 
-                          )
-                    );
-                },
+                print('working');
+                await _findReceiverAndChatroom();
+                Navigator.push<MaterialPageRoute<dynamic>>(
+                    context,
+                    new MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                        builder: (BuildContext context) =>
+                            new MessageScreen(widget._api, user, chatroomID)));
+              },
               child: const Text('Talk to Seller'),
             ),
           ),
@@ -165,14 +192,19 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             borderRadius: new BorderRadius.circular(30.0),
             child: new MaterialButton(
               minWidth: 140.0,
-              color: Theme.of(context).accentColor,
+              color: wishlist ? Colors.grey : Theme.of(context).accentColor,
               textColor: Colors.white,
               onPressed: () async {
-                _showSnackbar(10, 'Adding Book to Wishlist', true);
-                await widget._api.addToWishList(widget.book)
-                      .then<dynamic>((_) => _showSnackbar(4, 'Success', false))
-                      .catchError((dynamic _) => _showSnackbar(4, 'Error Communicating with Server', false));
-                _scaffoldKey.currentState.hideCurrentSnackBar();
+                if (wishlist) {
+                  _showSnackbar(5, 'Adding Book to Wishlist', true);
+                  await widget._api
+                      .addToWishList(widget.book)
+                      .then<dynamic>((_) {
+                    _showSnackbar(2, 'Success', false);
+                  }).catchError((dynamic _) => _showSnackbar(
+                          4, 'Error Communicating with Server', false));
+                  _scaffoldKey.currentState.hideCurrentSnackBar();
+                }
               },
               child: const Text('Add to WishList'),
             ),
@@ -191,80 +223,94 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
               avatar,
               price,
               widget.book.sellerUID == widget._api.firebaseUser.uid
-              ? actionsButtons2
-              : actionsButtons1
+                  ? actionsButtons2
+                  : actionsButtons1
             ],
           ),
         ),
         const Positioned(
           top: 26.0,
           left: 4.0,
-          child: const BackButton(color: Colors.white,),
+          child: const BackButton(
+            color: Colors.white,
+          ),
         ),
         widget.book.sellerUID == widget._api.firebaseUser.uid
-        ? new Positioned(
-          top: 26.0,
-          right: 4.0,
-            child: new IconButton(
-              icon: const Icon(Icons.delete, color: Colors.white,),
-              onPressed: () async {
-                _showSnackbar(10, 'Removing book...', true);
-                await widget._api.deleteBook(widget.book)
-                            .then((_) {
-                              _scaffoldKey.currentState.hideCurrentSnackBar();
+            ? new Positioned(
+                top: 26.0,
+                right: 4.0,
+                child: new IconButton(
+                    icon: const Icon(
+                      Icons.delete,
+                      color: Colors.white,
+                    ),
+                    onPressed: () async {
+                      final bool val = await showDialog<dynamic>(
+                          context: context,
+                          builder: (BuildContext context) => deleteBook);
+                      if (val) {
+                        _showSnackbar(10, 'Removing book...', true);
+                        await widget._api.deleteBook(widget.book).then((_) {
+                          _scaffoldKey.currentState.hideCurrentSnackBar();
+                          _showSnackbar(2, '!Scuccess', false);
+                          Navigator.popAndPushNamed(context, 'Navigtion');
+                        }).catchError(() => _showSnackbar(
+                            4, 'Server Error, Try again Later', false));
+                      }
+                    }),
+              )
+            : widget.wishlist
+                ? new Positioned(
+                    top: 26.0,
+                    right: 4.0,
+                    child: new IconButton(
+                        icon: const Icon(
+                          Icons.delete,
+                          color: Colors.white,
+                        ),
+                        onPressed: () async {
+                          final bool val = await showDialog<dynamic>(
+                              context: context,
+                              builder: (BuildContext context) => deleteBook);
+                          if (val) {
+                            _showSnackbar(10, 'Removing book...', true);
+                            await widget._api
+                                .removeFromWishList(widget.book)
+                                .then((_) {
                               _showSnackbar(2, '!Scuccess', false);
-                              Navigator.popAndPushNamed(context, 'Navigtion');
-                            })
-                            .catchError(() => _showSnackbar(4, 'Server Error, Try again Later', false));
-              },
-            ),
-          )
-          : new Positioned(
-          top: 26.0,
-          right: 4.0,
-            child: new IconButton(
-              icon: const Icon(Icons.delete, color: Colors.white,),
-              onPressed: () async {
-                _showSnackbar(10, 'Removing book...', true);
-                await widget._api.removeFromWishList(widget.book)
-                            .then((_) {
-                              _scaffoldKey.currentState.hideCurrentSnackBar();
-                              _showSnackbar(2, '!Scuccess', false);
-                              Navigator.popAndPushNamed(context, 'Navigtion');
-                            })
-                            .catchError(() => _showSnackbar(4, 'Server Error, Try again Later', false));
-              },
-            ),
-          ),
+                              Navigator.popAndPushNamed(context, 'Navigation');
+                            }).catchError(() => _showSnackbar(
+                                    4, 'Server Error, Try again Later', false));
+                          }
+                        }),
+                  )
+                : const Divider(),
       ],
     );
-
   }
 
-    dynamic _showSnackbar(int length, String message, bool isloading) {
-     return Scaffold.of(context).showSnackBar(
-                new SnackBar(
-                  duration: new Duration(seconds: length),
-                  content: new Row(
-                      children: isloading
-                      ? <Widget> [
-                        const CircularProgressIndicator(),
-                        new Text('  $message')
-                      ]
-                      : <Widget> [
-                        new Text('$message'),
-                      ]
-            ),
-         )
-      ); 
-    }
+  dynamic _showSnackbar(int length, String message, bool isloading) {
+    return Scaffold.of(context).showSnackBar(new SnackBar(
+          duration: new Duration(seconds: length),
+          content: new Row(
+              children: isloading
+                  ? <Widget>[
+                      const CircularProgressIndicator(),
+                      new Text('  $message')
+                    ]
+                  : <Widget>[
+                      new Text('$message'),
+                    ]),
+        ));
+  }
 
-    Future<Null> _findReceiverAndChatroom() async {
-      final User _user = await widget._api.getUser(widget.book.sellerUID);
-      final String _chatroomID = await widget._api.getorCreateChatRomms(widget.book.sellerUID);
-      setState(() {
-          chatroomID = _chatroomID;
-          user = _user;
-      });
-    }
+  Future<Null> _findReceiverAndChatroom() async {
+    final User _user = await widget._api.getUser(widget.book.sellerUID);
+    final String _chatroomID =
+        await widget._api.getorCreateChatRomms(widget.book.sellerUID);
+    setState(() {
+      chatroomID = _chatroomID;
+      user = _user;
+    });
+  }
 }

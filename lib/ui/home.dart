@@ -3,7 +3,9 @@ import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
 import 'package:booktrade/ui/nav_ui/navigation.dart';
+import 'package:booktrade/ui/settings_ui/settings_app.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
@@ -11,7 +13,6 @@ import 'package:booktrade/models/constants.dart';
 
 class Home extends StatefulWidget {
   final dynamic cameras;
-
   const Home(this.cameras);
 
   @override
@@ -28,9 +29,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     firebaseMessaging.requestNotificationPermissions(
-      const IosNotificationSettings(sound: true, badge: true, alert: true)
-    );
-    firebaseMessaging.onIosSettingsRegistered.listen((IosNotificationSettings data){
+        const IosNotificationSettings(sound: true, badge: true, alert: true));
+    firebaseMessaging.onIosSettingsRegistered
+        .listen((IosNotificationSettings data) {
       print('Notifications: $data');
     });
     firebaseMessaging.configure(
@@ -46,38 +47,39 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
         print('onMessage: $message');
         _showMessageDialog(message);
       },
-    );   
+    );
     firebaseMessaging.getToken().then((String onValue) {
       token = onValue;
       deviceToken = token;
-      print('deviceTokeon = $deviceToken');
+      print('deviceToken = $deviceToken');
     });
+
   }
 
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) async {
     print('**state ${state.toString()}');
-    switch(state) {
+    switch (state) {
       case AppLifecycleState.inactive:
-      break;
+        break;
       case AppLifecycleState.paused:
-      break;
+        break;
       case AppLifecycleState.resumed:
-      break;
-      break;
+        break;
       case AppLifecycleState.suspending:
-      break; 
+        break;
     }
   }
 
   void _navigateToMessage(Map<String, dynamic> message) async {
     final TradeApi api = _api == null ? await TradeApi.ensureSignIn() : _api;
     final User user = await api.getUser(message['UID']);
-    Navigator.push<dynamic>(context, 
-              new MaterialPageRoute<dynamic>(
-                settings: const RouteSettings(name: 'Message'),
-                builder: (BuildContext context) => new MessageScreen(api, user, message['chatroomID'])
-              ));
+    Navigator.push<dynamic>(
+        context,
+        new MaterialPageRoute<dynamic>(
+            settings: const RouteSettings(name: 'Message'),
+            builder: (BuildContext context) =>
+                new MessageScreen(api, user, message['chatroomID'])));
   }
 
   void _showMessageDialog(Map<String, dynamic> message) async {
@@ -96,10 +98,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
       ],
     );
 
-    showDialog<AlertDialog>(context: context, builder: (BuildContext context) => messageDialog);
+    showDialog<AlertDialog>(
+        context: context, builder: (BuildContext context) => messageDialog);
   }
-
-  
 
   @override
   Widget build(BuildContext context) {
@@ -114,55 +115,87 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   }
 
   Widget _siginInPage(BuildContext context) {
-    const dynamic alert = const AlertDialog(
-      title: const Text('Error'),
-      content: const Text('Error Signing in'),
-    );
     return new Container(
       margin: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
-      child: new Column(
-        mainAxisAlignment: MainAxisAlignment.center,
+      child: new Flex(
+        direction: Axis.vertical,
         children: <Widget>[
-          new Container(
-            child: new Image.asset('assets/img/logo.png'),
-          ),
-          new RaisedButton.icon(
-            elevation: 5.0,
-            color: Colors.red,
-            onPressed: () {
-              setState(() {
-                _inAsyncCall = true;
-              });
-              Future<dynamic>.delayed(const Duration(seconds: 2), () {
-                TradeApi
-                    .ensureSignIn()
-                    .then((TradeApi api) {
-                      setState(() {
-                        _api = api;                        
-                      }); 
-                      _domainCheck(api);
-                    })
-                    .catchError((dynamic e) {
-                  setState(() {
-                    _inAsyncCall = false;
-                  });
-                  TradeApi.signOutWithGoogle();
-                  showDialog<AlertDialog>(
-                      context: context, builder: (_) => alert);
-                });
-              });
-            },
-            icon: const Icon(const IconData(0xe900, fontFamily: 'icomoon')),
-            label: const Text(
-              'Google Sign In',
-              style: const TextStyle(
-                color: Colors.white,
-              ),
+          new Expanded(
+            child: new Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                new Container(
+                  child: new Image.asset('assets/img/logo.png'),
+                ),
+                new RaisedButton.icon(
+                  elevation: 5.0,
+                  color: Colors.red,
+                  onPressed: () {
+                    signIn();
+                  },
+                  icon:
+                      const Icon(const IconData(0xe900, fontFamily: 'icomoon')),
+                  label: const Text(
+                    'Google Sign In',
+                    style: const TextStyle(
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+                new Align(
+                  alignment: Alignment.bottomCenter,
+                  child: new GestureDetector(
+                      child: new RichText(
+                          textAlign: TextAlign.center,
+                          text: new TextSpan(
+                            text: 'Terms and Conditions',
+                            style: const TextStyle(
+                                color: Colors.white,
+                                decoration: TextDecoration.underline,
+                                fontSize: 10.0),
+                            recognizer: new TapGestureRecognizer(),
+                          )),
+                      onTap: () {
+                        Navigator.of(context).push<MaterialPageRoute<dynamic>>(
+                                new MaterialPageRoute<
+                                    MaterialPageRoute<dynamic>>(
+                              builder: (BuildContext context) {
+                                return const ShowPolicy(true);
+                              },
+                              fullscreenDialog: true,
+                            ));
+                      }),
+                ),
+              ],
             ),
           ),
         ],
       ),
     );
+  }
+
+  void signIn() async {
+    const dynamic alert = const AlertDialog(
+      title: const Text('Error'),
+      content: const Text('Error Signing in'),
+    );
+    setState(() {
+      _inAsyncCall = true;
+    });
+    Future<dynamic>.delayed(const Duration(seconds: 2), () {
+      TradeApi.signInWithGoogle().then((TradeApi api) {
+        setState(() {
+          _api = api;
+        });
+        _domainCheck(api);
+      }).catchError((dynamic e) {
+        setState(() {
+          _inAsyncCall = false;
+        });
+        TradeApi.signOutWithGoogle();
+        showDialog<AlertDialog>(context: context, builder: (_) => alert);
+      });
+    });
   }
 
   void _domainCheck(TradeApi api) async {
@@ -178,7 +211,9 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
         await api.getAllBook().then((List<Book> onValue) async {
       onValue = null;
       final String schoolName = _findSchoolName(api);
-      await api.addorUpdateUser(schoolName: schoolName).catchError((dynamic onError) => print(onError));
+      await api
+          .addorUpdateUser(schoolName: schoolName)
+          .catchError((dynamic onError) => print(onError));
       setState(() {
         _inAsyncCall = false;
       });
