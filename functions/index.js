@@ -1,7 +1,46 @@
+'use strict'
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
+const nodemailer = require('nodemailer');
 
 admin.initializeApp(functions.config().firebase);
+
+const gmailEmail = functions.config().gmail.email;
+const gmailPassword = functions.config().gmail.password;
+const mailTransport = nodemailer.createTransport({
+      service: 'gmail',
+      auth: {
+            user: gmailEmail,
+            pass: gmailPassword,
+      }
+});
+const APP_NAME = 'BookTrade';
+
+exports.sendWelcomeEmail = functions.auth.user().onCreate((user) => {
+      if (user.email.includes('lehigh.edu')) {
+         const email = user.email;
+         const displayName = user.displayName;
+         
+         return sendWelcomeEmail(email, displayName);
+      }
+});
+
+function sendWelcomeEmail(email, displayName) {
+      const mailOptions = {
+            from: '${APP_NAME}<noreply@firebase.com>',
+            to: email,
+      };
+
+      mailOptions.subject = 'Welcome to ${APP_NAME}',
+      mailOptions.text = 'Hey ${displayName || ""}! Welcome to ${APP_NAME}. \n' + 
+                        'Thank you for joining our service. \n'
+                        +'We hope you enjoy our service and do not hesitate to contact us if you encounter any problems'
+                        +'\nBest'
+                        +'\nThe BookTrade Team.';
+      return mailTransport.sendMail(mailOptions).then(() => {
+            return console.log('Welcome email sent to:', email);
+      })
+}
 
 exports.sendPushMessage = functions.firestore
       .document('chatrooms/{chatroomID}/messages/{message}')

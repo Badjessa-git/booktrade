@@ -4,7 +4,7 @@ service cloud.firestore {
       allow read, write:
       if request.auth != null
       && request.auth.token.email_verified 
-      && request.auth.token.email..matches('(?i)[a-z0-9._%+-]+@lehigh[.]edu');
+      && request.auth.token.email.matches('(?i)[a-z0-9._%+-]+@lehigh[.]edu');
     }
   }
 }
