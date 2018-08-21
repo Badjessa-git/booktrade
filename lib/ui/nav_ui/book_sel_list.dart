@@ -83,10 +83,12 @@ class _SellListState extends State<SellList> {
           itemCount: _books.length,
           itemBuilder: _bookProto,
         )
-        : const Center(child: const Text('No Books Available',
+        : const Center(child: const Text('No Books Available \n'
+                                         'Click on top right to add your book',
                        style: const TextStyle(
                          fontSize: 20.0
-                       ),),
+                       ),
+                       textAlign: TextAlign.center,),
         ),
       ),
     );

@@ -46,10 +46,10 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             content: const Text(
                 'Are you sure you want to delete this book'),
             actions: <Widget>[
-              new RaisedButton(
+              new FlatButton(
                   child: const Text('OK'),
                   onPressed: () => Navigator.pop(context, true)),
-              new RaisedButton(
+              new FlatButton(
                 child: const Text('Cancel'),
                 onPressed: () => Navigator.pop(context, false),
               )
@@ -60,10 +60,10 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             content: const Text(
                 'Are you sure you want to delete this book'),
             actions: <Widget>[
-                new RaisedButton(
+                new CupertinoButton(
                     child: const Text('OK'),
                     onPressed: () => Navigator.pop(context, true)),
-                new RaisedButton(
+                new CupertinoButton(
                     child: const Text('Cancel'),
                     onPressed: () => Navigator.pop(context, false))
               ]);
@@ -278,7 +278,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                                 .removeFromWishList(widget.book)
                                 .then((_) {
                               _showSnackbar(2, '!Scuccess', false);
-                              Navigator.popAndPushNamed(context, 'Navigation');
+                              Navigator.pop(context);
                             }).catchError(() => _showSnackbar(
                                     4, 'Server Error, Try again Later', false));
                           }

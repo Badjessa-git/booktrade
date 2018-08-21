@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/nav_ui/navigation.dart';
 import 'package:camera/camera.dart';
@@ -48,6 +49,9 @@ class _BookTradeState extends State<BookTrade> {
 
   @override
   Widget build(BuildContext context) {
+    if (Theme.of(context).platform == TargetPlatform.iOS) {
+      isIos = true;
+    }
     return new MaterialApp(
       theme: new ThemeData(
         primaryColor: const Color(0xFF48A9A6),

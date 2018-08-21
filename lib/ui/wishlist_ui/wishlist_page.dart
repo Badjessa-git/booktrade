@@ -152,7 +152,7 @@ class _WishListState extends State<WishList> {
   }
 
   void _navigateToNextPage(Book curbook, Object index) {
-    Navigator.of(this.context).push<FadePageRoute<dynamic>>(
+    Navigator.of(context).push<FadePageRoute<dynamic>>(
       new FadePageRoute<FadePageRoute<dynamic>>(
         builder: (BuildContext c) {
           return new BookDetails(curbook, index, widget._api, true);

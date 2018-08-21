@@ -150,7 +150,9 @@ class _FinBookState extends State<FinBook> {
 
     // If the controller is updated then update the UI.
     _controller.addListener(() {
-      if (mounted) setState(() {});
+      if (mounted) { 
+        setState(() {}); 
+      }
       if (_controller.value.hasError) {
         showInSnackBar('Camera error ${_controller.value.errorDescription}');
       }

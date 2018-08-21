@@ -5,6 +5,7 @@ import 'dart:math' show Random;
 import 'dart:typed_data' show ByteData;
 import 'package:booktrade/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -19,7 +20,6 @@ class TradeApi {
   static int id = 0;
   String displayName;
   FirebaseUser firebaseUser;
-  Map<Book, String> bookMap =  <Book, String>{};
   TradeApi(this.firebaseUser);
 
   CollectionReference chatRoomsRef = Firestore.instance.collection('chatrooms');
@@ -37,6 +37,12 @@ class TradeApi {
 
     return TradeApi(user);
   }
+
+  static const MobileAdTargetingInfo targetInfo = const MobileAdTargetingInfo(
+    keywords: <String>['college', 'student', 'textbooks', 'books'],
+    childDirected: false,
+  );
+
 
   static Future<TradeApi> ensureSignIn() async {
     final FirebaseUser currentUser = await _auth.currentUser();
@@ -75,6 +81,7 @@ class TradeApi {
           user.email != currentUser.email ||
           user.photoUrl != currentUser.photoUrl ||
           !(user.deviceToken is List<String>) ||
+          otherUser != null && user.notify != otherUser.notify ||
           user.deviceToken.isEmpty ||
           !user.deviceToken.contains(deviceToken) ) {
         final DocumentReference userRef =
@@ -209,7 +216,7 @@ class TradeApi {
   }
 
   Future<List<Book>> getAllBook() async {
-    return (await Firestore.instance.collection('book_lehigh')
+    return (await Firestore.instance.collection('books')
         .where('sold', isEqualTo: false)  
         .getDocuments())
         .documents
@@ -219,7 +226,7 @@ class TradeApi {
   
   Future<List<Book>> getUserBook() async {
     return (await Firestore.instance
-            .collection('book_lehigh')
+            .collection('books')
             .where('sellerUID', isEqualTo: firebaseUser.uid)
             .getDocuments())
         .documents
@@ -257,7 +264,7 @@ class TradeApi {
 
   Future<Null> uploadBook(Book book) async {
     await Firestore.instance
-        .collection('book_lehigh')
+        .collection('books')
         .document('${book.sellerUID}_${book.isbn}')
         .setData(<String, dynamic>{
           'isbn': book.isbn,
@@ -276,7 +283,7 @@ class TradeApi {
   StreamSubscription<DocumentSnapshot> watch(
       Book book, void onChange(Book book)) {
     return Firestore.instance
-        .collection('book_lehigh')
+        .collection('books')
         .document('${book.sellerUID}_${book.isbn}')
         .snapshots()
         .listen((DocumentSnapshot doc) => onChange( _fromFireBaseSnapShot(doc)));
@@ -284,7 +291,7 @@ class TradeApi {
 
   Future<Null> updateBook(Book book, {bool sold}) async {
     final DocumentReference bookRef =
-        Firestore.instance.collection('book_lehigh').document('${book.sellerUID}_${book.isbn}');
+        Firestore.instance.collection('books').document('${book.sellerUID}_${book.isbn}');
     Firestore.instance.runTransaction((Transaction tx) async {
       final DocumentSnapshot bookSnapshot = await tx.get(bookRef);
       if (bookSnapshot.exists) {
@@ -340,12 +347,12 @@ class TradeApi {
   }
   
   Future<Null> removeFromWishList(Book book) async {
-    final String bookId = bookMap[book];
+    final String bookId = wishMap[book];
     await Firestore.instance.collection('users')
                             .document(firebaseUser.uid)
                             .collection('wishlist')
                             .document(bookId)
-                            .delete().then((_) => bookMap.remove(book))
+                            .delete().then((_) => wishMap.remove(book))
                                      .catchError(() => print('Error deleting book'));
 
    final List<String> users = List<String>.from((await Firestore.instance.collection('wishlist')
@@ -374,7 +381,9 @@ class TradeApi {
 
     final List<Book> finalBook = <Book>[];
     for(String doc in _bookID) {
-      finalBook.add(await findBook(doc));
+      final Book curBook = await findBook(doc);
+      finalBook.add(curBook);
+      wishMap.putIfAbsent(curBook, () => doc);
     }
     return finalBook;
   }
@@ -382,14 +391,14 @@ class TradeApi {
 
   Future<Book> findBook(String doc) async {
     final String bookID = doc;
-    return await Firestore.instance.collection('book_lehigh')
+    return await Firestore.instance.collection('books')
                                    .document(bookID)
                                    .get()
                                    .then((DocumentSnapshot doc) => _fromFireBaseSnapShot(doc));
   }
   Future<Null> deleteBook(Book book) async {
     await Firestore.instance
-        .collection('book_lehigh')
+        .collection('books')
         .document('${book.sellerUID}_${book.isbn}')
         .delete();
   }

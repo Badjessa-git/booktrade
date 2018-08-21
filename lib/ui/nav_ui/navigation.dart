@@ -4,7 +4,8 @@ import 'package:booktrade/ui/nav_ui/book_list_found.dart';
 import 'package:booktrade/ui/nav_ui/book_sel_list.dart';
 import 'package:booktrade/ui/settings_ui/settings_app.dart';
 import 'package:booktrade/ui/wishlist_ui/wishlist_page.dart';
-import 'package:flutter_search_bar/flutter_search_bar.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:booktrade/ui/flutter-search-bar/flutter_search_bar_base.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
@@ -24,7 +25,7 @@ class Navigation extends StatefulWidget {
 
 }
 
-class _NavigationState extends State<Navigation> with SingleTickerProviderStateMixin{
+class _NavigationState extends State<Navigation> with SingleTickerProviderStateMixin {
   int _isbn;
   User _user;
   SearchBar searchBar;
@@ -36,6 +37,9 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
   List<Book> _searchBooks = <Book> [];
   List<BookListFound> _bookFound = <BookListFound>[];
   String _search;
+  BannerAd _bannerAd;
+  bool _adShown;
+  bool isSeaching = false;
 
   _NavigationState() {
     searchBar = new SearchBar(
@@ -48,9 +52,29 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
       hintText: 'Search Book',
       closeOnSubmit: false,
       clearOnSubmit: true,
+      onClosed: onClosed,
     );
   }
   
+  BannerAd createBannerAd() {
+    return new BannerAd(
+      adUnitId: isIos 
+                ? ADDMOB_ADID_IOS
+                : ADDMOB_ADID_ANDROID,
+      size: AdSize.smartBanner,
+      targetingInfo: TradeApi.targetInfo,
+      listener: (MobileAdEvent event) {
+        if (event == MobileAdEvent.loaded) {
+          _adShown = true;
+          setState(() {});
+        } else if (event == MobileAdEvent.failedToLoad) {
+          _adShown = false;
+          setState(() {});
+        }
+      }
+    );
+  }
+
   void onSubmit(String value) {
     setState(() {
       _search = value;    
@@ -82,7 +106,8 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
     
       final List<BookListFound> bookFound = _buildSearchList();
       setState(() {
-        _bookFound = bookFound;        
+        _bookFound = bookFound;  
+        isSeaching = searchBar.isSearching.value;      
       });
       loadTabpages();
       if (submit) {
@@ -93,6 +118,11 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
     
   }
 
+  List<Widget> fakeBottomButtons = <Widget> [
+    new Container(
+      height: 50.0,
+    )
+  ];
 
   List<BookListFound> _buildSearchList() {
     if (_search.isEmpty) {
@@ -113,7 +143,10 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
   }
 
   @override
-  void initState() { 
+  void initState() {
+    FirebaseAdMob.instance.initialize(appId: isIos ? ADDMOB_ADID_IOS : ADMOB_APPID_ANDROID);
+    _adShown = false;
+    _bannerAd = createBannerAd()..load()..show(); 
     super.initState();
     _tabList = <Tab> [
             const Tab(
@@ -131,11 +164,15 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
       length: _tabList.length,
       vsync: this,
     );
+    setState(() {
+      isSeaching = searchBar.isSearching.value;      
+    });
     getUser();
+    
   }
 
   void loadTabpages() {
-      _tabPages = searchBar.isSearching.value ?
+      _tabPages =  isSeaching ?
       <Widget> [
         new Scaffold(
           backgroundColor: const Color(0xFFD4B484),
@@ -167,7 +204,8 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
           new BookList(widget._api, widget.cameras),
           new SellList(widget._api, widget.cameras)
       ];
-      setState(() {});
+      isSeaching = false;
+
   }
 
   dynamic getUser() async {
@@ -179,7 +217,6 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
 
   @override
   void dispose(){
-    searchBar.isSearching.dispose();
     _controller.dispose();
     super.dispose();
   }
@@ -301,6 +338,7 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
         controller: _controller,
         children: _tabPages
       ),
+      persistentFooterButtons: _adShown ? fakeBottomButtons : null,
   );
 }
 
@@ -326,6 +364,13 @@ class _NavigationState extends State<Navigation> with SingleTickerProviderStateM
       showDialog<AlertDialog>(context: context, builder: (_) => alert);
       return;
     });
+  }
+
+
+  void onClosed() {
+    isSeaching = false;
+    loadTabpages();
+    setState(() {});
   }
 }
 

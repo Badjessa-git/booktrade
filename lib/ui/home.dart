@@ -142,9 +142,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
-                new Align(
-                  alignment: Alignment.bottomCenter,
-                  child: new GestureDetector(
+                  new FlatButton(
                       child: new RichText(
                           textAlign: TextAlign.center,
                           text: new TextSpan(
@@ -155,7 +153,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                                 fontSize: 10.0),
                             recognizer: new TapGestureRecognizer(),
                           )),
-                      onTap: () {
+                      onPressed: () {
                         Navigator.of(context).push<MaterialPageRoute<dynamic>>(
                                 new MaterialPageRoute<
                                     MaterialPageRoute<dynamic>>(
@@ -165,7 +163,6 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                               fullscreenDialog: true,
                             ));
                       }),
-                ),
               ],
             ),
           ),
@@ -207,12 +204,11 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
             child: const Text('OK'), onPressed: () => Navigator.pop(context))
       ],
     );
-    final List<Book> books =
-        await api.getAllBook().then((List<Book> onValue) async {
+      await api.getAllBook().then((List<Book> onValue) async {
       onValue = null;
-      final String schoolName = _findSchoolName(api);
+      final String school = _findSchoolName(api);
       await api
-          .addorUpdateUser(schoolName: schoolName)
+          .addorUpdateUser(schoolName: school)
           .catchError((dynamic onError) => print(onError));
       setState(() {
         _inAsyncCall = false;
@@ -238,12 +234,12 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
 
   String _findSchoolName(TradeApi api) {
     final String email = api.firebaseUser.email;
-    String schoolName;
+    String school;
     if (email.contains('@lehigh.edu')) {
-      schoolName = 'Lehigh University';
+      school = 'Lehigh University';
     } else {
-      schoolName = 'Test University';
+      school = 'Test University';
     }
-    return schoolName;
+    return school;
   }
 }

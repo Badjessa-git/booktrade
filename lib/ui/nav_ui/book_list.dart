@@ -16,6 +16,8 @@ class BookList extends StatefulWidget {
 }
   
 class _BookListState extends State<BookList> {
+
+  
   List<Book> _books = <Book>[];
   @override
   void initState() {
@@ -47,7 +49,6 @@ class _BookListState extends State<BookList> {
     }
 
   }
-
   // dynamic _loadBooks() async {
   //   final String fileData = await DefaultAssetBundle.of(context).loadString('assets/books.json');
   //   setState(() {

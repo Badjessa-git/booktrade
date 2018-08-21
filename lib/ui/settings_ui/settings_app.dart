@@ -39,7 +39,7 @@ class _SettingsState extends State<Settings> {
       appBar: new AppBar(
         title: const Text('Settings'),
       ),
-      body: new Column(
+      body: new Flex(
         mainAxisSize: MainAxisSize.max,
         mainAxisAlignment: MainAxisAlignment.start,
         children: <Widget>[
@@ -108,7 +108,7 @@ class _SettingsState extends State<Settings> {
               },
             ),
           ),
-        ],
+        ], direction: Axis.vertical,
       ),
     );
   }
