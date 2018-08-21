@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'package:booktrade/utils/tools.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/user.dart';
@@ -22,43 +23,31 @@ class _WishListState extends State<WishList> {
 
   TextEditingController controller = new TextEditingController();
 
-  _WishListState() {
-    searchBar = new SearchBar(
-      inBar: false,
-      setState: setState,
-      onSubmitted: null,
-      buildDefaultAppBar: buildAppBar
-    );
-  }
-
-  AppBar buildAppBar(BuildContext context){
-    return new AppBar(
-      title: const Text('WishList'),
-      actions: <Widget>[
-        searchBar.getSearchAction(context),
-      ],
-    );
-  }
-
   @override
   void initState() {
     super.initState();
     _loadWishlistromFirebase();
+    _reloadBook();
   }
 
   dynamic _loadWishlistromFirebase() async {
     final List<Book> books = await widget._api.getWishList();
+    if (mounted) {
     setState(() {
       _books = books;
     });
+    }
+
   }
 
   dynamic _reloadBook() async {
     if (widget._api != null) {
       final List<Book> books = await widget._api.getWishList();
-      setState(() {
+      if (mounted) {
+        setState(() {
         _books = books;
       });
+      }
     }
   }
 
@@ -69,68 +58,107 @@ class _WishListState extends State<WishList> {
 
   @override
   Widget build(BuildContext context) {
-    const dynamic delegate = const SliverGridDelegateWithFixedCrossAxisCount(
-      crossAxisCount: 3,
-      crossAxisSpacing: 8.0,
-      mainAxisSpacing: 8.0,
+     return new Scaffold(
+        appBar: new AppBar(
+          title: const Text('WishList'),
+        ),
+      backgroundColor: const Color(0xFFD4B484),
+      body: new Flex(
+        children: <Widget>[
+            _marketPage(),
+        ], direction: Axis.vertical,
+      ),
     );
-
-    return new Scaffold(
-        appBar: searchBar.build(this.context),
-        backgroundColor: const Color(0xFFD4B484),
-        body: new Flex(
-          children: <Widget>[
-            new Flexible(
-                child: _books == null
-                    ? const Center(child: const CircularProgressIndicator())
-                    : new RefreshIndicator(
-                        onRefresh: refresh,
-                        child: _books.isEmpty
-                            ? const Center(
-                                child: const Text('No books added to Wishlit',
-                                    style: const TextStyle(fontSize: 20.0)))
-                            : new GridView.builder(
-                                physics: const AlwaysScrollableScrollPhysics(),
-                                padding: const EdgeInsets.only(top: 16.0),
-                                gridDelegate: delegate,
-                                itemBuilder: bookbuilder,
-                                itemCount: _books.length,
-                              ),
-                      )),
-          ],
-          direction: Axis.vertical,
-        ));
   }
 
-  Widget bookbuilder(BuildContext context, int index) {
+  Widget _marketPage() {
+    return new Flexible(
+      child: _books == null 
+      ? const Center(child: const CircularProgressIndicator())
+      : new RefreshIndicator(
+        onRefresh: refresh,
+        child: _books.isNotEmpty
+        ? new ListView.builder(
+          physics: const AlwaysScrollableScrollPhysics(),
+          itemCount: _books.length,
+          itemBuilder: _bookProto,
+        )
+        : const Center(child: const Text('No Books Available',
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                    ),)),
+      ),
+    );
+  }
+
+  Widget _bookProto(BuildContext context, int index) {
     final Book curbook = _books[index];
     return new Container(
       margin: const EdgeInsets.only(top: 5.0),
-      child: new GestureDetector(
-          child: Card(
-            color: const Color(0xFFE4DFA),
-            child: new Column(
-              mainAxisSize: MainAxisSize.min,
-              children: <Widget>[
-                new Image.network(
-                  curbook.picUrl,
-                  width: 200.0,
-                  height: 200.0,
+      child: new Card(
+        color: const Color(0xFFE4DFDA),
+        child: new Column(
+        mainAxisSize: MainAxisSize.min,
+        children: <Widget>[
+          new ListTile(
+            leading: new Hero (
+              tag: index,
+              child: new SizedBox(
+                height: 100.0,
+                width: 60.0,
+                child: new Container(
+                  decoration: new BoxDecoration(
+                    image: new DecorationImage( 
+                      image: new NetworkImage(curbook.picUrl),
+                      fit: BoxFit.contain,
+                  ),
                 ),
-                new Text(curbook.title)
-              ],
+              ),  
             ),
           ),
-          onTap: () {
-            Navigator.of(context).push<FadePageRoute<dynamic>>(
-                  new FadePageRoute<FadePageRoute<dynamic>>(
-                    builder: (BuildContext c) {
-                      return new BookDetails(curbook, index, widget._api);
-                    },
-                    settings: const RouteSettings(),
+          title: new Text(
+            curbook.title,
+            style: const TextStyle(fontWeight:  FontWeight.bold),
+          ),
+          subtitle: new Text(
+            curbook.author + '\n' +
+            Tools.convertToEdition(curbook.edition) + ' Edition\n' +
+            curbook.sellerID,
+            maxLines: 10,
+            textAlign: TextAlign.left
+          ),
+          isThreeLine: true,
+          dense: false,
+          onTap: () => _navigateToNextPage(curbook, index),
+          trailing: curbook.sold == false
+                  ? new Text('\$${curbook.price}',
+                    style: const TextStyle(
+                      fontWeight: FontWeight.bold,
+                      fontSize: 20.0
+                    ),
+                  )
+                  : const Text(
+                    'SOLD',
+                    style: const TextStyle(
+                      fontSize: 20.0,
+                      color: Colors.red,
+                    ),
                   ),
-                );
-          }),
+          ),
+        ],
+      ),
+      ),
+    );
+  }
+
+  void _navigateToNextPage(Book curbook, Object index) {
+    Navigator.of(context).push<FadePageRoute<dynamic>>(
+      new FadePageRoute<FadePageRoute<dynamic>>(
+        builder: (BuildContext c) {
+          return new BookDetails(curbook, index, widget._api, true);
+        },
+        settings: const RouteSettings(),
+      ),
     );
   }
 }

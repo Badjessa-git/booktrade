@@ -23,28 +23,36 @@ class _SellListState extends State<SellList> {
   @override
   void initState() {
     super.initState();
-    _loadUserBooksFromFirebase();
+        _loadUserBooksFromFirebase();
+        _reloadBook();
+
   }
 
   dynamic _loadUserBooksFromFirebase() async {
     final List<Book> books = await widget._api.getUserBook();
+    if (mounted) {
     setState(() {
        _books = books;
+       userSellBooks = _books;
     });
+    }
   }
   
   @override
   @override
   void dispose() {
-    _books.clear(); 
     super.dispose();
   }
+
   dynamic _reloadBook() async {
     if (widget._api != null) {
       final List<Book> books = await widget._api.getUserBook();
-      setState(() {
-        _books = books;        
-      });
+    if (mounted) {
+    setState(() {
+       _books = books;
+       userSellBooks = _books;
+    });
+    }
     }
   }
 
@@ -66,7 +74,6 @@ class _SellListState extends State<SellList> {
   }
 
   Widget _marketPage() {
-    bookLength = _books.length;
     return new Flexible(
       child:  new RefreshIndicator(
         onRefresh: refresh,
@@ -76,10 +83,12 @@ class _SellListState extends State<SellList> {
           itemCount: _books.length,
           itemBuilder: _bookProto,
         )
-        : const Center(child: const Text('No Books Available',
+        : const Center(child: const Text('No Books Available \n'
+                                         'Click on top right to add your book',
                        style: const TextStyle(
                          fontSize: 20.0
-                       ),),
+                       ),
+                       textAlign: TextAlign.center,),
         ),
       ),
     );
@@ -125,8 +134,8 @@ class _SellListState extends State<SellList> {
           isThreeLine: true,
           dense: false,
           onTap: () => _navigateToNextPage(curbook, index),
+          trailing: _bookState(curbook),
           ),
-            _bookState(curbook),
             ],
           ),
         ),
@@ -137,7 +146,7 @@ class _SellListState extends State<SellList> {
     if (curbook.sold == true) {
       return const Text('SOLD',
       style: const TextStyle(
-        fontSize: 14.0,
+        fontSize: 20.0,
         color: Colors.red,
         fontWeight: FontWeight.bold
       ),
@@ -151,7 +160,7 @@ class _SellListState extends State<SellList> {
     Navigator.of(context).push<FadePageRoute<dynamic>>(
       new FadePageRoute<FadePageRoute<dynamic>>(
         builder: (BuildContext c) {
-          return new BookDetails(curbook, index, widget._api, cameras: widget.cameras);
+          return new BookDetails(curbook, index, widget._api, false, cameras: widget.cameras);
         },
         settings: const RouteSettings(),
       ),

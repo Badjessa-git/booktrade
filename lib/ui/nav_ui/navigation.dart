@@ -1,14 +1,17 @@
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/ui/chat_ui/chat_ui.dart';
+import 'package:booktrade/ui/nav_ui/book_list_found.dart';
 import 'package:booktrade/ui/nav_ui/book_sel_list.dart';
 import 'package:booktrade/ui/settings_ui/settings_app.dart';
 import 'package:booktrade/ui/wishlist_ui/wishlist_page.dart';
-import 'package:flutter_search_bar/flutter_search_bar.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:booktrade/ui/flutter-search-bar/flutter_search_bar_base.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/nav_ui/book_list.dart';
+import 'package:booktrade/models/constants.dart';
 
 class Navigation extends StatefulWidget {
 
@@ -22,25 +25,187 @@ class Navigation extends StatefulWidget {
 
 }
 
-class _NavigationState extends State<Navigation> {
+class _NavigationState extends State<Navigation> with SingleTickerProviderStateMixin {
   int _isbn;
   User _user;
   SearchBar searchBar;
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   TextEditingController controller = new TextEditingController();
+  TabController _controller;
+  List<Tab> _tabList;
+  List<Widget> _tabPages;
+  List<Book> _searchBooks = <Book> [];
+  List<BookListFound> _bookFound = <BookListFound>[];
+  String _search;
+  BannerAd _bannerAd;
+  bool _adShown;
+  bool isSeaching = false;
+
   _NavigationState() {
     searchBar = new SearchBar(
+      controller: controller,
       inBar: false,
       setState: setState,
-      onSubmitted: null,
-      buildDefaultAppBar: buildAppBar
-    );    
+      onSubmitted: onSubmit,
+      onChanged: onChange,
+      buildDefaultAppBar: buildAppBar,
+      hintText: 'Search Book',
+      closeOnSubmit: false,
+      clearOnSubmit: true,
+      onClosed: onClosed,
+    );
+  }
+  
+  BannerAd createBannerAd() {
+    return new BannerAd(
+      adUnitId: isIos 
+                ? ADDMOB_ADID_IOS
+                : ADDMOB_ADID_ANDROID,
+      size: AdSize.smartBanner,
+      targetingInfo: TradeApi.targetInfo,
+      listener: (MobileAdEvent event) {
+        if (event == MobileAdEvent.loaded) {
+          _adShown = true;
+          setState(() {});
+        } else if (event == MobileAdEvent.failedToLoad) {
+          _adShown = false;
+          setState(() {});
+        }
+      }
+    );
+  }
+
+  void onSubmit(String value) {
+    setState(() {
+      _search = value;    
+    });
+    searchBook(value, true);
+  }
+
+  void onChange(String value){
+    setState(() {
+      _search = value;    
+    });
+    searchBook(value, false);
+  }
+
+  void searchBook(String value, bool submit) {
+    final int curTab = _controller.index;
+    switch(curTab) {
+      case 0:
+        setState(() {
+          _searchBooks = sellBooks;        
+        });
+        break;
+      case 1:
+        setState(() {
+          _searchBooks = userSellBooks;          
+        });
+        break;
+    }
+    
+      final List<BookListFound> bookFound = _buildSearchList();
+      setState(() {
+        _bookFound = bookFound;  
+        isSeaching = searchBar.isSearching.value;      
+      });
+      loadTabpages();
+      if (submit) {
+        searchBar.setState(() {
+          controller.clear();
+        });
+      }
+    
+  }
+
+  List<Widget> fakeBottomButtons = <Widget> [
+    new Container(
+      height: 50.0,
+    )
+  ];
+
+  List<BookListFound> _buildSearchList() {
+    if (_search.isEmpty) {
+      return _searchBooks.map((Book curBook) => new BookListFound(widget._api, widget.cameras, curBook))
+      .toList();
+    } else {
+      final List<Book> _searchList = <Book>[];
+
+      for(int i = 0; i < _searchBooks.length; i++) {
+        final String title = _searchBooks[i].title;
+        if (title.toLowerCase().contains(_search.toLowerCase())) {
+          _searchList.add(_searchBooks[i]);
+        }
+      }
+      return _searchList.map((Book curBook) => new BookListFound(widget._api, widget.cameras, curBook))
+      .toList();    
+      }
   }
 
   @override
-  void initState() { 
+  void initState() {
+    FirebaseAdMob.instance.initialize(appId: isIos ? ADDMOB_ADID_IOS : ADMOB_APPID_ANDROID);
+    _adShown = false;
+    _bannerAd = createBannerAd()..load()..show(); 
     super.initState();
+    _tabList = <Tab> [
+            const Tab(
+              text: 'Buying',
+              icon: Icon(Icons.library_books),
+            ),
+            const Tab(
+              text: 'Selling',
+              icon: Icon(Icons.local_library),
+            )
+    ];
+
+    loadTabpages();
+    _controller = new TabController(
+      length: _tabList.length,
+      vsync: this,
+    );
+    setState(() {
+      isSeaching = searchBar.isSearching.value;      
+    });
     getUser();
+    
+  }
+
+  void loadTabpages() {
+      _tabPages =  isSeaching ?
+      <Widget> [
+        new Scaffold(
+          backgroundColor: const Color(0xFFD4B484),
+          body: new Flex(children: <Widget>[
+            new Flexible(
+              child: new ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: _bookFound,
+              ),
+            ),
+          ], direction: Axis.vertical,
+        ),
+        ),
+        new Scaffold(
+          backgroundColor: const Color(0xFFD4B484),
+          body: new Flex(children: <Widget>[
+            new Flexible(
+              child: new ListView(
+              physics: const AlwaysScrollableScrollPhysics(),
+              children: _bookFound,
+              ),
+            ),
+          ], direction: Axis.vertical,
+        ),
+        )
+      ]
+      :
+      <Widget>[
+          new BookList(widget._api, widget.cameras),
+          new SellList(widget._api, widget.cameras)
+      ];
+      isSeaching = false;
+
   }
 
   dynamic getUser() async {
@@ -48,6 +213,12 @@ class _NavigationState extends State<Navigation> {
     setState(() {
       _user = user;      
     });
+  }
+
+  @override
+  void dispose(){
+    _controller.dispose();
+    super.dispose();
   }
 
   AppBar buildAppBar(BuildContext context) {
@@ -103,32 +274,23 @@ class _NavigationState extends State<Navigation> {
           ),
           
         ],
-        bottom : const TabBar(
+        bottom : new TabBar(
+          controller: _controller,
           indicatorColor : Colors.red,
-          tabs : <Widget> [
-            const Tab(
-              text: 'Buying',
-              icon: Icon(Icons.library_books),
-            ),
-            const Tab(
-              text: 'Selling',
-              icon: Icon(Icons.local_library),
-            )
-          ]
+          tabs : _tabList,
         ),
       );
   }
   @override
   Widget build(BuildContext context) {
-    return new DefaultTabController(
-      length: 2,
-      child: new Scaffold(
+     return new Scaffold(
       key: _scaffoldKey,
       appBar: searchBar.build(this.context),
       drawer: new Drawer(
         child: new ListView(
+          padding: EdgeInsets.zero,
           children: <Widget>[
-            new UserAccountsDrawerHeader(
+              new UserAccountsDrawerHeader(
               currentAccountPicture: new GestureDetector(
                 child: new CircleAvatar(
                   backgroundImage: new NetworkImage(widget._api.firebaseUser.photoUrl),
@@ -173,15 +335,12 @@ class _NavigationState extends State<Navigation> {
         )
       ),
       body: TabBarView(
-        children: <Widget>[
-          new BookList(widget._api),
-          new SellList(widget._api, widget.cameras),       
-          ],
-        ),
+        controller: _controller,
+        children: _tabPages
       ),
+      persistentFooterButtons: _adShown ? fakeBottomButtons : null,
   );
 }
-
 
   dynamic lookup() async {
     await TradeApi.lookup(_isbn, widget._api)
@@ -205,6 +364,13 @@ class _NavigationState extends State<Navigation> {
       showDialog<AlertDialog>(context: context, builder: (_) => alert);
       return;
     });
+  }
+
+
+  void onClosed() {
+    isSeaching = false;
+    loadTabpages();
+    setState(() {});
   }
 }
 

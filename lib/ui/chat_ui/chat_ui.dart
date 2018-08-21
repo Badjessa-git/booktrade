@@ -2,7 +2,6 @@ import 'dart:async';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
-import 'package:booktrade/models/constants.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
@@ -40,7 +39,6 @@ class _ChatScreenState extends State<ChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    chatLength = _allUsers.length;
     return new Scaffold(
         appBar: new AppBar(
           title: const Text('Messages'),

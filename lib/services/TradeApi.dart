@@ -5,6 +5,7 @@ import 'dart:math' show Random;
 import 'dart:typed_data' show ByteData;
 import 'package:booktrade/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
@@ -19,7 +20,6 @@ class TradeApi {
   static int id = 0;
   String displayName;
   FirebaseUser firebaseUser;
-  Map<Book, String> bookMap;
   TradeApi(this.firebaseUser);
 
   CollectionReference chatRoomsRef = Firestore.instance.collection('chatrooms');
@@ -38,20 +38,15 @@ class TradeApi {
     return TradeApi(user);
   }
 
-  static Future<TradeApi> ensureSignIn() async {
-    final GoogleSignInAccount googleUser = await _googleSignin.signInSilently();
-    if (googleUser == null) {
-      return await signInWithGoogle();
-    }
-    final GoogleSignInAuthentication googleAuth = await googleUser.authentication; 
-    final FirebaseUser user = await _auth.signInWithGoogle(
-      accessToken: googleAuth.accessToken,
-      idToken: googleAuth.idToken,
-    );
+  static const MobileAdTargetingInfo targetInfo = const MobileAdTargetingInfo(
+    keywords: <String>['college', 'student', 'textbooks', 'books'],
+    childDirected: false,
+  );
 
+
+  static Future<TradeApi> ensureSignIn() async {
     final FirebaseUser currentUser = await _auth.currentUser();
-    assert(user.uid == currentUser.uid);
-    return TradeApi(user); 
+    return currentUser == null ? null : TradeApi(currentUser);
   }
 
   Future<User> _checkDatabase() async {
@@ -86,6 +81,7 @@ class TradeApi {
           user.email != currentUser.email ||
           user.photoUrl != currentUser.photoUrl ||
           !(user.deviceToken is List<String>) ||
+          otherUser != null && user.notify != otherUser.notify ||
           user.deviceToken.isEmpty ||
           !user.deviceToken.contains(deviceToken) ) {
         final DocumentReference userRef =
@@ -220,7 +216,9 @@ class TradeApi {
   }
 
   Future<List<Book>> getAllBook() async {
-    return (await Firestore.instance.collection('book_lehigh').getDocuments())
+    return (await Firestore.instance.collection('books')
+        .where('sold', isEqualTo: false)  
+        .getDocuments())
         .documents
         .map((DocumentSnapshot doc) => _fromFireBaseSnapShot(doc, mapBook: bookMap))
         .toList();
@@ -228,7 +226,7 @@ class TradeApi {
   
   Future<List<Book>> getUserBook() async {
     return (await Firestore.instance
-            .collection('book_lehigh')
+            .collection('books')
             .where('sellerUID', isEqualTo: firebaseUser.uid)
             .getDocuments())
         .documents
@@ -266,7 +264,7 @@ class TradeApi {
 
   Future<Null> uploadBook(Book book) async {
     await Firestore.instance
-        .collection('book_lehigh')
+        .collection('books')
         .document('${book.sellerUID}_${book.isbn}')
         .setData(<String, dynamic>{
           'isbn': book.isbn,
@@ -285,15 +283,15 @@ class TradeApi {
   StreamSubscription<DocumentSnapshot> watch(
       Book book, void onChange(Book book)) {
     return Firestore.instance
-        .collection('book_lehigh')
+        .collection('books')
         .document('${book.sellerUID}_${book.isbn}')
         .snapshots()
         .listen((DocumentSnapshot doc) => onChange( _fromFireBaseSnapShot(doc)));
   }
 
-  Future<Null> updateBook(Book book) async {
+  Future<Null> updateBook(Book book, {bool sold}) async {
     final DocumentReference bookRef =
-        Firestore.instance.collection('book_lehigh').document('${book.sellerUID}_${book.isbn}');
+        Firestore.instance.collection('books').document('${book.sellerUID}_${book.isbn}');
     Firestore.instance.runTransaction((Transaction tx) async {
       final DocumentSnapshot bookSnapshot = await tx.get(bookRef);
       if (bookSnapshot.exists) {
@@ -308,7 +306,7 @@ class TradeApi {
               'seller': book.sellerID,
               'sellerUID': book.sellerUID,
               'condition': book.condition,
-              'sold': !book.sold
+              'sold': sold
             });
       }
     });
@@ -316,19 +314,30 @@ class TradeApi {
   
   Future<Null> addToWishList(Book book) async {
   final String bookId = bookMap[book];
-  Firestore.instance.collection('users')
+  await Firestore.instance.collection('users')
                                    .document(firebaseUser.uid)
                                    .collection('wishlist')
-                                   .document(bookId);
+                                   .document(bookId)
+                                   .setData(<String, dynamic> {
+                                     'bookId' : bookId
+                                   });
   
-  List<String> userList = (await Firestore.instance.collection('wishlist')
-                                             .document(bookId)
-                                             .get())
-                                             .data['users'];
+  List<String> userList = <String>[];
+  await Firestore.instance.collection('wishlist')
+                                    .document(bookId)
+                                    .get()
+                                    .then((DocumentSnapshot doc) {
+                                      if (doc.exists) {
+                                        userList = List<String>.from(doc.data['users']);
+                                      }
+                                    });
+                    
   
-  userList == null 
+  userList == null || userList.isEmpty
   ? userList = <String> [firebaseUser.uid] 
-  : userList.add(firebaseUser.uid); 
+  : !userList.contains(firebaseUser.uid)
+  ? userList.add(firebaseUser.uid)
+  : null; 
 
   await Firestore.instance.collection('wishlist')
                             .document(bookId)
@@ -338,38 +347,58 @@ class TradeApi {
   }
   
   Future<Null> removeFromWishList(Book book) async {
-    final String bookId = bookMap[book];
+    final String bookId = wishMap[book];
     await Firestore.instance.collection('users')
                             .document(firebaseUser.uid)
                             .collection('wishlist')
                             .document(bookId)
-                            .delete();
-    bookMap.remove(book);
-  }
+                            .delete().then((_) => wishMap.remove(book))
+                                     .catchError(() => print('Error deleting book'));
 
+   final List<String> users = List<String>.from((await Firestore.instance.collection('wishlist')
+                            .document(bookId)
+                            .get())
+                            .data['users']);
+    while (users.contains(firebaseUser.uid)) {
+      users.remove(firebaseUser.uid);
+    }
+
+  await Firestore.instance.collection('wishlist')
+                            .document(bookId)
+                            .setData(<String, dynamic> {
+                              'users' : users
+                            }).catchError(() => print('Error with deletion in removeFormWihslist'));              
+  }
+  
   Future<List<Book>> getWishList() async {
-    final List<Book> wishlist = <Book> [];
-    ( await Firestore.instance.collection('book_lehigh')
+    final List<String> _bookID = (await Firestore.instance.collection('users')
                                     .document(firebaseUser.uid)
                                     .collection('wishlist')
                                     .getDocuments())
                                     .documents
-                                    .map((DocumentSnapshot doc) async {
-                                      final String bookId = doc.documentID;
-                                      wishlist.add(await findSpecificBook(bookId));
-                                    });
-    return wishlist;
+                                    .map<String>((DocumentSnapshot doc) => doc.data['bookId'])
+                                    .toList();
+
+    final List<Book> finalBook = <Book>[];
+    for(String doc in _bookID) {
+      final Book curBook = await findBook(doc);
+      finalBook.add(curBook);
+      wishMap.putIfAbsent(curBook, () => doc);
+    }
+    return finalBook;
   }
 
-  Future<Book> findSpecificBook(String bookID) async {
-    return await Firestore.instance.collection('book_lehigh')
+
+  Future<Book> findBook(String doc) async {
+    final String bookID = doc;
+    return await Firestore.instance.collection('books')
                                    .document(bookID)
                                    .get()
                                    .then((DocumentSnapshot doc) => _fromFireBaseSnapShot(doc));
   }
   Future<Null> deleteBook(Book book) async {
     await Firestore.instance
-        .collection('book_lehigh')
+        .collection('books')
         .document('${book.sellerUID}_${book.isbn}')
         .delete();
   }

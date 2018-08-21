@@ -1,21 +1,23 @@
 import 'dart:async';
-
 import 'package:booktrade/ui/book_ui/book_page.dart';
 import 'package:booktrade/utils/routes.dart';
 import 'package:booktrade/utils/tools.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/services/TradeApi.dart';
 
 class BookList extends StatefulWidget {
   final TradeApi _api;
-
-  const BookList(this._api);
+  final dynamic cameras;
+  const BookList(this._api, this.cameras);
   @override
   _BookListState createState() => new _BookListState();
 }
   
 class _BookListState extends State<BookList> {
+
+  
   List<Book> _books = <Book>[];
   @override
   void initState() {
@@ -39,11 +41,14 @@ class _BookListState extends State<BookList> {
 
   dynamic _loadFromFirebase() async {
     final List<Book> books = await widget._api.getAllBook();
-    setState(() {
+    if (mounted) {
+      setState(() {
           _books = books;
-    });
-  }
+          sellBooks = books;
+      });
+    }
 
+  }
   // dynamic _loadBooks() async {
   //   final String fileData = await DefaultAssetBundle.of(context).loadString('assets/books.json');
   //   setState(() {
@@ -54,9 +59,13 @@ class _BookListState extends State<BookList> {
   dynamic _reloadBook() async {
     if (widget._api != null) {
       final List<Book> books = await widget._api.getAllBook();
-      setState(() {
+      if (mounted) {
+          setState(() {
           _books = books;
+          sellBooks = books;
       });
+      }
+
     }
   }
 
@@ -88,7 +97,6 @@ class _BookListState extends State<BookList> {
 
   Widget _bookProto(BuildContext context, int index) {
     final Book curbook = _books[index];
-
     return new Container(
       margin: const EdgeInsets.only(top: 5.0),
       child: new Card(
@@ -129,13 +137,15 @@ class _BookListState extends State<BookList> {
           trailing: curbook.sold == false
                   ? new Text('\$${curbook.price}',
                     style: const TextStyle(
+                      fontWeight: FontWeight.bold,
                       fontSize: 20.0
                     ),
                   )
                   : const Text(
-                    'Sold',
+                    'SOLD',
                     style: const TextStyle(
-                      fontSize: 20.0
+                      fontSize: 20.0,
+                      color: Colors.red,
                     ),
                   ),
           ),
@@ -149,7 +159,7 @@ class _BookListState extends State<BookList> {
     Navigator.of(context).push<FadePageRoute<dynamic>>(
       new FadePageRoute<FadePageRoute<dynamic>>(
         builder: (BuildContext c) {
-          return new BookDetails(curbook, index, widget._api);
+          return new BookDetails(curbook, index, widget._api, false, cameras: widget.cameras);
         },
         settings: const RouteSettings(),
       ),
