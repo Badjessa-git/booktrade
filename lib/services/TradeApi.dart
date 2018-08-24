@@ -7,6 +7,7 @@ import 'package:booktrade/models/user.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:booktrade/models/book.dart';
@@ -17,6 +18,7 @@ import 'package:booktrade/models/constants.dart';
 class TradeApi {
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final GoogleSignIn _googleSignin = new GoogleSignIn();
+  final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   static int id = 0;
   String displayName;
   FirebaseUser firebaseUser;
@@ -35,6 +37,8 @@ class TradeApi {
     final FirebaseUser currentUser = await _auth.currentUser();
     assert(user.uid == currentUser.uid);
 
+    FirebaseAdMob.instance.initialize(appId: isIos ? ADDMOB_ADID_IOS : ADMOB_APPID_ANDROID);
+
     return TradeApi(user);
   }
 
@@ -44,8 +48,10 @@ class TradeApi {
   );
 
 
+
   static Future<TradeApi> ensureSignIn() async {
     final FirebaseUser currentUser = await _auth.currentUser();
+    FirebaseAdMob.instance.initialize(appId: isIos ? ADDMOB_ADID_IOS : ADMOB_APPID_ANDROID);
     return currentUser == null ? null : TradeApi(currentUser);
   }
 
@@ -63,6 +69,7 @@ class TradeApi {
     final User user = await _checkDatabase();
     if (user == null) {
       final List<String> deviceTokens = <String> [];
+      deviceToken ??= await firebaseMessaging.getToken();
       deviceTokens.add(deviceToken);
       await Firestore.instance
           .collection('users')
@@ -396,8 +403,8 @@ class TradeApi {
                                    .get()
                                    .then((DocumentSnapshot doc) => _fromFireBaseSnapShot(doc));
   }
-  Future<Null> deleteBook(Book book) async {
-    await Firestore.instance
+  Future<void> deleteBook(Book book) async {
+    return await Firestore.instance
         .collection('books')
         .document('${book.sellerUID}_${book.isbn}')
         .delete();
@@ -464,4 +471,27 @@ class TradeApi {
       
     );  
   }
+
+ static BannerAd createBannerAd() {
+    return new BannerAd(
+      adUnitId: isIos 
+                ? ADDMOB_ADID_IOS
+                : ADDMOB_ADID_ANDROID,
+      size: AdSize.smartBanner,
+      targetingInfo: targetInfo,
+      listener: (MobileAdEvent event) {
+        try {
+          if (event == MobileAdEvent.loaded) {
+            isAdShown = true;
+          } else if (event == MobileAdEvent.failedToLoad) {
+            isAdShown = false;
+          } 
+        } on Exception catch (error) {
+          print('Error, ${error.toString()}');
+        }
+
+      }
+    );
+  }
+
 }

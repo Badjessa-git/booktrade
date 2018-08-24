@@ -60,6 +60,7 @@ class _BookTradeState extends State<BookTrade> {
       home: home,
       routes:<String, WidgetBuilder> {
         '/home' : (BuildContext context) => new Home(cameras),
+        '/Navigation' : (BuildContext context) => new Navigation(_api, cameras),
       },
     );
   }

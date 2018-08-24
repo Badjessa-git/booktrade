@@ -1,5 +1,7 @@
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -7,7 +9,6 @@ import 'package:url_launcher/url_launcher.dart';
 class Settings extends StatefulWidget {
   final User _user;
   final TradeApi _api;
-
   const Settings(this._user, this._api);
 
   @override
@@ -31,13 +32,23 @@ class _SettingsState extends State<Settings> {
   bool _isTerms;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-
+  BannerAd bannerAd;
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       key: _scaffoldKey,
       appBar: new AppBar(
         title: const Text('Settings'),
+        leading: new IconButton(  
+          icon: const BackButton(),
+          onPressed: () {
+            if (banner != null) {
+              banner.show();
+              isAdShown = true;
+            }
+            Navigator.pop(context);
+          },
+        ),
       ),
       body: new Flex(
         mainAxisSize: MainAxisSize.max,
@@ -102,6 +113,12 @@ class _SettingsState extends State<Settings> {
               color: Colors.red,
               child: const Text('Sign out of BookTrade'),
               onPressed: () async {
+                  if (isAdShown && !calledDisposed) {
+                      bannerAd = banner;
+                      await bannerAd?.dispose();
+                      isAdShown = false;
+                      calledDisposed = true; 
+                  }
                 await TradeApi.signOutWithGoogle();
                 Navigator.of(context).pushNamedAndRemoveUntil(
                     '/home', (Route<dynamic> route) => false);

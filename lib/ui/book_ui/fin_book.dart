@@ -2,9 +2,11 @@ import 'dart:async';
 import 'dart:io';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/services/TradeApi.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
 import 'package:validator/validator.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FinBook extends StatefulWidget {
@@ -24,6 +26,7 @@ class _FinBookState extends State<FinBook> {
   String _imagePath;
   CameraController _controller;
   Book book;
+
   @override
   void initState() {
     super.initState();
@@ -274,7 +277,8 @@ class SavePictureDialog extends StatelessWidget {
                   ],
                 ),
               ));
-              await _submit(context);
+              BannerAd bannerAd;
+              await _submit(context, bannerAd);
             },
             child: new Text('SAVE',
                 style: Theme
@@ -305,10 +309,20 @@ class SavePictureDialog extends StatelessWidget {
     );
   }
 
-  dynamic _submit(BuildContext context) async {
+  dynamic _submit(BuildContext context, BannerAd bannerAd) async {
     curBook.picUrl = await _api.uploadFile(filePath: _imagePath, isbn: curBook.isbn);
     await _api.uploadBook(curBook).then((dynamic onValue) {
-      Navigator.popUntil(context, ModalRoute.withName('Navigation'));
+      // Navigator.popUntil(context, ModalRoute.withName('/Navigation'));
+      // if (calledDisposed && !isAdShown) {
+      //   bannerAd = TradeApi.createBannerAd()..load()..show().catchError((){});
+      //   isAdShown = true;
+      //   calledDisposed = false;
+      //   banner = bannerAd;
+      // }
+      banner = null;
+      isAdShown = true;
+      calledDisposed = false;
+      Navigator.pushNamedAndRemoveUntil(context, '/Navigation', (Route<dynamic> route) => false);
     }).catchError((dynamic error) {
       final dynamic alert = new AlertDialog(
         title: const Text('Error'),

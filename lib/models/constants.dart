@@ -1,4 +1,5 @@
 import 'package:booktrade/models/book.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 
 //
 //  The device token value of the mobile phone
@@ -20,5 +21,8 @@ const String ADDMOB_ADID_ANDROID = 'ca-app-pub-8785760726339346/5850714753';
 const String ADMOB_APPID_IOS = 'ca-app-pub-8785760726339346~6884084076'; 
 const String ADDMOB_ADID_IOS = 'ca-app-pub-8785760726339346/5248079521';
 bool isIos = false;
+bool isAdShown = true;
+bool calledDisposed = false;
 Map<Book, String> bookMap = <Book, String>{};
 Map<Book, String> wishMap = <Book, String>{};
+BannerAd banner;

@@ -2,6 +2,7 @@ import 'dart:async';
 import 'package:booktrade/ui/book_ui/book_page.dart';
 import 'package:booktrade/utils/routes.dart';
 import 'package:booktrade/utils/tools.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/constants.dart';
@@ -16,7 +17,7 @@ class BookList extends StatefulWidget {
 }
   
 class _BookListState extends State<BookList> {
-
+  BannerAd bannerAd;
   
   List<Book> _books = <Book>[];
   @override

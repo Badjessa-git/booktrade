@@ -1,12 +1,13 @@
 import 'dart:async';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
   final TradeApi _api;
-
   const ChatScreen(this._api);
 
   @override
@@ -14,6 +15,7 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
+  BannerAd bannerAd;
   List<User> _allUsers = <User>[];
   final Map<User, String> mapOfUsers = <User, String>{};
   @override
@@ -41,6 +43,19 @@ class _ChatScreenState extends State<ChatScreen> {
   Widget build(BuildContext context) {
     return new Scaffold(
         appBar: new AppBar(
+          leading: new WillPopScope(
+          onWillPop: () {
+            if (!isAdShown && calledDisposed) {
+              bannerAd = TradeApi.createBannerAd();
+              bannerAd..load()..show();
+              isAdShown = true;
+              calledDisposed = false;
+              banner = bannerAd;
+            }
+            return Future<bool>.value(true);
+          },
+          child: const BackButton()        
+        ),
           title: const Text('Messages'),
         ),
         backgroundColor: Colors.white,
@@ -90,7 +105,7 @@ class _ChatScreenState extends State<ChatScreen> {
                 context,
                 MaterialPageRoute<MaterialPageRoute<dynamic>>(
                     builder: (BuildContext context) => new MessageScreen(
-                        widget._api, _allUsers[index], chatroom)));
+                        widget._api, _allUsers[index], chatroom, fromBookDetails: false,)));
           },
         ),
       ],

@@ -1,4 +1,5 @@
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/book_ui/footer/book_footer.dart';
 import 'package:booktrade/ui/book_ui/header/book_header.dart';
@@ -28,6 +29,22 @@ class _BookDetailsState extends State<BookDetails> {
         ]),
   );
 
+  double smartHeight() {
+    final double height = banner.size.height.toDouble();
+    setState(() {});
+    return height;
+  }
+
+  List<Widget> fakeBottomButtons() {
+    return <Widget>[
+    new Container(
+      height: smartHeight(),
+      decoration: const BoxDecoration(
+        color: const Color(0xFFD4B484),
+      ),
+    )
+  ];
+  }
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -52,6 +69,7 @@ class _BookDetailsState extends State<BookDetails> {
           ),
         ),
       ),
+      persistentFooterButtons: isAdShown ? fakeBottomButtons() : null,
     );
   }
 }

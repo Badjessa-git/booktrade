@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -11,8 +13,8 @@ class MessageScreen extends StatefulWidget {
   final TradeApi _api;
   final String chatRoomID;
   final User receiver;
-
-  const MessageScreen(this._api, this.receiver, this.chatRoomID);
+  final bool fromBookDetails;
+  const MessageScreen(this._api, this.receiver, this.chatRoomID, {this.fromBookDetails});
   @override
   _MessageScreenState createState() => _MessageScreenState();
 
@@ -26,7 +28,7 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
   User receiver;
   AnimationController _controller;
   String curUserEmail;
-
+  BannerAd bannerAd;
   @override
   void initState() { 
     super.initState();
@@ -46,6 +48,19 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
+        leading: new WillPopScope(
+          onWillPop: () {
+            if (!isAdShown && calledDisposed && widget.fromBookDetails != null && widget.fromBookDetails) {
+              bannerAd = TradeApi.createBannerAd();
+              bannerAd..load()..show();
+              isAdShown = true;
+              calledDisposed = false;
+              banner = bannerAd;
+            }
+            return Future<bool>.value(true);
+          },
+          child: const BackButton()        
+        ),
         title: new Row(
           mainAxisAlignment: MainAxisAlignment.start,
           children: <Widget>[

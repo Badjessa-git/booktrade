@@ -1,5 +1,7 @@
 import 'dart:async';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/utils/tools.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/user.dart';
@@ -20,14 +22,23 @@ class WishList extends StatefulWidget {
 class _WishListState extends State<WishList> {
   List<Book> _books = <Book>[];
   SearchBar searchBar;
-
+  bool _adShown;
   TextEditingController controller = new TextEditingController();
 
   @override
   void initState() {
+    _adShown = false;
     super.initState();
     _loadWishlistromFirebase();
     _reloadBook();
+  }
+
+  List<Widget> fakeBottomButtons() {
+    return <Widget> [
+      new Container(
+        height: 50.0,
+      )
+    ];
   }
 
   dynamic _loadWishlistromFirebase() async {
@@ -68,6 +79,7 @@ class _WishListState extends State<WishList> {
             _marketPage(),
         ], direction: Axis.vertical,
       ),
+      persistentFooterButtons: _adShown ? fakeBottomButtons() : null,
     );
   }
 

@@ -1,5 +1,8 @@
+import 'dart:async';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/book_ui/fin_book.dart';
+import 'package:firebase_admob/firebase_admob.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
 
@@ -15,7 +18,7 @@ class AddBook extends StatefulWidget {
   }
   
 class _AddBook extends State<AddBook> {
-  List<String> conditions = <String>['Excellent', 'Very Good', 'Good', 'Poor'];
+  final List<String> conditions = <String>['Excellent', 'Very Good', 'Good', 'Poor'];
   Book curbook;
   int _isbn;
   String _title;
@@ -23,6 +26,8 @@ class _AddBook extends State<AddBook> {
   int _edition;
   double _price;
   String _condition;
+  BannerAd bannerAd;
+
 
   TextEditingController isbn = new TextEditingController();
   TextEditingController title = new TextEditingController();
@@ -32,7 +37,7 @@ class _AddBook extends State<AddBook> {
 
 
   @override
-  void initState(){
+  void initState() {
     super.initState();
     _condition = conditions.first;
     if (widget.curbook != null) {
@@ -41,7 +46,6 @@ class _AddBook extends State<AddBook> {
         _title = widget.curbook.title;
         _author = widget.curbook.author;
         _edition = widget.curbook.edition;
-        widget.curbook.condition != null ? _condition = widget.curbook.condition : () {};
         widget.curbook.price != null ? _price = widget.curbook.price : () {};     
         curbook = widget.curbook;   
       });
@@ -52,7 +56,21 @@ class _AddBook extends State<AddBook> {
   @override
   Widget build(BuildContext context){
     return new Scaffold(
-      appBar: new AppBar(),
+      appBar: new AppBar(
+        leading: new WillPopScope(
+          onWillPop: () {
+            if (!isAdShown && calledDisposed) {
+              bannerAd = TradeApi.createBannerAd();
+              bannerAd..load()..show();
+              isAdShown = true;
+              calledDisposed = false;
+              banner = bannerAd;
+            }
+            return Future<bool>.value(true);
+          },
+          child: const BackButton()        
+        ),
+      ),
       body: new Container(
         color: const Color(0xFFE4DFDA),
          child: new Form(
@@ -229,6 +247,7 @@ class _AddBook extends State<AddBook> {
                         }
                       ),
                     ),
+                const Divider(height: 100.0,)
                   ],
                 ),
               ),

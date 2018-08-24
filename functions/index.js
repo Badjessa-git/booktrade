@@ -16,23 +16,25 @@ const mailTransport = nodemailer.createTransport({
 });
 const APP_NAME = 'BookTrade';
 
-exports.sendWelcomeEmail = functions.auth.user().onCreate((user) => {
-      if (user.email.includes('lehigh.edu')) {
-         const email = user.email;
-         const displayName = user.displayName;
-         
-         return sendWelcomeEmail(email, displayName);
-      }
-});
+exports.sendsWelcomeEmail = functions.firestore
+      .document('users/{userID}')
+      .onCreate((userSnapshot, context) => {
+            const user = userSnapshot.data();
+                     const email = user['email'];
+                     const displayName = user['displayName'];
+                     
+                     return sendWelcomeEmail(email, displayName);
+                  
+      });
 
 function sendWelcomeEmail(email, displayName) {
       const mailOptions = {
-            from: '${APP_NAME}<noreply@firebase.com>',
+            from: APP_NAME+'<noreply@firebase.com>',
             to: email,
       };
 
-      mailOptions.subject = 'Welcome to ${APP_NAME}',
-      mailOptions.text = 'Hey ${displayName || ""}! Welcome to ${APP_NAME}. \n' + 
+      mailOptions.subject = 'Welcome to ' + APP_NAME,
+      mailOptions.text = 'Hey '+ displayName +'! \n Welcome to ' + APP_NAME + '.\n' + 
                         'Thank you for joining our service. \n'
                         +'We hope you enjoy our service and do not hesitate to contact us if you encounter any problems'
                         +'\nBest'
@@ -96,7 +98,7 @@ exports.sendPushMessage = functions.firestore
       });
 
 exports.updateDatabse = functions.firestore
-      .document('book_lehigh/{bookId}')
+      .document('books/{bookId}')
       .onDelete(context => {
             //for each adding to wishlist, add the user id to the bookid in the wishlist creation
             const bookId = context.params.bookId;

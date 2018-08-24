@@ -227,7 +227,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     Navigator.push<MaterialPageRoute<dynamic>>(
       context,
       MaterialPageRoute<MaterialPageRoute<dynamic>>(
-          settings: const RouteSettings(name: 'Navigation'),
+          settings: const RouteSettings(name: '/Navigation'),
           builder: (BuildContext context) => Navigation(api, widget.cameras)),
     );
   }

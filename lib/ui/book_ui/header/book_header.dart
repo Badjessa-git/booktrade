@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
+import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -25,6 +27,8 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
   User user;
   bool state;
   bool wishlist;
+  BannerAd bannerAd;
+
   @override
   void initState() {
     setState(() {
@@ -43,8 +47,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             TargetPlatform.android
         ? new AlertDialog(
             title: const Text('Delete book'),
-            content: const Text(
-                'Are you sure you want to delete this book'),
+            content: const Text('Are you sure you want to delete this book'),
             actions: <Widget>[
               new FlatButton(
                   child: const Text('OK'),
@@ -57,8 +60,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
           )
         : new CupertinoAlertDialog(
             title: const Text('Delete book'),
-            content: const Text(
-                'Are you sure you want to delete this book'),
+            content: const Text('Are you sure you want to delete this book'),
             actions: <Widget>[
                 new CupertinoButton(
                     child: const Text('OK'),
@@ -152,7 +154,13 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
               minWidth: 140.0,
               color: Theme.of(context).accentColor,
               textColor: Colors.white,
-              onPressed: () {
+              onPressed: () async {
+                if (isAdShown && !calledDisposed) {
+                          bannerAd = banner;
+                          await bannerAd?.dispose();
+                          isAdShown = false;
+                          calledDisposed = true; 
+                        }
                 Navigator.push<dynamic>(
                     context,
                     new MaterialPageRoute<dynamic>(
@@ -178,12 +186,18 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
               textColor: Colors.white,
               onPressed: () async {
                 print('working');
+                if (isAdShown && !calledDisposed) {
+                  bannerAd = banner;
+                  await bannerAd?.dispose();
+                  isAdShown = false;
+                  calledDisposed = true;
+                }
                 await _findReceiverAndChatroom();
                 Navigator.push<MaterialPageRoute<dynamic>>(
                     context,
                     new MaterialPageRoute<MaterialPageRoute<dynamic>>(
                         builder: (BuildContext context) =>
-                            new MessageScreen(widget._api, user, chatroomID)));
+                            new MessageScreen(widget._api, user, chatroomID, fromBookDetails: true)));
               },
               child: const Text('Talk to Seller'),
             ),
@@ -250,12 +264,10 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                           builder: (BuildContext context) => deleteBook);
                       if (val) {
                         _showSnackbar(10, 'Removing book...', true);
-                        await widget._api.deleteBook(widget.book).then((_) {
-                          _scaffoldKey.currentState.hideCurrentSnackBar();
-                          _showSnackbar(2, '!Scuccess', false);
-                          Navigator.popAndPushNamed(context, 'Navigtion');
-                        }).catchError(() => _showSnackbar(
+                        await widget._api.deleteBook(widget.book).then<void>((_) {}).catchError(() => _showSnackbar(
                             4, 'Server Error, Try again Later', false));
+                        _showSnackbar(2, '!Scuccess', false);
+                         Navigator.pop(context);
                       }
                     }),
               )
