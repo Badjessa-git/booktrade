@@ -351,7 +351,7 @@ class _NavigationState extends State<Navigation>
     await TradeApi.lookup(_isbn, widget._api).then((Book book) async {
       if (isAdShown && !calledDisposed) {
         _bannerAd = banner;
-        await _bannerAd.dispose();
+        await _bannerAd?.dispose();
         isAdShown = false;
         calledDisposed = true;
       }
