@@ -1,7 +1,5 @@
 import 'dart:async';
-import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/utils/tools.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/user.dart';

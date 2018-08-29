@@ -8,8 +8,10 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/services/TradeApi.dart';
+import 'dart:io';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:booktrade/models/constants.dart';
+import 'package:flutter/cupertino.dart';
 
 class Home extends StatefulWidget {
   final dynamic cameras;
@@ -24,10 +26,106 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   String token;
   bool _inAsyncCall = false;
   TradeApi _api;
+  
+  ///Operations to ready the app to draw everything
+  ///Get User agreement to our terms and conditions in order to use the app
+  ///Set up Firebase Messaging and Get the token of the device
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
+    /// If the user has not agreed to our terms then popup and force the user to agree to our terms
+    if (!agreeToTerms) {
+    WidgetsBinding.instance.addPostFrameCallback((_) async {
+          final Text _title = const Text('Agree to our Terms?');
+    final Column _content = new Column(children: <Widget>[
+      const Text(
+          'In order to use our app, you need to both our Terms & Conditions as well as our End User License Agree'
+          'ment. You can view them below'),
+      new FlatButton(
+          child: new RichText(
+              textAlign: TextAlign.center,
+              text: new TextSpan(
+                text: 'Terms and Conditions',
+                style: const TextStyle(
+                    color: Colors.white,
+                    decoration: TextDecoration.underline,
+                    fontSize: 10.0),
+                recognizer: new TapGestureRecognizer(),
+              )),
+          onPressed: () {
+            Navigator.of(context).push<MaterialPageRoute<dynamic>>(
+                    new MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                  builder: (BuildContext context) {
+                    return const ShowPolicy(true);
+                  },
+                  fullscreenDialog: true,
+                ));
+          }),
+      new FlatButton(
+          child: new RichText(
+              textAlign: TextAlign.center,
+              text: new TextSpan(
+                text: 'End User License Agreements (EULA)',
+                style: const TextStyle(
+                    color: Colors.white,
+                    decoration: TextDecoration.underline,
+                    fontSize: 10.0),
+                recognizer: new TapGestureRecognizer(),
+              )),
+          onPressed: () {
+            Navigator.of(context).push<MaterialPageRoute<dynamic>>(
+                    new MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                  builder: (BuildContext context) {
+                    return new EULAPolicy();
+                  },
+                  fullscreenDialog: true,
+                ));
+          }),
+    ]);
+
+    final dynamic dialog = isIos
+        ? new CupertinoAlertDialog(
+            title: _title,
+            content: _content,
+            actions: <Widget>[
+              new FlatButton(
+                child: const Text('Yes'),
+                onPressed: () {
+                  agreeToTerms = true;
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: const Text('No'),
+                onPressed: () => exit(0),
+              )
+            ],
+          )
+        : new AlertDialog(
+            title: _title,
+            content: _content,
+            actions: <Widget>[
+              new FlatButton(
+                child: const Text('Yes'),
+                onPressed: () {
+                  agreeToTerms = true;
+                  Navigator.of(context).pop();
+                },
+              ),
+              new FlatButton(
+                child: const Text('No'),
+                onPressed: () => exit(0),
+              )
+            ],
+          );
+      await showDialog<dynamic> (
+        context: context,
+        builder: dialog,
+      );
+    });
+    }
+
     firebaseMessaging.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
     firebaseMessaging.onIosSettingsRegistered
@@ -53,7 +151,6 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
       deviceToken = token;
       print('deviceToken = $deviceToken');
     });
-
   }
 
   @override
@@ -142,27 +239,6 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
-                  new FlatButton(
-                      child: new RichText(
-                          textAlign: TextAlign.center,
-                          text: new TextSpan(
-                            text: 'Terms and Conditions',
-                            style: const TextStyle(
-                                color: Colors.white,
-                                decoration: TextDecoration.underline,
-                                fontSize: 10.0),
-                            recognizer: new TapGestureRecognizer(),
-                          )),
-                      onPressed: () {
-                        Navigator.of(context).push<MaterialPageRoute<dynamic>>(
-                                new MaterialPageRoute<
-                                    MaterialPageRoute<dynamic>>(
-                              builder: (BuildContext context) {
-                                return const ShowPolicy(true);
-                              },
-                              fullscreenDialog: true,
-                            ));
-                      }),
               ],
             ),
           ),
@@ -204,7 +280,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
             child: const Text('OK'), onPressed: () => Navigator.pop(context))
       ],
     );
-      await api.getAllBook().then((List<Book> onValue) async {
+    await api.getAllBook().then((List<Book> onValue) async {
       onValue = null;
       final String school = _findSchoolName(api);
       await api

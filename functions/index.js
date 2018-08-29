@@ -97,7 +97,7 @@ exports.sendPushMessage = functions.firestore
 
       });
 
-exports.updateDatabse = functions.firestore
+exports.updateDatabase = functions.firestore
       .document('books/{bookId}')
       .onDelete(context => {
             //for each adding to wishlist, add the user id to the bookid in the wishlist creation
@@ -111,3 +111,96 @@ exports.updateDatabse = functions.firestore
             })
       });
 
+exports.reportBook = functions.firestore
+      .document('reports_book/{reports_bookId}')
+      .onCreate(docSnapshot => {
+            const docInfo = docSnapshot.data();
+            const bookId = docInfo['bookId'];
+            return admin.firestore().doc('books/'+bookId).then(bookDoc => {
+                  const bookDocs = bookDoc.data();
+                  const ISBN = bookDocs['isbn'];
+                  const title = bookDocs['title'];
+                  
+                  return sendBookReport(userEmail, displayName, ISBN, title)
+                  
+            });
+      });
+
+      function sendBookReport(email, displayName, ISBN, title) {
+            const mailOptions = {
+                  from: APP_NAME+ "<noreply@firebase.com>",
+                  to: email,
+                  bcc: "romeobazil@gmail.com"
+            }
+
+            mailOptions.subject = "Your report has been successfully submitted",
+            mailOptions.text = "Hello "+ displayName
+                              + '\n\n This email is to inform you that the report that you submitted about the book '
+                              + '\n ISBN: ' + ISBN 
+                              + '\n Title: ' + title,
+                              + '\n We take your input very seriously, we will review your submission and act accordingly'
+                              + '\n\n Thank you,'                              
+                              + '\n The BookTrade Team.';
+            
+            return mailTransport.sendMail(mailOptions).then(() => {
+                  return console.log('Report has been sent to: ', email);
+            })
+      }
+
+exports.reportUser = functions.firestore
+      .document('reports_user/{reports_userId}')
+      .onCreate(docSnapshot => {
+            const docInfo = docSnapshot.data();
+            const senderEmail = docInfo['submitterEmail'];
+            const senderDisplayname = docInfo['submitterDisplay'];
+            const uid = docInfo['userId'];
+            return admin.firestore().doc('users/' + uid).get().then(userDoc => {
+                  const email = userDoc['email'];
+                  const displayName = userDoc['displayName'];
+
+                  return sendUserReport(email, displayName).then(() => {
+                        return sendReporterNotification(senderEmail, senderDisplayname)    
+                  });
+            });
+      });
+
+      function sendUserReport(email, displayName) {
+            const mailOptions = {
+                  from: APP_NAME+ "<noreply@firebase.com>",
+                  to: email,
+                  bcc: "romeobazil@gmail.com"
+            }
+
+            mailOptions.subject = "You have been reported of misconduct",
+            mailOptions.text = "Hello "+ displayName
+                              + '\n\n This email is to inform you that you have been reported by other User for misconduct. '
+                              + '\n We will review the content of the report and if you are found to be in violation of our End User License Agreement, ' 
+                              + 'we will be considering temporary submission of your account or termination'
+                              + '\n\n Thank you,'
+                              + '\n The BookTrade Team.';
+            
+            return mailTransport.sendMail(mailOptions).then(() => {
+                  return console.log('Report has been sent to: ', email);
+            });            
+      }
+
+      function sendReporterNotification(email, displayName) {
+            const mailOptions = {
+                  from: APP_NAME+ "<noreply@firebase.com>",
+                  to: email,
+                  bcc: "romeobazil@gmail.com"
+            }
+
+            mailOptions.subject = "Your report has been submit",
+            mailOptions.text = "Hello "+ displayName
+                              + '\n\n This email is to inform you that your report has been submitted'
+                              + '\n We will review the content of the report and take actions based on the review.'
+                              + '\n We value your input and thank you for using our applications.'
+                              + '\n\n Thank you,'
+                              + '\n The BookTrade Team.';
+            
+            return mailTransport.sendMail(mailOptions).then(() => {
+                  return console.log('Report has been sent to: ', email);
+            });            
+      }
+      

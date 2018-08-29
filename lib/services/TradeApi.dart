@@ -269,6 +269,33 @@ class TradeApi {
         });
   }
 
+  Future<Null> reportBook(String bookId) async {
+    await Firestore.instance
+                   .collection('reports_book')
+                   .document()
+                   .setData(<String, dynamic> {
+                     'bookId' : bookId,
+                     'submitterEmail' : firebaseUser.email,
+                     'submitterDisplayName' : firebaseUser.displayName,
+                     'submitterUID' : firebaseUser.uid
+                   })
+                   .catchError((_) => print('Error adding to collection reports_book'));
+                   
+  }
+
+  Future<Null> reportUser(String uid) async {
+    await Firestore.instance
+                  .collection('reports_user')
+                  .document()
+                  .setData(<String, dynamic>{
+                    'userId' : uid,
+                    'submitterEmail' : firebaseUser.email,
+                    'submitterDisplay' : firebaseUser.displayName,
+                    'submitterUID' : firebaseUser.uid
+                  })
+                  .catchError((_) => print('Error adding to collection reports_user'));
+  }
+
   Future<Null> uploadBook(Book book) async {
     await Firestore.instance
         .collection('books')

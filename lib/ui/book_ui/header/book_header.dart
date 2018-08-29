@@ -70,6 +70,32 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                     onPressed: () => Navigator.pop(context, false))
               ]);
 
+    final dynamic reportContent = Theme.of(context).platform == TargetPlatform.iOS
+    ? new AlertDialog(
+      title: const Text('Report Content'),
+            content: const Text('Do you want to report this book?'),
+            actions: <Widget>[
+              new FlatButton(
+                  child: const Text('Yes'),
+                  onPressed: () => Navigator.pop(context, true)),
+              new FlatButton(
+                child: const Text('No'),
+                onPressed: () => Navigator.pop(context, false),
+              )
+            ],
+          )
+        : new CupertinoAlertDialog(
+            title: const Text('Delete book'),
+            content: const Text('Do you want to report this book?'),
+            actions: <Widget>[
+                new CupertinoButton(
+                    child: const Text('Yes'),
+                    onPressed: () => Navigator.pop(context, true)),
+                new CupertinoButton(
+                    child: const Text('No'),
+                    onPressed: () => Navigator.pop(context, false))
+              ]);
+
     final dynamic avatar = new Hero(
       tag: widget.bookTag,
       child: new SizedBox(
@@ -248,6 +274,25 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
           child: const BackButton(
             color: Colors.white,
           ),
+        ),
+        new Positioned(
+          top: 26.0,
+          right: 9.0,
+          child: new IconButton(
+            icon: const Icon(
+              Icons.report_problem,
+              color: Colors.white,
+            ),
+            onPressed: () async {
+              final bool val = await showDialog<dynamic>(
+                context: context,
+                builder: (BuildContext context) => reportContent
+              );
+              if (val) {
+                //Send a signal to the back end that a book has been reported
+              }
+            },
+          ) 
         ),
         widget.book.sellerUID == widget._api.firebaseUser.uid
             ? new Positioned(

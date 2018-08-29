@@ -23,6 +23,7 @@ const String ADDMOB_ADID_IOS = 'ca-app-pub-8785760726339346/5248079521';
 bool isIos = false;
 bool isAdShown = true;
 bool calledDisposed = false;
+bool agreeToTerms = false;
 Map<Book, String> bookMap = <Book, String>{};
 Map<Book, String> wishMap = <Book, String>{};
 BannerAd banner;
