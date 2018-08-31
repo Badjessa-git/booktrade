@@ -11,6 +11,7 @@ List<CameraDescription> cameras;
 
 Future<dynamic> main() async {
   cameras = await availableCameras();
+  cCameras = cameras;
   final TradeApi _api = await TradeApi.ensureSignIn();
   SystemChrome.setPreferredOrientations(
       <DeviceOrientation>[DeviceOrientation.portraitUp]).then<dynamic>((_) {
@@ -42,6 +43,7 @@ class _BookTradeState extends State<BookTrade> {
               home = new Home(cameras);
             })
           : setState(() {
+              cApi = _api;
               home = new Navigation(_api, cameras);
             });
     }
@@ -58,10 +60,7 @@ class _BookTradeState extends State<BookTrade> {
         accentColor: Colors.redAccent,
       ),
       home: home,
-      routes:<String, WidgetBuilder> {
-        '/home' : (BuildContext context) => new Home(cameras),
-        '/Navigation' : (BuildContext context) => new Navigation(_api, cameras),
-      },
+      routes: routes,
     );
   }
   

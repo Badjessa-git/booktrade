@@ -70,31 +70,32 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                     onPressed: () => Navigator.pop(context, false))
               ]);
 
-    final dynamic reportContent = Theme.of(context).platform == TargetPlatform.iOS
-    ? new AlertDialog(
-      title: const Text('Report Content'),
-            content: const Text('Do you want to report this book?'),
-            actions: <Widget>[
-              new FlatButton(
-                  child: const Text('Yes'),
-                  onPressed: () => Navigator.pop(context, true)),
-              new FlatButton(
-                child: const Text('No'),
-                onPressed: () => Navigator.pop(context, false),
-              )
-            ],
-          )
-        : new CupertinoAlertDialog(
-            title: const Text('Delete book'),
-            content: const Text('Do you want to report this book?'),
-            actions: <Widget>[
-                new CupertinoButton(
-                    child: const Text('Yes'),
-                    onPressed: () => Navigator.pop(context, true)),
-                new CupertinoButton(
+    final dynamic reportContent =
+        Theme.of(context).platform == TargetPlatform.android
+            ? new AlertDialog(
+                title: const Text('Report Content'),
+                content: const Text('Do you want to report this book?'),
+                actions: <Widget>[
+                  new FlatButton(
+                      child: const Text('Yes'),
+                      onPressed: () => Navigator.pop(context, true)),
+                  new FlatButton(
                     child: const Text('No'),
-                    onPressed: () => Navigator.pop(context, false))
-              ]);
+                    onPressed: () => Navigator.pop(context, false),
+                  )
+                ],
+              )
+            : new CupertinoAlertDialog(
+                title: const Text('Delete book'),
+                content: const Text('Do you want to report this book?'),
+                actions: <Widget>[
+                    new CupertinoButton(
+                        child: const Text('Yes'),
+                        onPressed: () => Navigator.pop(context, true)),
+                    new CupertinoButton(
+                        child: const Text('No'),
+                        onPressed: () => Navigator.pop(context, false))
+                  ]);
 
     final dynamic avatar = new Hero(
       tag: widget.bookTag,
@@ -182,11 +183,11 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
               textColor: Colors.white,
               onPressed: () async {
                 if (isAdShown && !calledDisposed) {
-                          bannerAd = banner;
-                          await bannerAd?.dispose();
-                          isAdShown = false;
-                          calledDisposed = true; 
-                        }
+                  bannerAd = banner;
+                  await bannerAd?.dispose();
+                  isAdShown = false;
+                  calledDisposed = true;
+                }
                 Navigator.push<dynamic>(
                     context,
                     new MaterialPageRoute<dynamic>(
@@ -222,8 +223,9 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
                 Navigator.push<MaterialPageRoute<dynamic>>(
                     context,
                     new MaterialPageRoute<MaterialPageRoute<dynamic>>(
-                        builder: (BuildContext context) =>
-                            new MessageScreen(widget._api, user, chatroomID, fromBookDetails: true)));
+                        builder: (BuildContext context) => new MessageScreen(
+                            widget._api, user, chatroomID,
+                            fromBookDetails: true)));
               },
               child: const Text('Talk to Seller'),
             ),
@@ -275,73 +277,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             color: Colors.white,
           ),
         ),
-        new Positioned(
-          top: 26.0,
-          right: 9.0,
-          child: new IconButton(
-            icon: const Icon(
-              Icons.report_problem,
-              color: Colors.white,
-            ),
-            onPressed: () async {
-              final bool val = await showDialog<dynamic>(
-                context: context,
-                builder: (BuildContext context) => reportContent
-              );
-              if (val) {
-                //Send a signal to the back end that a book has been reported
-              }
-            },
-          ) 
-        ),
-        widget.book.sellerUID == widget._api.firebaseUser.uid
-            ? new Positioned(
-                top: 26.0,
-                right: 4.0,
-                child: new IconButton(
-                    icon: const Icon(
-                      Icons.delete,
-                      color: Colors.white,
-                    ),
-                    onPressed: () async {
-                      final bool val = await showDialog<dynamic>(
-                          context: context,
-                          builder: (BuildContext context) => deleteBook);
-                      if (val) {
-                        _showSnackbar(10, 'Removing book...', true);
-                        await widget._api.deleteBook(widget.book).then<void>((_) {}).catchError(() => _showSnackbar(
-                            4, 'Server Error, Try again Later', false));
-                        _showSnackbar(2, '!Scuccess', false);
-                         Navigator.pop(context);
-                      }
-                    }),
-              )
-            : widget.wishlist
-                ? new Positioned(
-                    top: 26.0,
-                    right: 4.0,
-                    child: new IconButton(
-                        icon: const Icon(
-                          Icons.delete,
-                          color: Colors.white,
-                        ),
-                        onPressed: () async {
-                          final bool val = await showDialog<dynamic>(
-                              context: context,
-                              builder: (BuildContext context) => deleteBook);
-                          if (val) {
-                            _showSnackbar(10, 'Removing book...', true);
-                            await widget._api
-                                .removeFromWishList(widget.book)
-                                .then((_) {
-                              _showSnackbar(2, '!Scuccess', false);
-                              Navigator.pop(context);
-                            }).catchError(() => _showSnackbar(
-                                    4, 'Server Error, Try again Later', false));
-                          }
-                        }),
-                  )
-                : const Divider(),
+        topRightWIdget(deleteBook, reportContent),
       ],
     );
   }
@@ -361,7 +297,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
         ));
   }
 
-  Future<Null> _findReceiverAndChatroom() async {
+  Future<void> _findReceiverAndChatroom() async {
     final User _user = await widget._api.getUser(widget.book.sellerUID);
     final String _chatroomID =
         await widget._api.getorCreateChatRomms(widget.book.sellerUID);
@@ -369,5 +305,96 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
       chatroomID = _chatroomID;
       user = _user;
     });
+  }
+
+  Widget topRightWIdget(dynamic deleteBook, dynamic reportContent) {
+    if (widget._api.firebaseUser.uid == widget.book.sellerUID) {
+      return Positioned(
+        top: 26.0,
+        right: 4.0,
+        child: new IconButton(
+          icon: const Icon(Icons.delete, color: Colors.white),
+          onPressed: () async {
+            await removeBook(context, false, deleteBook);
+          },
+        ),
+      );
+    } else if (widget.wishlist) {
+      return new Row(
+        children: <Widget>[
+          new Positioned(
+            top: 26.0,
+            right: 40.0,
+            child: new IconButton(
+              icon: const Icon(Icons.report,
+              color: Colors.white),
+            onPressed: () async {
+              await reportBook(context, reportContent);
+              },
+            ),
+          ),
+          new Positioned(
+            top: 26.0,
+            right: 4.0,
+            child: new IconButton(
+              icon: const Icon(Icons.delete,
+              color: Colors.white),
+              onPressed: () async {
+                await removeBook(context, true, deleteBook);
+              },
+            ),
+          )
+        ],
+      );
+    } else {
+      return  new Positioned(
+            top: 26.0,
+            right: 4.0,
+            child: new IconButton(
+              icon: const Icon(Icons.report,
+              color: Colors.white),
+            onPressed: () async {
+              await reportBook(context, reportContent);
+              },
+            ),
+          );
+    }
+  }
+
+  dynamic removeBook(
+      BuildContext context, bool wishlist, dynamic deleteBook) async {
+    final bool val = await showDialog<dynamic>(
+        context: context, builder: (BuildContext context) => deleteBook);
+    if (wishlist) {
+      if (val) {
+        _showSnackbar(10, 'Removing book...', true);
+        await widget._api.removeFromWishList(widget.book).then((_) {
+          _showSnackbar(2, '!Scuccess', false);
+          Navigator.pop(context);
+        }).catchError(
+            () => _showSnackbar(4, 'Server Error, Try again Later', false));
+      }
+    } else {
+      if (val) {
+        _showSnackbar(10, 'Removing book...', true);
+        await widget._api.deleteBook(widget.book).then<void>((_) {}).catchError(
+            () => _showSnackbar(4, 'Server Error, Try again Later', false));
+        _showSnackbar(2, '!Scuccess', false);
+        Navigator.pop(context);
+      }
+    }
+  }
+
+  dynamic reportBook(BuildContext context, dynamic reportContent) async {
+    final bool val = await showDialog<dynamic>(
+        context: context, builder: (BuildContext context) => reportContent);
+    if (val) {
+      //Send a signal to the back end that a book has been reported
+      await widget._api
+          .reportBook(widget.book, widget.wishlist)
+          .then<void>((void _) => _showSnackbar(2, 'Report received', false))
+          .catchError((void _) => _showSnackbar(
+              2, 'Error communicating to server, try again', false));
+    }
   }
 }

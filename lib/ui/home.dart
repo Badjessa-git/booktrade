@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
@@ -8,7 +9,6 @@ import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/services/TradeApi.dart';
-import 'dart:io';
 import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:booktrade/models/constants.dart';
 import 'package:flutter/cupertino.dart';
@@ -35,96 +35,6 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
     /// If the user has not agreed to our terms then popup and force the user to agree to our terms
-    if (!agreeToTerms) {
-    WidgetsBinding.instance.addPostFrameCallback((_) async {
-          final Text _title = const Text('Agree to our Terms?');
-    final Column _content = new Column(children: <Widget>[
-      const Text(
-          'In order to use our app, you need to both our Terms & Conditions as well as our End User License Agree'
-          'ment. You can view them below'),
-      new FlatButton(
-          child: new RichText(
-              textAlign: TextAlign.center,
-              text: new TextSpan(
-                text: 'Terms and Conditions',
-                style: const TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.underline,
-                    fontSize: 10.0),
-                recognizer: new TapGestureRecognizer(),
-              )),
-          onPressed: () {
-            Navigator.of(context).push<MaterialPageRoute<dynamic>>(
-                    new MaterialPageRoute<MaterialPageRoute<dynamic>>(
-                  builder: (BuildContext context) {
-                    return const ShowPolicy(true);
-                  },
-                  fullscreenDialog: true,
-                ));
-          }),
-      new FlatButton(
-          child: new RichText(
-              textAlign: TextAlign.center,
-              text: new TextSpan(
-                text: 'End User License Agreements (EULA)',
-                style: const TextStyle(
-                    color: Colors.white,
-                    decoration: TextDecoration.underline,
-                    fontSize: 10.0),
-                recognizer: new TapGestureRecognizer(),
-              )),
-          onPressed: () {
-            Navigator.of(context).push<MaterialPageRoute<dynamic>>(
-                    new MaterialPageRoute<MaterialPageRoute<dynamic>>(
-                  builder: (BuildContext context) {
-                    return new EULAPolicy();
-                  },
-                  fullscreenDialog: true,
-                ));
-          }),
-    ]);
-
-    final dynamic dialog = isIos
-        ? new CupertinoAlertDialog(
-            title: _title,
-            content: _content,
-            actions: <Widget>[
-              new FlatButton(
-                child: const Text('Yes'),
-                onPressed: () {
-                  agreeToTerms = true;
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: const Text('No'),
-                onPressed: () => exit(0),
-              )
-            ],
-          )
-        : new AlertDialog(
-            title: _title,
-            content: _content,
-            actions: <Widget>[
-              new FlatButton(
-                child: const Text('Yes'),
-                onPressed: () {
-                  agreeToTerms = true;
-                  Navigator.of(context).pop();
-                },
-              ),
-              new FlatButton(
-                child: const Text('No'),
-                onPressed: () => exit(0),
-              )
-            ],
-          );
-      await showDialog<dynamic> (
-        context: context,
-        builder: dialog,
-      );
-    });
-    }
 
     firebaseMessaging.requestNotificationPermissions(
         const IosNotificationSettings(sound: true, badge: true, alert: true));
@@ -201,17 +111,102 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
 
   @override
   Widget build(BuildContext context) {
+    const Text _title = const Text('Agree to our Terms?');
+    final Column _content = new Column(
+      mainAxisSize: MainAxisSize.min,
+      children: <Widget>[
+      const Text(
+          'In order to use our app, you need to agree to both our Terms & Conditions as well as our End User License Agree'
+          'ment. You can view them below'),
+      new FlatButton(
+          child: new RichText(
+              textAlign: TextAlign.center,
+              text: new TextSpan(
+                text: 'Terms and Conditions',
+                style: const TextStyle(
+                    color: Colors.black,
+                    decoration: TextDecoration.underline,
+                    fontSize: 10.0),
+                recognizer: new TapGestureRecognizer(),
+              )),
+          onPressed: () {
+            Navigator.of(context).push<MaterialPageRoute<dynamic>>(
+                    new MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                  builder: (BuildContext context) {
+                    return const ShowPolicy(true);
+                  },
+                  fullscreenDialog: true,
+                ));
+          }),
+      new FlatButton(
+          child: new RichText(
+              textAlign: TextAlign.center,
+              text: new TextSpan(
+                text: 'End User License Agreements (EULA)',
+                style: const TextStyle(
+                    color: Colors.black,
+                    decoration: TextDecoration.underline,
+                    fontSize: 10.0),
+                recognizer: new TapGestureRecognizer(),
+              )),
+          onPressed: () {
+            Navigator.of(context).push<MaterialPageRoute<dynamic>>(
+                    new MaterialPageRoute<MaterialPageRoute<dynamic>>(
+                  builder: (BuildContext context) {
+                    return new EULAPolicy();
+                  },
+                  fullscreenDialog: true,
+                ));
+          }),
+    ]);
+
+    final dynamic dialog = isIos
+        ? new CupertinoAlertDialog(
+            title: _title,
+            content: _content,
+            actions: <Widget>[
+              new CupertinoButton(
+                child: const Text('No'),
+                onPressed: () => exit(0),
+
+              ),
+              new CupertinoButton(
+                child: const Text('Yes'),
+                  onPressed: () {
+                  agreeToTerms = true;
+                  Navigator.pop(context, true);
+                },
+              )
+            ],
+          )
+        : new AlertDialog(
+            title: _title,
+            content: _content,
+            actions: <Widget>[
+              new FlatButton(
+                child: const Text('No'),
+                onPressed: () => exit(0),
+              ),
+              new FlatButton(
+                child: const Text('Yes'),
+                onPressed: () {
+                  agreeToTerms = true;
+                  Navigator.pop(context, true);
+                },
+              )
+            ],
+          );
     return new Scaffold(
       backgroundColor: const Color(0xFF48A9A6),
       body: new ModalProgressHUD(
         inAsyncCall: _inAsyncCall,
         progressIndicator: const CircularProgressIndicator(),
-        child: _siginInPage(context),
+        child: _siginInPage(context, dialog),
       ),
     );
   }
 
-  Widget _siginInPage(BuildContext context) {
+  Widget _siginInPage(BuildContext context, dynamic dialog) {
     return new Container(
       margin: const EdgeInsets.fromLTRB(20.0, 0.0, 20.0, 0.0),
       child: new Flex(
@@ -220,15 +215,27 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
           new Expanded(
             child: new Column(
               mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget>[
                 new Container(
                   child: new Image.asset('assets/img/logo.png'),
                 ),
-                new RaisedButton.icon(
+               new RaisedButton.icon(
                   elevation: 5.0,
                   color: Colors.red,
-                  onPressed: () {
-                    signIn();
+                  onPressed: () async {
+                    if (agreeToTerms) {
+                      signIn();
+                    }
+                    else {
+                    final bool val = await showDialog<dynamic>(
+                          context: context,
+                          builder: (BuildContext context) => dialog, 
+                      );
+                        if (val) {
+                            signIn();
+                        }                    
+                    }
                   },
                   icon:
                       const Icon(const IconData(0xe900, fontFamily: 'icomoon')),
@@ -239,6 +246,8 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
                     ),
                   ),
                 ),
+                
+
               ],
             ),
           ),
@@ -300,6 +309,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
   }
 
   void _nextNaviagtion(TradeApi api) {
+    cApi = api;
     Navigator.push<MaterialPageRoute<dynamic>>(
       context,
       MaterialPageRoute<MaterialPageRoute<dynamic>>(

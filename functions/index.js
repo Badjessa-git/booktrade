@@ -1,4 +1,3 @@
-'use strict'
 const functions = require('firebase-functions');
 const admin = require('firebase-admin');
 const nodemailer = require('nodemailer');
@@ -115,8 +114,10 @@ exports.reportBook = functions.firestore
       .document('reports_book/{reports_bookId}')
       .onCreate(docSnapshot => {
             const docInfo = docSnapshot.data();
+            const userEmail = docInfo['submitterEmail'];
+            const displayName = docInfo['submitterDisplayName'];
             const bookId = docInfo['bookId'];
-            return admin.firestore().doc('books/'+bookId).then(bookDoc => {
+            return admin.firestore().doc('books/'+bookId).get().then(bookDoc => {
                   const bookDocs = bookDoc.data();
                   const ISBN = bookDocs['isbn'];
                   const title = bookDocs['title'];
@@ -137,7 +138,7 @@ exports.reportBook = functions.firestore
             mailOptions.text = "Hello "+ displayName
                               + '\n\n This email is to inform you that the report that you submitted about the book '
                               + '\n ISBN: ' + ISBN 
-                              + '\n Title: ' + title,
+                              + '\n Title: ' + title
                               + '\n We take your input very seriously, we will review your submission and act accordingly'
                               + '\n\n Thank you,'                              
                               + '\n The BookTrade Team.';

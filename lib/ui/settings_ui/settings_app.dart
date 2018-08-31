@@ -39,7 +39,7 @@ class _SettingsState extends State<Settings> {
       key: _scaffoldKey,
       appBar: new AppBar(
         title: const Text('Settings'),
-        leading: new IconButton(  
+        leading: new IconButton(
           icon: const BackButton(),
           onPressed: () {
             if (banner != null) {
@@ -113,19 +113,21 @@ class _SettingsState extends State<Settings> {
               color: Colors.red,
               child: const Text('Sign out of BookTrade'),
               onPressed: () async {
-                  if (isAdShown && !calledDisposed) {
-                      bannerAd = banner;
-                      await bannerAd?.dispose();
-                      isAdShown = false;
-                      calledDisposed = true; 
-                  }
-                await TradeApi.signOutWithGoogle();
-                Navigator.of(context).pushNamedAndRemoveUntil(
-                    '/home', (Route<dynamic> route) => false);
+                if (isAdShown && !calledDisposed) {
+                  bannerAd = banner;
+                  await bannerAd?.dispose();
+                  isAdShown = false;
+                  calledDisposed = true;
+                }
+                await widget._api.ssignOutWithGoogle()
+                .then((Null _) => Navigator.of(context).pushNamedAndRemoveUntil(
+                    '/home', (Route<dynamic> route) => false));
+                
               },
             ),
           ),
-        ], direction: Axis.vertical,
+        ],
+        direction: Axis.vertical,
       ),
     );
   }
@@ -189,21 +191,21 @@ class ShowPolicy extends StatelessWidget {
         const Divider(height: 40.0),
         titleOrSousTitle('Terms & Conditions', true),
         paragraph(
-            'By downloading or using the app, these terms will automatically apply to you – you should make sure therefore that you read them carefully before using the app. You’re not allowed to copy, or modify the app, any part of the app, or our trademarks in any way. You’re not allowed to attempt to extract the source code of the app, and you also shouldn’t try to translate the app into other languages, or make derivative versions. The app itself, and all the trade marks, copyright, database rights and other intellectual property rights related to it, still belong to Badjessa B. Bahoumda.'),
+            'By downloading or using the app, these terms will automatically apply to you – you should make sure therefore that you read them carefully before using the app. You’re not allowed to copy, or modify the app, any part of the app, or our trademarks in any way. You’re not allowed to attempt to extract the source code of the app, and you also shouldn’t try to translate the app into other languages, or make derivative versions. The app itself, and all the trade marks, copyright, database rights and other intellectual property rights related to it, still belong to BBB Development.'),
         paragraph(
-            'Badjessa B. Bahoumda is committed to ensuring that the app is as useful and efficient as possible. For that reason, we reserve the right to make changes to the app or to charge for its services, at any time and for any reason. We will never charge you for the app or its services without making it very clear to you exactly what you’re paying for.'),
+            'BBB Development is committed to ensuring that the app is as useful and efficient as possible. For that reason, we reserve the right to make changes to the app or to charge for its services, at any time and for any reason. We will never charge you for the app or its services without making it very clear to you exactly what you’re paying for.'),
         paragraph(
             'The BookTrade app stores and processes personal data that you have provided to us, in order to provide my Service. It’s your responsibility to keep your phone and access to the app secure. We therefore recommend that you do not jailbreak or root your phone, which is the process of removing software restrictions and limitations imposed by the official operating system of your device. It could make your phone vulnerable to malware/viruses/malicious programs, compromise your phone’s security features and it could mean that the BookTrade app won’t work properly or at all.'),
         paragraph(
-            'You should be aware that there are certain things that Badjessa B. Bahoumda will not take responsibility for. Certain functions of the app will require the app to have an active internet connection. The connection can be Wi-Fi, or provided by your mobile network provider, but Badjessa B. Bahoumda cannot take responsibility for the app not working at full functionality if you don’t have access to Wi-Fi, and you don’t have any of your data allowance left.'),
+            'You should be aware that there are certain things that BBB Development will not take responsibility for. Certain functions of the app will require the app to have an active internet connection. The connection can be Wi-Fi, or provided by your mobile network provider, but BBB Development cannot take responsibility for the app not working at full functionality if you don’t have access to Wi-Fi, and you don’t have any of your data allowance left.'),
         paragraph(
             'If you’re using the app outside of an area with Wi-Fi, you should remember that your terms of the agreement with your mobile network provider will still apply. As a result, you may be charged by your mobile provider for the cost of data for the duration of the connection while accessing the app, or other third party charges. In using the app, you’re accepting responsibility for any such charges, including roaming data charges if you use the app outside of your home territory (i.e. region or country) without turning off data roaming. If you are not the bill payer for the device on which you’re using the app, please be aware that we assume that you have received permission from the bill payer for using the app.'),
         paragraph(
-            'Along the same lines, Badjessa B. Bahoumda cannot always take responsibility for the way you use the app i.e. You need to make sure that your device stays charged – if it runs out of battery and you can’t turn it on to avail the Service, Badjessa B. Bahoumda cannot accept responsibility'),
+            'Along the same lines, BBB Development cannot always take responsibility for the way you use the app i.e. You need to make sure that your device stays charged – if it runs out of battery and you can’t turn it on to avail the Service, BBB Development cannot accept responsibility'),
         paragraph(
-            'With respect to Badjessa B. Bahoumda’s responsibility for your use of the app, when you’re using the app, it’s important to bear in mind that although we endeavour to ensure that it is updated and correct at all times, we do rely on third parties to provide information to us so that we can make it available to you. Badjessa B. Bahoumda accepts no liability for any loss, direct or indirect, you experience as a result of relying wholly on this functionality of the app.'),
+            'With respect to BBB Development’s responsibility for your use of the app, when you’re using the app, it’s important to bear in mind that although we endeavour to ensure that it is updated and correct at all times, we do rely on third parties to provide information to us so that we can make it available to you. BBB Development accepts no liability for any loss, direct or indirect, you experience as a result of relying wholly on this functionality of the app.'),
         paragraph(
-            'At some point, we may wish to update the app. The app is currently available on Android and iOS – the requirements for both systems (and for any additional systems we decide to extend the availability of the app to) may change, and you’ll need to download the updates if you want to keep using the app. Badjessa B. Bahoumda does not promise that it will always update the app so that it is relevant to you and/or works with the iOS/Android version that you have installed on your device. However, you promise to always accept updates to the application when offered to you, We may also wish to stop providing the app, and may terminate use of it at any time without giving notice of termination to you. Unless we tell you otherwise, upon any termination, (a) the rights and licenses granted to you in these terms will end; (b) you must stop using the app, and (if needed) delete it from your device.'),
+            'At some point, we may wish to update the app. The app is currently available on Android and iOS – the requirements for both systems (and for any additional systems we decide to extend the availability of the app to) may change, and you’ll need to download the updates if you want to keep using the app. BBB Development does not promise that it will always update the app so that it is relevant to you and/or works with the iOS/Android version that you have installed on your device. However, you promise to always accept updates to the application when offered to you, We may also wish to stop providing the app, and may terminate use of it at any time without giving notice of termination to you. Unless we tell you otherwise, upon any termination, (a) the rights and licenses granted to you in these terms will end; (b) you must stop using the app, and (if needed) delete it from your device.'),
         const Divider(height: 30.0),
         titleOrSousTitle('Changes to This Terms and Conditions', false),
         paragraph(
@@ -224,7 +226,7 @@ class ShowPolicy extends StatelessWidget {
         const Divider(height: 40.0),
         titleOrSousTitle('Privacy Policy', true),
         paragraph(
-            'Badjessa B. Bahoumda built the BookTrade app as an Ad Supported app. This SERVICE is provided by Badjessa B. Bahoumda at no cost and is intended for use as is.'),
+            'BBB Development built the BookTrade app as an Ad Supported app. This SERVICE is provided by BBB Development at no cost and is intended for use as is.'),
         paragraph(
             'This page is used to inform website visitors regarding my policies with the collection, use, and disclosure of Personal Information if anyone decided to use my Service'),
         paragraph(
@@ -290,9 +292,9 @@ class ShowPolicy extends StatelessWidget {
         const Divider(height: 30.0),
         paragraph(
             'I may employ third-party companies and individuals due to the following reasons:'),
-        const Divider(height: 30.0),        
+        const Divider(height: 30.0),
         const Text(
-          '  • To facilitate our Service;',
+          '  ��� To facilitate our Service;',
           style: const TextStyle(
               color: Colors.black,
               fontWeight: FontWeight.normal,
@@ -400,14 +402,13 @@ class ShowPolicy extends StatelessWidget {
 }
 
 class EULAPolicy extends StatelessWidget {
-  
   Text titleOrSousTitle(String title, bool isTitle) {
     return isTitle
         ? new Text('$title',
             style: const TextStyle(
                 color: Colors.black,
                 fontWeight: FontWeight.bold,
-                fontSize: 40.0))
+                fontSize: 25.0))
         : new Text(
             '$title',
             style: const TextStyle(
@@ -418,13 +419,15 @@ class EULAPolicy extends StatelessWidget {
   }
 
   Column paragraph(String paragraph) {
-    return new Column(children: <Widget>[
+    return new Column(
+      mainAxisAlignment: MainAxisAlignment.start,
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: <Widget>[
       const Divider(height: 15.0),
       new Text(
         '$paragraph',
         style: const TextStyle(
             color: Colors.black, fontWeight: FontWeight.normal, fontSize: 20.0),
-        textAlign: TextAlign.start,
       )
     ]);
   }
@@ -433,54 +436,83 @@ class EULAPolicy extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
-      backgroundColor: const Color(0xFFD4B484),
-      appBar: new AppBar(
-        title: const Text('End User License Agreement')
-      ),
-      body: new Column(
-        children: <Widget> [
-          paragraph('Copyright (c) 2018 BBB Development'),
-          titleOrSousTitle('*** END USER LICENSE AGREEMENT ***', true),
-          titleOrSousTitle('IMPORTANT: PLEASE READ THIS LICENSE CAREFULLY BEFORE USING THIS SOFTWARE.', false),
-          titleOrSousTitle('1. LICENSE', false),
-          paragraph('By receiving, opening the file package, and/or using BookTrade("Software"), you agree that this End User User License Agreement(EULA) is a legally binding and valid contract and agree to be bound by it. You agree to abide by the intellectual property laws and all of the terms and conditions of this Agreement.'),
-          paragraph('Unless you have a different license agreement signed by BBB Development, your use of BookTrade indicates your acceptance of this license agreement and warranty.'),
-          paragraph('Subject to the terms of this Agreement, BBB Development grants to you a limited, non-exclusive, non-transferable license, without right to sub-license, to use BookTrade in accordance with this Agreement and any other written agreement with BBB Development. BBB Development does not transfer the title of BookTrade to you; the license granted to you is not a sale. This agreement is a binding legal agreement between BBB Development and the purchasers or users of BookTrade.'),
-          paragraph('If you do not agree to be bound by this agreement, remove BookTrade from your mobile device now and, if applicable, promptly return to BBB Development by mail any copies of BookTrade and related documentation and packaging in your possession.'),
-          divider,
-          titleOrSousTitle('2. DISTRIBUTION', false),
-          paragraph('BookTrade and the license herein granted shall not be copied, shared, distributed, re-sold, offered for re-sale, transferred or sub-licensed in whole or in part except that you may make one copy for archive purposes only. For information about redistribution of BookTrade contact BBB Development.'),
-          divider,
-          titleOrSousTitle('3. USER AGREEMENT', false),
-          paragraph('3.1 Use'),
-          paragraph('Your license to use BookTrade is limited to the number of licenses purchased by you. You shall not allow others to use, copy or evaluate copies of BookTrade.'),
-          paragraph('3.2 Use Restrictions'),
-          paragraph('You shall use BookTrade in compliance with all applicable laws and not for any unlawful purpose. Without limiting the foregoing, use, display or distribution of BookTrade together with material that is pornographic, racist, vulgar, obscene, defamatory, libelous, abusive, promoting hatred, discriminating or displaying prejudice based on religion, ethnic heritage, race, gender, sexual orientation or age is strictly prohibited.'),
-          paragraph('Each licensed copy of BookTrade may be used on one single mobile device location by one user. Use of BookTrade means that you have loaded, installed, or run BookTrade on a mobile device. If you install BookTrade onto a multi-user platform, server or network, each and every individual user of BookTrade must be licensed separately.'),
-          paragraph('You may make one copy of BookTrade for backup purposes, providing you only have one copy installed on one mobile device being used by one person. Other users may not use your copy of BookTrade . The assignment, sub-license, networking, sale, or distribution of copies of BookTrade are strictly forbidden without the prior written consent of BBB Development. It is a violation of this agreement to assign, sell, share, loan, rent, lease, borrow, network or transfer the use of BookTrade. If any person other than yourself uses BookTrade registered in your name, regardless of whether it is at the same time or different times, then this agreement is being violated and you are responsible for that violation!'),
-          paragraph('3.3 Copyright Restriction'),
-          paragraph('This Software contains copyrighted material, trade secrets and other proprietary material. You shall not, and shall not attempt to, modify, reverse engineer, disassemble or decompile BookTrade. Nor can you create any derivative works or other works that are based upon or derived from BookTrade in whole or in part.'),
-          paragraph('BBB Development\'s name, logo and graphics file that represents BookTrade shall not be used in any way to promote products developed with BookTrade. BBB Development retains sole and exclusive ownership of all right, title and interest in and to BookTrade and all Intellectual Property rights relating thereto.'),
-          paragraph('Copyright law and international copyright treaty provisions protect all parts of BookTrade, products and services. No program, code, part, image, audio sample, or text may be copied or used in any way by the user except as intended within the bounds of the single user program. All rights not expressly granted hereunder are reserved for BBB Development.'),
-          paragraph('3.4 Limitation of Responsibility'),
-          paragraph('You will indemnify, hold harmless, and defend BBB Development , its employees, agents and distributors against any and all claims, proceedings, demand and costs resulting from or in any way connected with your use of BBB Development\'s Software.'),
-          paragraph('In no event (including, without limitation, in the event of negligence) will BBB Development , its employees, agents or distributors be liable for any consequential, incidental, indirect, special or punitive damages whatsoever (including, without limitation, damages for loss of profits, loss of use, business interruption, loss of information or data, or pecuniary loss), in connection with or arising out of or related to this Agreement, BookTrade or the use or inability to use BookTrade or the furnishing, performance or use of any other matters hereunder whether based upon contract, tort or any other theory including negligence.'),
-          paragraph('BBB Development\'s entire liability, without exception, is limited to the customers\' reimbursement of the purchase price of the Software (maximum being the lesser of the amount paid by you and the suggested retail price as listed by BBB Development ) in exchange for the return of the product, all copies, registration papers and manuals, and all materials that constitute a transfer of license from the customer back to BBB Development.'),
-          paragraph('3.5 Warranties'),
-          paragraph('Except as expressly stated in writing, BBB Development makes no representation or warranties in respect of this Software and expressly excludes all other warranties, expressed or implied, oral or written, including, without limitation, any implied warranties of merchantable quality or fitness for a particular purpose.'),
-          paragraph('3.6 Governing Law'),
-          paragraph('This Agreement shall be governed by the law of the United States applicable therein. You hereby irrevocably attorn and submit to the non-exclusive jurisdiction of the courts of United States therefrom. If any provision shall be considered unlawful, void or otherwise unenforceable, then that provision shall be deemed severable from this License and not affect the validity and enforceability of any other provisions.'),
-          paragraph('3.7 Termination'),
-          paragraph('Any failure to comply with the terms and conditions of this Agreement will result in automatic and immediate termination of this license. Upon termination of this license granted herein for any reason, you agree to immediately cease use of BookTrade and destroy all copies of BookTrade supplied under this Agreement. The financial obligations incurred by you shall survive the expiration or termination of this license.'),
-          divider,
-          titleOrSousTitle('4. DISCLAIMER OF WARRANTY', false),
-          paragraph('THIS SOFTWARE AND THE ACCOMPANYING FILES ARE SOLD "AS IS" AND WITHOUT WARRANTIES AS TO PERFORMANCE OR MERCHANTIBILITY OR ANY OTHER WARRANTIES WHETHER EXPRESSED OR IMPLIED. THIS DISCLAIMER CONCERNS ALL FILES GENERATED AND EDITED BY BookTrade AS WELL.'),
-          divider,
-          titleOrSousTitle('5. CONSENT OF USE OF DATA', false),
-          paragraph('You agree that BBB Development may collect and use information gathered in any manner as part of the product support services provided to you, if any, related to BookTrade .BBB Development may also use this information to provide notices to you which may be of use or interest to you.'),
-        ],
-      ),
-    );
+        backgroundColor: const Color(0xFFD4B484),
+        appBar: new AppBar(title: const Text('End User License Agreement')),
+        body: new Flex(
+          children: <Widget>[
+            new Flexible(
+              child: new ListView(
+                children: <Widget>[
+                  paragraph('Copyright (c) 2018 BBB Development'),
+                  divider,
+                  titleOrSousTitle('*** END USER LICENSE AGREEMENT ***', true),
+                  divider,
+                  titleOrSousTitle(
+                      'IMPORTANT: PLEASE READ THIS LICENSE CAREFULLY BEFORE USING THIS SOFTWARE.',
+                      false),
+                  divider,
+                  titleOrSousTitle('1. LICENSE', false),
+                  paragraph(
+                      'By receiving, opening the file package, and/or using BookTrade("Software"), you agree that this End User User License Agreement(EULA) is a legally binding and valid contract and agree to be bound by it. You agree to abide by the intellectual property laws and all of the terms and conditions of this Agreement.'),
+                  paragraph(
+                      'Unless you have a different license agreement signed by BBB Development, your use of BookTrade indicates your acceptance of this license agreement and warranty.'),
+                  paragraph(
+                      'Subject to the terms of this Agreement, BBB Development grants to you a limited, non-exclusive, non-transferable license, without right to sub-license, to use BookTrade in accordance with this Agreement and any other written agreement with BBB Development. BBB Development does not transfer the title of BookTrade to you; the license granted to you is not a sale. This agreement is a binding legal agreement between BBB Development and the purchasers or users of BookTrade.'),
+                  paragraph(
+                      'If you do not agree to be bound by this agreement, remove BookTrade from your mobile device now and, if applicable, promptly return to BBB Development by mail any copies of BookTrade and related documentation and packaging in your possession.'),
+                  divider,
+                  titleOrSousTitle('2. DISTRIBUTION', false),
+                  paragraph(
+                      'BookTrade and the license herein granted shall not be copied, shared, distributed, re-sold, offered for re-sale, transferred or sub-licensed in whole or in part except that you may make one copy for archive purposes only. For information about redistribution of BookTrade contact BBB Development.'),
+                  divider,
+                  titleOrSousTitle('3. USER AGREEMENT', false),
+                  paragraph('3.1 Use'),
+                  paragraph(
+                      'Your license to use BookTrade is limited to the number of licenses purchased by you. You shall not allow others to use, copy or evaluate copies of BookTrade.'),
+                  paragraph('3.2 Use Restrictions'),
+                  paragraph(
+                      'You shall use BookTrade in compliance with all applicable laws and not for any unlawful purpose. Without limiting the foregoing, use, display or distribution of BookTrade together with material that is pornographic, racist, vulgar, obscene, defamatory, libelous, abusive, promoting hatred, discriminating or displaying prejudice based on religion, ethnic heritage, race, gender, sexual orientation or age is strictly prohibited.'),
+                  paragraph(
+                      'Each licensed copy of BookTrade may be used on one single mobile device location by one user. Use of BookTrade means that you have loaded, installed, or run BookTrade on a mobile device. If you install BookTrade onto a multi-user platform, server or network, each and every individual user of BookTrade must be licensed separately.'),
+                  paragraph(
+                      'You may make one copy of BookTrade for backup purposes, providing you only have one copy installed on one mobile device being used by one person. Other users may not use your copy of BookTrade . The assignment, sub-license, networking, sale, or distribution of copies of BookTrade are strictly forbidden without the prior written consent of BBB Development. It is a violation of this agreement to assign, sell, share, loan, rent, lease, borrow, network or transfer the use of BookTrade. If any person other than yourself uses BookTrade registered in your name, regardless of whether it is at the same time or different times, then this agreement is being violated and you are responsible for that violation!'),
+                  paragraph('3.3 Copyright Restriction'),
+                  paragraph(
+                      'This Software contains copyrighted material, trade secrets and other proprietary material. You shall not, and shall not attempt to, modify, reverse engineer, disassemble or decompile BookTrade. Nor can you create any derivative works or other works that are based upon or derived from BookTrade in whole or in part.'),
+                  paragraph(
+                      'BBB Development\'s name, logo and graphics file that represents BookTrade shall not be used in any way to promote products developed with BookTrade. BBB Development retains sole and exclusive ownership of all right, title and interest in and to BookTrade and all Intellectual Property rights relating thereto.'),
+                  paragraph(
+                      'Copyright law and international copyright treaty provisions protect all parts of BookTrade, products and services. No program, code, part, image, audio sample, or text may be copied or used in any way by the user except as intended within the bounds of the single user program. All rights not expressly granted hereunder are reserved for BBB Development.'),
+                  paragraph('3.4 Limitation of Responsibility'),
+                  paragraph(
+                      'You will indemnify, hold harmless, and defend BBB Development , its employees, agents and distributors against any and all claims, proceedings, demand and costs resulting from or in any way connected with your use of BBB Development\'s Software.'),
+                  paragraph(
+                      'In no event (including, without limitation, in the event of negligence) will BBB Development , its employees, agents or distributors be liable for any consequential, incidental, indirect, special or punitive damages whatsoever (including, without limitation, damages for loss of profits, loss of use, business interruption, loss of information or data, or pecuniary loss), in connection with or arising out of or related to this Agreement, BookTrade or the use or inability to use BookTrade or the furnishing, performance or use of any other matters hereunder whether based upon contract, tort or any other theory including negligence.'),
+                  paragraph(
+                      'BBB Development\'s entire liability, without exception, is limited to the customers\' reimbursement of the purchase price of the Software (maximum being the lesser of the amount paid by you and the suggested retail price as listed by BBB Development ) in exchange for the return of the product, all copies, registration papers and manuals, and all materials that constitute a transfer of license from the customer back to BBB Development.'),
+                  paragraph('3.5 Warranties       '),
+                  paragraph(
+                      'Except as expressly stated in writing, BBB Development makes no representation or warranties in respect of this Software and expressly excludes all other warranties, expressed or implied, oral or written, including, without limitation, any implied warranties of merchantable quality or fitness for a particular purpose.'),
+                  paragraph('3.6 Governing Law'),
+                  paragraph(
+                      'This Agreement shall be governed by the law of the United States applicable therein. You hereby irrevocably attorn and submit to the non-exclusive jurisdiction of the courts of United States therefrom. If any provision shall be considered unlawful, void or otherwise unenforceable, then that provision shall be deemed severable from this License and not affect the validity and enforceability of any other provisions.'),
+                  paragraph('3.7 Termination'),
+                  paragraph(
+                      'Any failure to comply with the terms and conditions of this Agreement will result in automatic and immediate termination of this license. Upon termination of this license granted herein for any reason, you agree to immediately cease use of BookTrade and destroy all copies of BookTrade supplied under this Agreement. The financial obligations incurred by you shall survive the expiration or termination of this license.'),
+                  divider,
+                  titleOrSousTitle('4. DISCLAIMER OF WARRANTY', false),
+                  paragraph(
+                      'THIS SOFTWARE AND THE ACCOMPANYING FILES ARE SOLD "AS IS" AND WITHOUT WARRANTIES AS TO PERFORMANCE OR MERCHANTIBILITY OR ANY OTHER WARRANTIES WHETHER EXPRESSED OR IMPLIED. THIS DISCLAIMER CONCERNS ALL FILES GENERATED AND EDITED BY BookTrade AS WELL.'),
+                  divider,
+                  titleOrSousTitle('5. CONSENT OF USE OF DATA', false),
+                  paragraph(
+                      'You agree that BBB Development may collect and use information gathered in any manner as part of the product support services provided to you, if any, related to BookTrade .BBB Development may also use this information to provide notices to you which may be of use or interest to you.'),
+                ],
+              ),
+            ),
+          ],
+          direction: Axis.vertical,
+        ));
   }
 }
 

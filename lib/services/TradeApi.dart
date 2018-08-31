@@ -115,9 +115,35 @@ class TradeApi {
     }
   }
 
-  static Future<Null> signOutWithGoogle() async {
+  static Future<Null> signOutWithGoogle() async {              
     await _auth.signOut();
     await _googleSignin.signOut();
+  }
+
+  Future<Null> ssignOutWithGoogle() async {
+    final DocumentReference userRef = Firestore.instance.collection('users')
+                                  .document(firebaseUser.uid);
+
+    final User curUser = await userRef.get().then((DocumentSnapshot doc) => _fromUserSnapShot(doc));
+
+    // If the list of device token contains the device remove it before signing out the user
+    if (curUser.deviceToken.contains(deviceToken)) {
+        curUser.deviceToken.remove(deviceToken);
+        Firestore.instance.runTransaction((Transaction tx) async {
+          final DocumentSnapshot userSnapsot = await tx.get(userRef);
+          if (userSnapsot.exists) {
+            await tx.update(userRef, <String, dynamic>{
+              'displayName': curUser.displayName,
+              'email': curUser.email,
+              'school': curUser.school,
+              'userImg': curUser.photoUrl,
+              'deviceToken' : curUser.deviceToken,
+              'userUID': curUser.uid,
+              'notify' : curUser.notify,
+            });
+          }
+        });
+    }
   }
 
   Future<List<String>> getAllChatrooms() async {
@@ -242,8 +268,7 @@ class TradeApi {
   }
 
   Future<User> getUser(String userUID) async {
-    final dynamic map =
-        await Firestore.instance.collection('users').document(userUID).get();
+    final dynamic map = await Firestore.instance.collection('users').document(userUID).get();
     return _fromUserSnapShot(map);
   }
 
@@ -269,8 +294,15 @@ class TradeApi {
         });
   }
 
-  Future<Null> reportBook(String bookId) async {
-    await Firestore.instance
+  Future<void> reportBook(Book book, bool isWishiList) async {
+    String bookId;
+    if (isWishiList) {
+      bookId = wishMap[book];
+      assert(bookId != null);
+    } else {
+      bookId = bookMap[book];
+    }
+    return await Firestore.instance
                    .collection('reports_book')
                    .document()
                    .setData(<String, dynamic> {
@@ -279,7 +311,7 @@ class TradeApi {
                      'submitterDisplayName' : firebaseUser.displayName,
                      'submitterUID' : firebaseUser.uid
                    })
-                   .catchError((_) => print('Error adding to collection reports_book'));
+                   .catchError((Null _) => print('Error adding to collection reports_book'));
                    
   }
 
@@ -293,7 +325,7 @@ class TradeApi {
                     'submitterDisplay' : firebaseUser.displayName,
                     'submitterUID' : firebaseUser.uid
                   })
-                  .catchError((_) => print('Error adding to collection reports_user'));
+                  .catchError((dynamic _) => print('Error adding to collection reports_user'));
   }
 
   Future<Null> uploadBook(Book book) async {
