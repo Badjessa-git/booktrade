@@ -98,7 +98,7 @@ exports.sendPushMessage = functions.firestore
 
 exports.updateDatabase = functions.firestore
       .document('books/{bookId}')
-      .onDelete(context => {
+      .onDelete((_, context) => {
             //for each adding to wishlist, add the user id to the bookid in the wishlist creation
             const bookId = context.params.bookId;
             //Retrieve the list of users who had the book in the wishlist

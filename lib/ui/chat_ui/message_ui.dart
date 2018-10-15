@@ -14,15 +14,18 @@ class MessageScreen extends StatefulWidget {
   final String chatRoomID;
   final User receiver;
   final bool fromBookDetails;
-  const MessageScreen(this._api, this.receiver, this.chatRoomID, {this.fromBookDetails});
+  const MessageScreen(this._api, this.receiver, this.chatRoomID,
+      {this.fromBookDetails});
   @override
   _MessageScreenState createState() => _MessageScreenState();
-
 }
 
-class _MessageScreenState extends State<MessageScreen> with TickerProviderStateMixin {
-  final CollectionReference chatRoomRef = Firestore.instance.collection('chatrooms');
-  final TextEditingController _textEditingController = new TextEditingController();
+class _MessageScreenState extends State<MessageScreen>
+    with TickerProviderStateMixin {
+  final CollectionReference chatRoomRef =
+      Firestore.instance.collection('chatrooms');
+  final TextEditingController _textEditingController =
+      new TextEditingController();
   final ScrollController _scrollController = new ScrollController();
   bool _isComposingMessage = false;
   User receiver;
@@ -30,98 +33,107 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
   String curUserEmail;
   BannerAd bannerAd;
   @override
-  void initState() { 
+  void initState() {
     super.initState();
     receiver = widget.receiver;
-    _controller = AnimationController(vsync: this, duration: const Duration(seconds: 2));
+    _controller =
+        AnimationController(vsync: this, duration: const Duration(seconds: 2));
     curUserEmail = widget._api.firebaseUser.email;
     setState(() {});
   }
-  
+
   @override
-    void dispose() {
-      _controller.dispose();
-      super.dispose();
-    }
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
       appBar: new AppBar(
         leading: new WillPopScope(
-          onWillPop: () {
-            if (!isAdShown && calledDisposed && widget.fromBookDetails != null && widget.fromBookDetails) {
-              bannerAd = TradeApi.createBannerAd();
-              bannerAd..load()..show();
-              isAdShown = true;
-              calledDisposed = false;
-              banner = bannerAd;
-            }
-            return Future<bool>.value(true);
-          },
-          child: const BackButton()        
-        ),
+            onWillPop: () {
+              return Future<bool>.value(true);
+            },
+            child: const BackButton()
+            ),
         title: new Row(
-          mainAxisAlignment: MainAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-          _userImage(),
-          const Divider(indent: 10.0,),
-          new Text(widget.receiver.displayName,
-          style: const TextStyle(
-            color: Colors.white,
-            fontSize: 20.0
-          ),
-        ),
+            _userImage(),
+            const Divider(indent: 20.0),
+              new Text(
+              widget.receiver.displayName,
+              style: const TextStyle(color: Colors.white, fontSize: 20.0),
+            ),            
           ],
         ),
+
+        actions: <Widget>[
+             new IconButton(
+                    icon: const Icon(Icons.report, color: Colors.white),
+                    onPressed: () async {
+                      await reportUser();
+                    },
+            )
+        ],
+        
         elevation: Theme.of(context).platform == TargetPlatform.iOS ? 0.0 : 4.0,
       ),
       body: new Container(
         child: new Column(
           children: <Widget>[
             new Flexible(
-              child: new StreamBuilder<QuerySnapshot> (
-                stream: chatRoomRef.document(widget.chatRoomID).collection('messages').orderBy('time', descending: true)
-                                   .snapshots(),
-                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot){
-                  return snapshot.hasData ? new ListView.builder(
-                    controller: _scrollController,
-                    physics: const AlwaysScrollableScrollPhysics(),
-                    padding: const EdgeInsets.all(8.0),
-                    reverse: true,
-                    itemCount: snapshot.data.documents.length,
-                    itemBuilder: (BuildContext context, int index) => _messageProto(context, snapshot.data.documents[index])
-                  ): const CircularProgressIndicator();
+              child: new StreamBuilder<QuerySnapshot>(
+                stream: chatRoomRef
+                    .document(widget.chatRoomID)
+                    .collection('messages')
+                    .orderBy('time', descending: true)
+                    .snapshots(),
+                builder: (BuildContext context,
+                    AsyncSnapshot<QuerySnapshot> snapshot) {
+                  return snapshot.hasData
+                      ? new ListView.builder(
+                          controller: _scrollController,
+                          physics: const AlwaysScrollableScrollPhysics(),
+                          padding: const EdgeInsets.all(8.0),
+                          reverse: true,
+                          itemCount: snapshot.data.documents.length,
+                          itemBuilder: (BuildContext context, int index) =>
+                              _messageProto(
+                                  context, snapshot.data.documents[index]))
+                      : const CircularProgressIndicator();
                 },
               ),
             ),
             const Divider(height: 1.0),
             new Container(
-              decoration: new BoxDecoration(color: Theme.of(context).canvasColor),
-              child: _buildTextComposer()
-            ),   
+                decoration:
+                    new BoxDecoration(color: Theme.of(context).canvasColor),
+                child: _buildTextComposer()),
           ],
         ),
-        decoration: Theme.of(context).platform == TargetPlatform.iOS ?
-          new BoxDecoration(
-            border: new Border(
-              top: new BorderSide(
-                color: Colors.grey[200],
+        decoration: Theme.of(context).platform == TargetPlatform.iOS
+            ? new BoxDecoration(
+                border: new Border(
+                    top: new BorderSide(
+                  color: Colors.grey[200],
+                )),
               )
-            ),
-          ): null,
-        ),
+            : null,
+      ),
     );
   }
 
   Widget _messageProto(BuildContext context, DocumentSnapshot messageSnapshot) {
     final dynamic object = new Container(
-        margin: const EdgeInsets.symmetric(vertical: 10.0),
-          child: Row(
-          children: curUserEmail == messageSnapshot.data['email']
-                ? getSentMessageLayout(messageSnapshot)
-                : getReceivedMessageLayout(messageSnapshot),
-          ),
+      margin: const EdgeInsets.symmetric(vertical: 10.0),
+      child: Row(
+        children: curUserEmail == messageSnapshot.data['email']
+            ? getSentMessageLayout(messageSnapshot)
+            : getReceivedMessageLayout(messageSnapshot),
+      ),
     );
     // SchedulerBinding.instance.addPostFrameCallback((_) {
     //         _scrollController.animateTo(
@@ -134,26 +146,26 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
   }
 
   List<Widget> getSentMessageLayout(DocumentSnapshot messageSnapshot) {
-    return <Widget> [
+    return <Widget>[
       new Expanded(
         child: new Column(
           crossAxisAlignment: CrossAxisAlignment.end,
           children: <Widget>[
-            new Text(messageSnapshot.data['name'],
+            new Text(
+              messageSnapshot.data['name'],
               style: const TextStyle(
-                fontSize: 14.0,
-                color: Colors.black,
-                fontWeight: FontWeight.bold
-              ),   
+                  fontSize: 14.0,
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
             ),
             new Container(
               margin: const EdgeInsets.only(top: 5.0),
               child: messageSnapshot.data['imageUrl'] != null
                   ? new Image.network(
-                    messageSnapshot.data['imageUrl'],
-                    width: 250.0,
-              )
-              : new Text(messageSnapshot.data['message']),
+                      messageSnapshot.data['imageUrl'],
+                      width: 250.0,
+                    )
+                  : new Text(messageSnapshot.data['message']),
             ),
           ],
         ),
@@ -164,7 +176,8 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
           new Container(
             margin: const EdgeInsets.only(left: 8.0),
             child: new CircleAvatar(
-              backgroundImage: new NetworkImage(messageSnapshot.data['userPic']),
+              backgroundImage:
+                  new NetworkImage(messageSnapshot.data['userPic']),
             ),
           )
         ],
@@ -173,14 +186,15 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
   }
 
   List<Widget> getReceivedMessageLayout(DocumentSnapshot messageSnapshot) {
-    return <Widget> [
+    return <Widget>[
       new Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: <Widget>[
           new Container(
             margin: const EdgeInsets.only(right: 8.0),
             child: new CircleAvatar(
-              backgroundImage: new NetworkImage(messageSnapshot.data['userPic']),
+              backgroundImage:
+                  new NetworkImage(messageSnapshot.data['userPic']),
             ),
           )
         ],
@@ -190,19 +204,17 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
           crossAxisAlignment: CrossAxisAlignment.start,
           children: <Widget>[
             new Text(messageSnapshot.data['name'],
-              style: const TextStyle(
-                fontSize: 14.0,
-                color: Colors.black,
-                fontWeight: FontWeight.bold
-              )
-            ),
+                style: const TextStyle(
+                    fontSize: 14.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.bold)),
             new Container(
               margin: const EdgeInsets.only(top: 5.0),
               child: messageSnapshot.data['imageUrl'] != null
                   ? new Image.network(
-                    messageSnapshot.data['imageUrl'],
-                    width: 250.0,
-                  )
+                      messageSnapshot.data['imageUrl'],
+                      width: 250.0,
+                    )
                   : new Text(messageSnapshot.data['message']),
             )
           ],
@@ -215,8 +227,8 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
     return new CupertinoButton(
       child: const Text('Send'),
       onPressed: _isComposingMessage
-            ? () => _textMessageSubmitted(_textEditingController.text)
-            : null, 
+          ? () => _textMessageSubmitted(_textEditingController.text)
+          : null,
     );
   }
 
@@ -224,8 +236,8 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
     return new IconButton(
       icon: const Icon(Icons.send),
       onPressed: _isComposingMessage
-            ? () => _textMessageSubmitted(_textEditingController.text)
-            : null,
+          ? () => _textMessageSubmitted(_textEditingController.text)
+          : null,
     );
   }
 
@@ -234,50 +246,55 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
       data: new IconThemeData(
         color: _isComposingMessage
             ? Theme.of(context).accentColor
-            : Theme.of(context).disabledColor,  
+            : Theme.of(context).disabledColor,
       ),
       child: new Container(
-        margin: const EdgeInsets.symmetric(horizontal: 8.0),
+          margin: const EdgeInsets.symmetric(horizontal: 8.0),
           child: new Row(
             children: <Widget>[
               new Container(
                 margin: const EdgeInsets.symmetric(horizontal: 4.0),
                 child: new IconButton(
-                icon: new Icon(
-                  Icons.photo_camera,
-                  color: Theme.of(context).accentColor,
+                  icon: new Icon(
+                    Icons.photo_camera,
+                    color: Theme.of(context).accentColor,
+                  ),
+                  onPressed: () async {
+                    final File imageFile = await ImagePicker.pickImage(source:ImageSource.gallery);
+                    final int timestamp =
+                        new DateTime.now().millisecondsSinceEpoch;
+                    final String imgUrl = await widget._api
+                        .uploadFile(filePath: imageFile.path, isbn: null);
+                    await widget._api.sendMessage(
+                        messageText: null,
+                        imageUrl: imgUrl,
+                        chatroomID: widget.chatRoomID,
+                        time: timestamp,
+                        receiverUID: receiver.uid);
+                  },
                 ),
-                onPressed: () async {
-                final File imageFile = await ImagePicker.pickImage();
-                final int timestamp = new DateTime.now().millisecondsSinceEpoch;
-                final String imgUrl = await widget._api.uploadFile(filePath: imageFile.path , isbn: null);
-                await widget._api.sendMessage(
-                  messageText: null, imageUrl: imgUrl, chatroomID: widget.chatRoomID, time: timestamp, receiverUID: receiver.uid
-                );
-              },
-            ),            
-          ),
-          new Flexible(
-            child: new TextField(
-              controller: _textEditingController,
-              onChanged: (String messageText) {
-                setState(() {
-                  _isComposingMessage = messageText.isNotEmpty;                  
-                });
-              },
-              onSubmitted: _textMessageSubmitted,
-              decoration: const InputDecoration.collapsed(hintText: 'Send a message'),
-            ),
-          ),
-          new Container(
-            margin: const EdgeInsets.symmetric(horizontal: 4.0),
-            child: Theme.of(context).platform == TargetPlatform.iOS
-                ? getIOSSendButton()
-                : getDefaultSendButton()
-          ),
-         ],
-        )
-      ),
+              ),
+              new Flexible(
+                child: new TextField(
+                  controller: _textEditingController,
+                  onChanged: (String messageText) {
+                    setState(() {
+                      _isComposingMessage = messageText.isNotEmpty;
+                    });
+                  },
+                  onSubmitted: _textMessageSubmitted,
+                  decoration: const InputDecoration.collapsed(
+                      hintText: 'Send a message'
+                      ),
+                ),
+              ),
+              new Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4.0),
+                  child: Theme.of(context).platform == TargetPlatform.iOS
+                      ? getIOSSendButton()
+                      : getDefaultSendButton()),
+            ],
+          )),
     );
   }
 
@@ -285,19 +302,107 @@ class _MessageScreenState extends State<MessageScreen> with TickerProviderStateM
     _textEditingController.clear();
     final int timestamp = new DateTime.now().millisecondsSinceEpoch;
     setState(() {
-      _isComposingMessage = false;      
+      _isComposingMessage = false;
     });
-    await widget._api.sendMessage(messageText: text, imageUrl: null, chatroomID: widget.chatRoomID, time: timestamp, receiverUID: receiver.uid);
+    await widget._api.sendMessage(
+        messageText: text,
+        imageUrl: null,
+        chatroomID: widget.chatRoomID,
+        time: timestamp,
+        receiverUID: receiver.uid);
   }
-  
-  Widget _userImage() {
-  return new Hero(
-      tag: 'user avatar',
-      child: CircleAvatar(
-        backgroundImage: new NetworkImage(receiver.photoUrl),
-      )
-    ); 
-  }
-  
-}
 
+  Widget _userImage() {
+    return new Hero(
+        tag: 'user avatar',
+        child: CircleAvatar(
+          backgroundImage: new NetworkImage(receiver.photoUrl,scale: 1.0),
+        ));
+  }
+
+  dynamic reportUser() async {
+    final dynamic alert = Theme.of(context).platform == TargetPlatform.android
+        ? new AlertDialog(
+            title: const Text('Report User'),
+            content: const Text('Do you want to report this User?'),
+            actions: <Widget>[
+              new FlatButton(
+                  child: const Text('Yes'),
+                  onPressed: () => Navigator.pop(context, true)),
+              new FlatButton(
+                child: const Text('No'),
+                onPressed: () => Navigator.pop(context, false),
+              )
+            ],
+          )
+        : new CupertinoAlertDialog(
+            title: const Text('Report User'),
+            content: const Text('Do you want to report this User?'),
+            actions: <Widget>[
+                new CupertinoButton(
+                    child: const Text('Yes'),
+                    onPressed: () => Navigator.pop(context, true)),
+                new CupertinoButton(
+                    child: const Text('No'),
+                    onPressed: () => Navigator.pop(context, false))
+              ]);
+
+    final dynamic loading = Theme.of(context).platform == TargetPlatform.android
+        ? new AlertDialog(
+            title: const Text('Report User'),
+            content: new Column(
+              children: const <Widget>[
+                const CircularProgressIndicator(),
+                const Text('Sending your request')
+              ],
+            ))
+        : new CupertinoAlertDialog(
+            title: const Text('Report User'),
+            content: new Column(
+              children: const <Widget>[
+                const CircularProgressIndicator(),
+                const Text('Sending your request')
+              ],
+            ),
+          );
+
+    final dynamic response = isIos ?
+      new CupertinoAlertDialog(
+        title: const Text('Success'),
+        content: const Text('Your report has been submitted successfully. We will respond shortly'),
+        actions: <Widget>[
+          new CupertinoButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      )
+      : new AlertDialog(
+        title: const Text('Success'),
+        content: const Text('Your report has been submitted successfully. We will respond shortly'),
+        actions: <Widget>[
+          new  FlatButton(
+            child: const Text('OK'),
+            onPressed: () => Navigator.pop(context),
+          )
+        ],
+      );
+    final bool val = await showDialog<dynamic>(
+      context: context,
+      builder: (BuildContext context) => alert,
+    );
+    if (val) {
+      showDialog<dynamic>(
+        context: context,
+        builder: (BuildContext context) => loading,
+      );
+      await widget._api.reportUser(widget.receiver.uid).then((Null _) {
+         showDialog<dynamic>(
+          context: context,
+          builder: (BuildContext context) => response,
+        );
+        Navigator.pop(context);
+      });
+    }
+  }
+}

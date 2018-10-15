@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/book_ui/fin_book.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:booktrade/models/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
@@ -26,7 +25,6 @@ class _AddBook extends State<AddBook> {
   int _edition;
   double _price;
   String _condition;
-  BannerAd bannerAd;
 
 
   TextEditingController isbn = new TextEditingController();
@@ -60,11 +58,10 @@ class _AddBook extends State<AddBook> {
         leading: new WillPopScope(
           onWillPop: () {
             if (!isAdShown && calledDisposed) {
-              bannerAd = TradeApi.createBannerAd();
-              bannerAd..load()..show();
+              banner = TradeApi.createBannerAd();
+              banner..load()..show();
               isAdShown = true;
               calledDisposed = false;
-              banner = bannerAd;
             }
             return Future<bool>.value(true);
           },
@@ -101,14 +98,14 @@ class _AddBook extends State<AddBook> {
                     if (value.isEmpty) {
                       return 'Please Enter the ISBN number';
                     } else if (int.parse(value) == null) {
-                      return 'Please only input numbers';
+                      return 'Please only Enter numbers';
                     } else {
                       _isbn = int.parse(value);
                     }
                   },
                   decoration: const InputDecoration(
                     labelText: 'ISBN',
-                    hintText: 'input isbn'
+                    hintText: 'Enter isbn'
                   ),
                 ),
                ),
@@ -129,7 +126,7 @@ class _AddBook extends State<AddBook> {
                   },
                  decoration: const InputDecoration(
                    labelText: 'Title',
-                   hintText: 'input title',
+                   hintText: 'Enter title',
                  ),
                 ),
                ),
@@ -150,7 +147,7 @@ class _AddBook extends State<AddBook> {
                    },
                     decoration: const InputDecoration(
                       labelText: 'Author',
-                      hintText: 'input book Author(s)'
+                      hintText: 'Enter book Author(s)'
                   ), 
                 ),
                ),
@@ -166,17 +163,20 @@ class _AddBook extends State<AddBook> {
                     if (value.isEmpty) {
                       return 'Please enter the book Edition';
                     } else if (int.parse(value) == null) {
-                      return 'Enter a number for the edition';
+                      //int edition = Tools.checkVal(value);
+                      return 'Make sure to enter whole numbers';
                     } else {
                       _edition = int.parse(value);
                     }
                   },
                   decoration: const InputDecoration(
                    labelText: 'Edition',
-                   hintText: 'Input book edition'
+                   hintText: 'Enter book edition (just the number)'
                  ),
                 ),
                ),
+
+               //Condition
                new Card(
                  margin: const EdgeInsets.all(10.0),
                  child: new ListTile(
@@ -225,7 +225,7 @@ class _AddBook extends State<AddBook> {
                     },
                     decoration: const InputDecoration(
                     labelText: 'Price',
-                    hintText: 'input value of book',
+                    hintText: 'Enter value of book',
                     ),
                  ),
                ),

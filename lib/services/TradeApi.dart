@@ -410,6 +410,7 @@ class TradeApi {
                             .setData(<String, dynamic> {
                               'users' : userList
                             });
+  wishMap.putIfAbsent(book, () => bookId);
   }
   
   Future<Null> removeFromWishList(Book book) async {
@@ -433,7 +434,8 @@ class TradeApi {
                             .document(bookId)
                             .setData(<String, dynamic> {
                               'users' : users
-                            }).catchError(() => print('Error with deletion in removeFormWihslist'));              
+                            }).catchError(() => print('Error with deletion in removeFormWihslist'));  
+  wishMap.remove(bookId);            
   }
   
   Future<List<Book>> getWishList() async {
@@ -479,7 +481,9 @@ class TradeApi {
     final StorageReference ref =
         FirebaseStorage.instance.ref().child(finalVal.toString());
     final StorageUploadTask task = ref.putFile(file);
-    final Uri downloadUrl = (await task.future).downloadUrl;
+    final Uri downloadUrl = await task.onComplete.then<Uri>((StorageTaskSnapshot onValue) {
+        return onValue.uploadSessionUri;
+    });
     final String _path = downloadUrl.toString();
     return _path;
   }

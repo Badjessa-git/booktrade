@@ -1,4 +1,6 @@
 import 'dart:async';
+import 'package:flutter/cupertino.dart';
+import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/utils/tools.dart';
 import 'package:flutter_search_bar/flutter_search_bar.dart';
 import 'package:booktrade/models/book.dart';
@@ -20,12 +22,10 @@ class WishList extends StatefulWidget {
 class _WishListState extends State<WishList> {
   List<Book> _books = <Book>[];
   SearchBar searchBar;
-  bool _adShown;
   TextEditingController controller = new TextEditingController();
 
   @override
   void initState() {
-    _adShown = false;
     super.initState();
     _loadWishlistromFirebase();
     _reloadBook();
@@ -69,6 +69,12 @@ class _WishListState extends State<WishList> {
   Widget build(BuildContext context) {
      return new Scaffold(
         appBar: new AppBar(
+          leading: new IconButton(
+            icon: isIos ? const Icon(Icons.arrow_back, color: Colors.white,) : const Icon(Icons.arrow_back_ios, color: Colors.white,),
+            onPressed: () {
+              Navigator.pop(context);
+            } 
+          ),
           title: const Text('WishList'),
         ),
       backgroundColor: const Color(0xFFD4B484),
@@ -77,7 +83,7 @@ class _WishListState extends State<WishList> {
             _marketPage(),
         ], direction: Axis.vertical,
       ),
-      persistentFooterButtons: _adShown ? fakeBottomButtons() : null,
+      persistentFooterButtons: isAdShown ? fakeBottomButtons() : null,
     );
   }
 

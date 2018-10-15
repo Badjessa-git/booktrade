@@ -38,7 +38,6 @@ class _ChatScreenState extends State<ChatScreen> {
       _allUsers = otheusers;
     });
   }
-
   @override
   Widget build(BuildContext context) {
     return new Scaffold(

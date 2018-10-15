@@ -36,7 +36,6 @@ class _NavigationState extends State<Navigation>
   List<Book> _searchBooks = <Book>[];
   List<BookListFound> _bookFound = <BookListFound>[];
   String _search;
-  BannerAd _bannerAd;
   bool isSeaching = false;
 
   _NavigationState() {
@@ -97,7 +96,7 @@ class _NavigationState extends State<Navigation>
   }
 
   double smartHeight() {
-    final double height = _bannerAd.size.height.toDouble();
+    final double height = banner.size.height.toDouble();
     setState(() {});
     return height;
   }
@@ -105,10 +104,7 @@ class _NavigationState extends State<Navigation>
   List<Widget> fakeBottomButtons() {
     return <Widget>[
       new Container(
-        height: 30.0,
-        decoration: const BoxDecoration(
-          color: const Color(0xFFD4B484),
-        ),
+        height: 50.0,
       )
     ];
   }
@@ -137,10 +133,9 @@ class _NavigationState extends State<Navigation>
 
   @override
   void initState() {
-    _bannerAd = TradeApi.createBannerAd()
+    banner = TradeApi.createBannerAd()
       ..load()
       ..show().catchError(() => print('Error loading add'));
-    banner = _bannerAd;
     super.initState();
     _tabList = <Tab>[
       const Tab(
@@ -207,11 +202,14 @@ class _NavigationState extends State<Navigation>
     setState(() {
       _user = user;
     });
+    cUser = _user;
   }
 
   @override
   void dispose() {
-    _bannerAd?.dispose();
+    if (banner != null) {
+      banner?.dispose();
+    }
     _controller.dispose();
     super.dispose();
   }
@@ -254,8 +252,7 @@ class _NavigationState extends State<Navigation>
                       child: const Text('Manual Entry'),
                       onPressed: () async {
                         if (isAdShown && !calledDisposed) {
-                          _bannerAd = banner;
-                          await _bannerAd?.dispose();
+                          await banner?.dispose();
                           isAdShown = false;
                           calledDisposed = true;
                         }
@@ -287,6 +284,7 @@ class _NavigationState extends State<Navigation>
     return new Scaffold(
       key: _scaffoldKey,
       appBar: searchBar.build(this.context),
+      backgroundColor: const Color(0xFFD4B484),
       drawer: new Drawer(
           child: new ListView(
         padding: EdgeInsets.zero,
@@ -309,8 +307,7 @@ class _NavigationState extends State<Navigation>
             leading: const Icon(Icons.chat),
             onTap: () async {
               if (isAdShown && !calledDisposed) {
-                _bannerAd = banner;
-                await _bannerAd.dispose();
+                await banner?.dispose();
                 isAdShown = false;
                 calledDisposed = true;
               }
@@ -350,8 +347,7 @@ class _NavigationState extends State<Navigation>
   dynamic lookup() async {
     await TradeApi.lookup(_isbn, widget._api).then((Book book) async {
       if (isAdShown && !calledDisposed) {
-        _bannerAd = banner;
-        await _bannerAd?.dispose();
+        await banner?.dispose();
         isAdShown = false;
         calledDisposed = true;
       }

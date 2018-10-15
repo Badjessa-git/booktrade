@@ -1,7 +1,9 @@
 import 'package:booktrade/models/book.dart';
+import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/home.dart';
 import 'package:booktrade/ui/nav_ui/navigation.dart';
+import 'package:booktrade/ui/wishlist_ui/wishlist_page.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
@@ -51,7 +53,7 @@ Map<Book, String> bookMap = <Book, String>{};
 ///Same as bookMap
 Map<Book, String> wishMap = <Book, String>{};
 
-///Banner pointer for republishing if [calledDisposed] turns out to be true
+///Banner used for republishing if [calledDisposed] turns out to be true
 BannerAd banner;
 
 ///List of cameras on the phone
@@ -60,8 +62,12 @@ List<CameraDescription> cCameras;
 ///The Api of the user, useful to construct routes
 TradeApi cApi;
 
+///Current User
+User cUser;
+
 ///The different [routes] of the application
 dynamic routes = <String, WidgetBuilder> {
         '/home' : (BuildContext context) => new Home(cCameras),
         '/Navigation' : (BuildContext context) => new Navigation(cApi, cCameras),
+        '/Wishlist' : (BuildContext context) => new WishList(cUser, cApi),
   };

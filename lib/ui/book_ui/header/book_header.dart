@@ -38,7 +38,6 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
     super.initState();
   }
 
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override
   Widget build(BuildContext context) {
     final dynamic theme = Theme.of(context);
@@ -234,21 +233,25 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             borderRadius: new BorderRadius.circular(30.0),
             child: new MaterialButton(
               minWidth: 140.0,
-              color: wishlist ? Colors.grey : Theme.of(context).accentColor,
+              color: Theme.of(context).accentColor,
               textColor: Colors.white,
               onPressed: () async {
-                if (wishlist) {
+                if (!wishlist) {
                   _showSnackbar(5, 'Adding Book to Wishlist', true);
                   await widget._api
                       .addToWishList(widget.book)
                       .then<dynamic>((_) {
                     _showSnackbar(2, 'Success', false);
+                  setState(() {
+                    wishlist = !wishlist;
+                  });
                   }).catchError((dynamic _) => _showSnackbar(
                           4, 'Error Communicating with Server', false));
-                  _scaffoldKey.currentState.hideCurrentSnackBar();
+                } else {
+                  await removeBook(context, wishlist, deleteBook);
                 }
               },
-              child: const Text('Add to WishList'),
+              child: !wishlist ? const Text('Add to WishList') : const Text('Discard'),
             ),
           ),
         ],
@@ -277,7 +280,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
             color: Colors.white,
           ),
         ),
-        topRightWIdget(deleteBook, reportContent),
+        topRightWidgets(deleteBook, reportContent),
       ],
     );
   }
@@ -307,7 +310,7 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
     });
   }
 
-  Widget topRightWIdget(dynamic deleteBook, dynamic reportContent) {
+  dynamic topRightWidgets(dynamic deleteBook, dynamic reportContent) {
     if (widget._api.firebaseUser.uid == widget.book.sellerUID) {
       return Positioned(
         top: 26.0,
@@ -319,35 +322,8 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
           },
         ),
       );
-    } else if (widget.wishlist) {
-      return new Row(
-        children: <Widget>[
-          new Positioned(
-            top: 26.0,
-            right: 40.0,
-            child: new IconButton(
-              icon: const Icon(Icons.report,
-              color: Colors.white),
-            onPressed: () async {
-              await reportBook(context, reportContent);
-              },
-            ),
-          ),
-          new Positioned(
-            top: 26.0,
-            right: 4.0,
-            child: new IconButton(
-              icon: const Icon(Icons.delete,
-              color: Colors.white),
-              onPressed: () async {
-                await removeBook(context, true, deleteBook);
-              },
-            ),
-          )
-        ],
-      );
     } else {
-      return  new Positioned(
+      return new Positioned(
             top: 26.0,
             right: 4.0,
             child: new IconButton(
@@ -367,20 +343,23 @@ class _BookDetailHeaderScreen extends State<BookDetailHeader> {
         context: context, builder: (BuildContext context) => deleteBook);
     if (wishlist) {
       if (val) {
-        _showSnackbar(10, 'Removing book...', true);
-        await widget._api.removeFromWishList(widget.book).then((_) {
-          _showSnackbar(2, '!Scuccess', false);
-          Navigator.pop(context);
+        _showSnackbar(4, 'Removing book...', true);
+        await widget._api.removeFromWishList(widget.book).then((Null _) {
+          _showSnackbar(2, 'Success', false);
+            setState(() {
+                    wishlist = !wishlist;
+              });
+          Navigator.pushNamedAndRemoveUntil(context, '/Wishlist', ModalRoute.withName('/Navigation'));
         }).catchError(
             () => _showSnackbar(4, 'Server Error, Try again Later', false));
       }
     } else {
       if (val) {
-        _showSnackbar(10, 'Removing book...', true);
+        _showSnackbar(4, 'Removing book...', true);
         await widget._api.deleteBook(widget.book).then<void>((_) {}).catchError(
             () => _showSnackbar(4, 'Server Error, Try again Later', false));
         _showSnackbar(2, '!Scuccess', false);
-        Navigator.pop(context);
+        Navigator.popAndPushNamed(context, '/Navigation');
       }
     }
   }

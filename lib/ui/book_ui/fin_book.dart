@@ -5,7 +5,7 @@ import 'package:booktrade/services/TradeApi.dart';
 import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 import 'package:camera/camera.dart';
-import 'package:validator/validator.dart';
+import 'package:validators/validators.dart';
 import 'package:booktrade/models/constants.dart';
 import 'package:path_provider/path_provider.dart';
 
