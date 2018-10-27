@@ -10,12 +10,13 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:image_picker/image_picker.dart';
 
 class MessageScreen extends StatefulWidget {
+  const MessageScreen(this._api, this.receiver, this.chatRoomID,
+      {this.fromBookDetails});
   final TradeApi _api;
   final String chatRoomID;
   final User receiver;
   final bool fromBookDetails;
-  const MessageScreen(this._api, this.receiver, this.chatRoomID,
-      {this.fromBookDetails});
+
   @override
   _MessageScreenState createState() => _MessageScreenState();
 }

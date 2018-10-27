@@ -32,8 +32,7 @@ dependencies:
   validators: "^1.0.0"
   url_launcher: "^3.0.3"
   package_info: "^0.3.2"
-
-
+  intro_views_flutter: "^2.3.0"
 
 dev_dependencies:
   flutter_test:
@@ -59,10 +58,14 @@ flutter:
         - asset: fonts/icomoon.ttf
 
   assets:
-    - assets/books.json
     - assets/img/logo.png
     - assets/img/icon launcher.png
-
+    - assets/img/addBook.png
+    - assets/img/buying.png
+    - assets/img/menu.png
+    - assets/img/search.png
+    - assets/img/selling.png
+    - assets/img/addBook2.png
   # To add assets to your application, add an assets section, like this:
   # assets:
   #  - images/a_dot_burr.jpeg

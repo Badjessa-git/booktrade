@@ -1,14 +1,6 @@
 import 'package:meta/meta.dart';
 
 class User implements Comparable<User>{
-    final String displayName;
-    final String email;
-    final String school;
-    final String photoUrl;
-    final String uid;
-    final List<String> deviceToken;
-    bool notify;
-
     User({
       @required this.displayName,
       @required this.email,
@@ -18,6 +10,14 @@ class User implements Comparable<User>{
       @required this.deviceToken,
       @required this.notify,
     });
+
+    final String displayName;
+    final String email;
+    final String school;
+    final String photoUrl;
+    final String uid;
+    final List<String> deviceToken;
+    bool notify;
 
   void addToken(String token) {
     deviceToken.add(token);

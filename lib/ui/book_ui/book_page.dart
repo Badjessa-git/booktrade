@@ -6,13 +6,13 @@ import 'package:booktrade/ui/book_ui/header/book_header.dart';
 import 'package:flutter/material.dart';
 
 class BookDetails extends StatefulWidget {
+  const BookDetails(this.book, this.bookTag, this._api, this.wishlist,
+    {this.cameras});
   final Book book;
   final Object bookTag;
   final TradeApi _api;
   final dynamic cameras;
   final bool wishlist;
-  const BookDetails(this.book, this.bookTag, this._api, this.wishlist,
-      {this.cameras});
 
   @override
   _BookDetailsState createState() => _BookDetailsState();

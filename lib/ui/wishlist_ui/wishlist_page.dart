@@ -11,9 +11,9 @@ import 'package:booktrade/utils/routes.dart';
 import 'package:flutter/material.dart';
 
 class WishList extends StatefulWidget {
+  const WishList(this.user, this._api);
   final User user;
   final TradeApi _api;
-  const WishList(this.user, this._api);
 
   @override
   _WishListState createState() => _WishListState();

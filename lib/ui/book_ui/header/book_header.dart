@@ -10,13 +10,13 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class BookDetailHeader extends StatefulWidget {
+  const BookDetailHeader(this.book, this.bookTag, this._api, this.wishlist,
+      {this.cameras});
   final Book book;
   final Object bookTag;
   final TradeApi _api;
   final dynamic cameras;
   final bool wishlist;
-  const BookDetailHeader(this.book, this.bookTag, this._api, this.wishlist,
-      {this.cameras});
 
   @override
   _BookDetailHeaderScreen createState() => new _BookDetailHeaderScreen();

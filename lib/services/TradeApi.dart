@@ -16,13 +16,13 @@ import 'package:http/http.dart' as http;
 import 'package:booktrade/models/constants.dart';
 
 class TradeApi {
+  TradeApi(this.firebaseUser);
   static final FirebaseAuth _auth = FirebaseAuth.instance;
   static final GoogleSignIn _googleSignin = new GoogleSignIn();
   final FirebaseMessaging firebaseMessaging = new FirebaseMessaging();
   static int id = 0;
   String displayName;
   FirebaseUser firebaseUser;
-  TradeApi(this.firebaseUser);
 
   CollectionReference chatRoomsRef = Firestore.instance.collection('chatrooms');
   static Future<TradeApi> signInWithGoogle() async {

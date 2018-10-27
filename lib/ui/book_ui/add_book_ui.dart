@@ -6,10 +6,11 @@ import 'package:flutter/material.dart';
 import 'package:booktrade/models/book.dart';
 
 class AddBook extends StatefulWidget {
+  const AddBook(this.curbook,  this.cameras, this._api);
+
   final Book curbook;
   final dynamic cameras;
   final TradeApi _api;
-  const AddBook(this.curbook,  this.cameras, this._api);
 
   @override
   _AddBook createState() => new _AddBook();

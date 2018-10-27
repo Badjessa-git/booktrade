@@ -3,7 +3,6 @@ import 'dart:io';
 import 'package:booktrade/models/book.dart';
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/ui/chat_ui/message_ui.dart';
-import 'package:booktrade/ui/nav_ui/navigation.dart';
 import 'package:booktrade/ui/settings_ui/settings_app.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/gestures.dart';
@@ -13,9 +12,9 @@ import 'package:modal_progress_hud/modal_progress_hud.dart';
 import 'package:booktrade/models/constants.dart';
 import 'package:flutter/cupertino.dart';
 
-class Home extends StatefulWidget {
-  final dynamic cameras;
+class Home extends StatefulWidget {  
   const Home(this.cameras);
+  final dynamic cameras;
 
   @override
   _HomeState createState() => new _HomeState();
@@ -310,12 +309,7 @@ class _HomeState extends State<Home> with WidgetsBindingObserver {
 
   void _nextNaviagtion(TradeApi api) {
     cApi = api;
-    Navigator.push<MaterialPageRoute<dynamic>>(
-      context,
-      MaterialPageRoute<MaterialPageRoute<dynamic>>(
-          settings: const RouteSettings(name: '/Navigation'),
-          builder: (BuildContext context) => Navigation(api, widget.cameras)),
-    );
+    Navigator.pushNamed(context, '/Intro');
   }
 
   String _findSchoolName(TradeApi api) {

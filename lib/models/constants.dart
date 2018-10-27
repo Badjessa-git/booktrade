@@ -3,6 +3,7 @@ import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
 import 'package:booktrade/ui/home.dart';
 import 'package:booktrade/ui/nav_ui/navigation.dart';
+import 'package:booktrade/ui/user_intro/intro.dart';
 import 'package:booktrade/ui/wishlist_ui/wishlist_page.dart';
 import 'package:camera/camera.dart';
 import 'package:firebase_admob/firebase_admob.dart';
@@ -70,4 +71,5 @@ dynamic routes = <String, WidgetBuilder> {
         '/home' : (BuildContext context) => new Home(cCameras),
         '/Navigation' : (BuildContext context) => new Navigation(cApi, cCameras),
         '/Wishlist' : (BuildContext context) => new WishList(cUser, cApi),
+        '/Intro' : (BuildContext context) => new Welcome(),
   };

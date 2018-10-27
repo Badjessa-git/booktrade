@@ -5,10 +5,10 @@ import 'package:booktrade/ui/book_ui/footer/seller_info.dart';
 import 'package:flutter/material.dart';
 
 class BookDetailBody extends StatefulWidget {
+  const BookDetailBody(this.book, this._api);
 
   final Book book;
   final TradeApi _api;
-  const BookDetailBody(this.book, this._api);
 
   @override
   _BookDetailBodyState createState() => _BookDetailBodyState();

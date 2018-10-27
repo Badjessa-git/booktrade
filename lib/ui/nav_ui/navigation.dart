@@ -4,7 +4,6 @@ import 'package:booktrade/ui/nav_ui/book_list_found.dart';
 import 'package:booktrade/ui/nav_ui/book_sel_list.dart';
 import 'package:booktrade/ui/settings_ui/settings_app.dart';
 import 'package:booktrade/ui/wishlist_ui/wishlist_page.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:booktrade/ui/flutter-search-bar/flutter_search_bar_base.dart';
 import 'package:booktrade/ui/book_ui/add_book_ui.dart';
 import 'package:flutter/material.dart';
@@ -14,10 +13,11 @@ import 'package:booktrade/ui/nav_ui/book_list.dart';
 import 'package:booktrade/models/constants.dart';
 
 class Navigation extends StatefulWidget {
+ const Navigation(this._api, this.cameras);
+
   final TradeApi _api;
   final dynamic cameras;
 
-  const Navigation(this._api, this.cameras);
 
   @override
   _NavigationState createState() => new _NavigationState();
@@ -25,20 +25,7 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation>
     with SingleTickerProviderStateMixin {
-  int _isbn;
-  User _user;
-  SearchBar searchBar;
-  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  TextEditingController controller = new TextEditingController();
-  TabController _controller;
-  List<Tab> _tabList;
-  List<Widget> _tabPages;
-  List<Book> _searchBooks = <Book>[];
-  List<BookListFound> _bookFound = <BookListFound>[];
-  String _search;
-  bool isSeaching = false;
-
-  _NavigationState() {
+        _NavigationState() {
     searchBar = new SearchBar(
       controller: controller,
       inBar: false,
@@ -52,6 +39,18 @@ class _NavigationState extends State<Navigation>
       onClosed: onClosed,
     );
   }
+  int _isbn;
+  User _user;
+  SearchBar searchBar;
+  final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
+  TextEditingController controller = new TextEditingController();
+  TabController _controller;
+  List<Tab> _tabList;
+  List<Widget> _tabPages;
+  List<Book> _searchBooks = <Book>[];
+  List<BookListFound> _bookFound = <BookListFound>[];
+  String _search;
+  bool isSeaching = false;
 
   void onSubmit(String value) {
     setState(() {

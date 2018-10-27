@@ -3,9 +3,8 @@ import 'package:booktrade/utils/tools.dart';
 import 'package:flutter/material.dart';
 
 class BookInfo extends StatelessWidget{
+  const BookInfo(this.bookInfo); 
   final Book bookInfo;
-
-  const BookInfo(this.bookInfo);
 
   @override
   Widget build(BuildContext context) {

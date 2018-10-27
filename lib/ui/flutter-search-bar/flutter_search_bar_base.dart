@@ -12,6 +12,51 @@ typedef void TextFieldChangeCallback(String value);
 typedef void SetStateCallback(void fn());
 
 class SearchBar {
+
+    SearchBar({
+    @required this.setState,
+    @required this.buildDefaultAppBar,
+    this.onSubmitted,
+    this.controller,
+    this.hintText = 'Search',
+    this.inBar = true,
+    this.colorBackButton = true,
+    this.closeOnSubmit = true,
+    this.clearOnSubmit = true,
+    this.showClearButton = true,
+    this.onChanged,
+    this.onClosed
+  }) {
+      controller ??= new TextEditingController();
+    
+
+    // Don't waste resources on listeners for the text controller if the dev
+    // doesn't want a clear button anyways in the search bar
+    if (!showClearButton) {
+      return;
+    }
+
+     controller.addListener(() {
+      if (controller.text.isEmpty) {
+        // If clear is already disabled, don't disable it
+        if (_clearActive) {
+          setState(() {
+            _clearActive = false;
+          });
+        }
+
+        return;
+      }
+
+      // If clear is already enabled, don't enable it
+      if (!_clearActive) {
+        setState(() {
+          _clearActive = true;
+        });
+      }
+    });
+  }
+  
   /// Whether the search should take place "in the existing search bar", meaning whether it has the same background or a flipped one. Defaults to true.
   final bool inBar;
 
@@ -57,49 +102,7 @@ class SearchBar {
   /// The last built default AppBar used for colors and such.
   AppBar _defaultAppBar;
 
-  SearchBar({
-    @required this.setState,
-    @required this.buildDefaultAppBar,
-    this.onSubmitted,
-    this.controller,
-    this.hintText = 'Search',
-    this.inBar = true,
-    this.colorBackButton = true,
-    this.closeOnSubmit = true,
-    this.clearOnSubmit = true,
-    this.showClearButton = true,
-    this.onChanged,
-    this.onClosed
-  }) {
-      controller ??= new TextEditingController();
-    
 
-    // Don't waste resources on listeners for the text controller if the dev
-    // doesn't want a clear button anyways in the search bar
-    if (!showClearButton) {
-      return;
-    }
-
-     controller.addListener(() {
-      if (controller.text.isEmpty) {
-        // If clear is already disabled, don't disable it
-        if (_clearActive) {
-          setState(() {
-            _clearActive = false;
-          });
-        }
-
-        return;
-      }
-
-      // If clear is already enabled, don't enable it
-      if (!_clearActive) {
-        setState(() {
-          _clearActive = true;
-        });
-      }
-    });
-  }
 
   /// Initializes the search bar.
   ///

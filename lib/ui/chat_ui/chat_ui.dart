@@ -7,8 +7,9 @@ import 'package:firebase_admob/firebase_admob.dart';
 import 'package:flutter/material.dart';
 
 class ChatScreen extends StatefulWidget {
-  final TradeApi _api;
   const ChatScreen(this._api);
+
+  final TradeApi _api;
 
   @override
   _ChatScreenState createState() => new _ChatScreenState();

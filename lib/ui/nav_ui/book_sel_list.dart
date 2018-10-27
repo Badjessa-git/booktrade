@@ -8,10 +8,10 @@ import 'package:booktrade/utils/tools.dart';
 import 'package:flutter/material.dart';
 
 class SellList extends StatefulWidget {
+  const SellList(this._api, this.cameras);
 
   final TradeApi _api;
   final dynamic cameras;
-  const SellList(this._api, this.cameras);
 
   @override
   _SellListState createState() => new _SellListState();

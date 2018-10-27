@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/services/TradeApi.dart';
+import 'package:booktrade/ui/home.dart';
 import 'package:booktrade/ui/nav_ui/navigation.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
-import 'package:booktrade/ui/home.dart';
 import 'package:flutter/services.dart';
 
 List<CameraDescription> cameras;
@@ -20,8 +20,8 @@ Future<dynamic> main() async {
 }
 
 class BookTrade extends StatefulWidget {
-  final TradeApi _api;
   const BookTrade(this._api);
+  final TradeApi _api;
 
   @override
   _BookTradeState createState() => new _BookTradeState();

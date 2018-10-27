@@ -10,12 +10,11 @@ import 'package:booktrade/models/constants.dart';
 import 'package:path_provider/path_provider.dart';
 
 class FinBook extends StatefulWidget {
+  const FinBook(this._cameras, this.curBook, this._api);
+
   final List<CameraDescription> _cameras;
   final Book curBook;
   final TradeApi _api;
-
-  const FinBook(this._cameras, this.curBook, this._api);
-
   @override
   _FinBookState createState() => new _FinBookState();
 }
@@ -251,11 +250,10 @@ class _FinBookState extends State<FinBook> {
 }
 
 class SavePictureDialog extends StatelessWidget {
+  SavePictureDialog(this._imagePath, this.curBook, this._api);
   final String _imagePath;
   final Book curBook;
   final TradeApi _api;
-
-  SavePictureDialog(this._imagePath, this.curBook, this._api);
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
   @override

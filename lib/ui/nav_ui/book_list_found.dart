@@ -6,11 +6,11 @@ import 'package:booktrade/models/book.dart';
 import 'package:booktrade/services/TradeApi.dart';
 
 class BookListFound extends StatelessWidget {
+  const BookListFound(this._api, this.cameras, this._book);
+
   final TradeApi _api;
   final dynamic cameras;
   final Book _book;
-
-  const BookListFound(this._api, this.cameras, this._book);
 
   @override
   Widget build(BuildContext context) {

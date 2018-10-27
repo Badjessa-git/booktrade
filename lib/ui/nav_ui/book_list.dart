@@ -9,9 +9,11 @@ import 'package:booktrade/models/constants.dart';
 import 'package:booktrade/services/TradeApi.dart';
 
 class BookList extends StatefulWidget {
+  const BookList(this._api, this.cameras);
+
   final TradeApi _api;
   final dynamic cameras;
-  const BookList(this._api, this.cameras);
+  
   @override
   _BookListState createState() => new _BookListState();
 }

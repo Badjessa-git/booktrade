@@ -1,4 +1,6 @@
 class Message {
+   Message(this.receiverUID, {this.imageUrl, this.name, this.message, this.time, this.userPic});
+
   final String name;
   final String message;
   final String time;
@@ -6,5 +8,4 @@ class Message {
   final String imageUrl;
   final String receiverUID;
 
-  Message(this.receiverUID, {this.imageUrl, this.name, this.message, this.time, this.userPic});
 }

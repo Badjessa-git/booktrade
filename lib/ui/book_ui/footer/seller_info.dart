@@ -4,9 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:booktrade/services/TradeApi.dart';
 
 class SellerInfo extends StatefulWidget{
+  const SellerInfo(this.book, this._api);
+
   final Book book;
   final TradeApi _api;
-  const SellerInfo(this.book, this._api);
 
   @override
   _SellerInfoState createState() => new _SellerInfoState();

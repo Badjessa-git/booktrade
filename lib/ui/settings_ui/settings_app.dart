@@ -1,15 +1,15 @@
 import 'package:booktrade/models/user.dart';
 import 'package:booktrade/services/TradeApi.dart';
-import 'package:firebase_admob/firebase_admob.dart';
 import 'package:booktrade/models/constants.dart';
 import 'package:flutter/material.dart';
 import 'package:package_info/package_info.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 class Settings extends StatefulWidget {
+  const Settings(this._user, this._api);
+
   final User _user;
   final TradeApi _api;
-  const Settings(this._user, this._api);
 
   @override
   _SettingsState createState() => new _SettingsState();
@@ -32,7 +32,6 @@ class _SettingsState extends State<Settings> {
   bool _isTerms;
 
   final GlobalKey<ScaffoldState> _scaffoldKey = new GlobalKey<ScaffoldState>();
-  BannerAd bannerAd;
   @override
   Widget build(BuildContext context) {
     return new Scaffold(
@@ -114,8 +113,7 @@ class _SettingsState extends State<Settings> {
               child: const Text('Sign out of BookTrade'),
               onPressed: () async {
                 if (isAdShown && !calledDisposed) {
-                  bannerAd = banner;
-                  await bannerAd?.dispose();
+                  await banner.dispose();
                   isAdShown = false;
                   calledDisposed = true;
                 }
@@ -151,8 +149,9 @@ class _SettingsState extends State<Settings> {
 }
 
 class ShowPolicy extends StatelessWidget {
-  final bool _isTerms;
   const ShowPolicy(this._isTerms);
+
+  final bool _isTerms;
 
   Text titleOrSousTitle(String title, bool isTitle) {
     return isTitle
