@@ -56,7 +56,7 @@ packages:
       name: cloud_firestore
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.7.4"
+    version: "0.8.2+1"
   collection:
     dependency: transitive
     description:
@@ -114,21 +114,21 @@ packages:
       name: firebase_auth
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.5.15"
+    version: "0.6.2+1"
   firebase_core:
     dependency: "direct main"
     description:
       name: firebase_core
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.2.4"
+    version: "0.2.5+1"
   firebase_messaging:
     dependency: "direct main"
     description:
       name: firebase_messaging
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "1.0.5"
+    version: "2.0.2"
   firebase_storage:
     dependency: "direct main"
     description:
@@ -180,7 +180,7 @@ packages:
       name: google_sign_in
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "3.2.1"
+    version: "3.2.2"
   html:
     dependency: transitive
     description:
@@ -292,7 +292,7 @@ packages:
       name: modal_progress_hud
       url: "https://pub.dartlang.org"
     source: hosted
-    version: "0.1.1"
+    version: "0.1.2"
   multi_server_socket:
     dependency: transitive
     description:
@@ -544,5 +544,5 @@ packages:
     source: hosted
     version: "2.1.15"
 sdks:
-  dart: ">=2.0.0 <=2.1.0-dev.7.1.flutter-b99bcfd309"
+  dart: ">=2.0.0 <=2.1.0-dev.8.0.flutter-bf26f760b1"
   flutter: ">=0.2.4 <2.0.0"
