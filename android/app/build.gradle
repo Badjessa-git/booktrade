@@ -45,8 +45,8 @@ android {
         applicationId "com.booktrade.booktrade"
         minSdkVersion 21
         targetSdkVersion 27
-        versionCode flutterVersionCode.toInteger()
-        versionName flutterVersionName
+        versionCode 3
+        versionName "1.1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     

@@ -65,6 +65,12 @@
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/cloud_firestore/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/cloud_firestore/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/cloud_firestore/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_admob/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_admob/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_admob/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_admob/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_admob/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_admob/example/build" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_auth 2/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_auth 2/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/firebase_auth 2/build" />
@@ -197,6 +203,12 @@
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/image_picker/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/image_picker/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/image_picker/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/package_info/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/package_info/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/package_info/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/package_info/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/package_info/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/package_info/example/build" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/path_provider 2/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/path_provider 2/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/path_provider 2/build" />
@@ -221,6 +233,12 @@
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/path_provider/example/.dart_tool" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/path_provider/example/.pub" />
       <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/path_provider/example/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/url_launcher/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/url_launcher/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/url_launcher/build" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/url_launcher/example/.dart_tool" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/url_launcher/example/.pub" />
+      <excludeFolder url="file://$MODULE_DIR$/ios/.symlinks/plugins/url_launcher/example/build" />
     </content>
     <orderEntry type="jdk" jdkName="Android API 28 Platform" jdkType="Android SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
